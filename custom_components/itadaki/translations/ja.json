@@ -1,0 +1,371 @@
+{
+  "config": {
+    "abort": {
+      "single_instance_allowed": "Itadakiはすでに設定されています。"
+    }
+  },
+  "services": {
+    "list_recipes": {
+      "name": "レシピ一覧",
+      "description": "レシピの概要（ID、言語、タイトル、親、関係）を新しい順に返します。全内容は get_recipe で取得します。",
+      "fields": {
+        "language": {
+          "name": "言語",
+          "description": "この言語コードのレシピのみ（例：en、ja）。"
+        },
+        "query": {
+          "name": "検索語",
+          "description": "タイトルにこの文字列を含むレシピのみ。"
+        },
+        "prefer_language": {
+          "name": "優先言語",
+          "description": "料理ごとに1件だけ表示し、翻訳があればこの言語のものを使います。"
+        }
+      }
+    },
+    "get_recipe": {
+      "name": "レシピを取得",
+      "description": "レシピの全内容、表示用の材料行、親レシピ、翻訳が古くなっているか、他言語の翻訳、アレンジを返します。",
+      "fields": {
+        "recipe_id": {
+          "name": "レシピID",
+          "description": "レシピのID（list_recipes で取得）。"
+        },
+        "servings": {
+          "name": "人数",
+          "description": "材料の分量をこの人数分に換算します。"
+        }
+      }
+    },
+    "create_recipe": {
+      "name": "レシピを作成",
+      "description": "レシピを作成します。項目：language（必須）、title（必須）、description、servings、prep_minutes、cook_minutes、total_minutes、ingredients、steps [{text, section}]、notes、tags、image_url、source_url。材料行は {ingredient_id（必須、材料リストから）、quantity、unit_id（単位リストから）、note、section} です。未登録の材料は先に upsert_ingredient で作成してください。",
+      "fields": {
+        "recipe": {
+          "name": "レシピ",
+          "description": "レシピの各項目。"
+        },
+        "parent_id": {
+          "name": "親ID",
+          "description": "指定したレシピの子として作成します。relation が必要です。"
+        },
+        "relation": {
+          "name": "関係",
+          "description": "translation（同じ料理の別言語）または variant（アレンジした料理）。"
+        }
+      }
+    },
+    "update_recipe": {
+      "name": "レシピを更新",
+      "description": "指定した項目だけを変更します。リストは丸ごと置き換えます。編集するたびに、このレシピの翻訳は古い扱いになります。",
+      "fields": {
+        "recipe_id": {
+          "name": "レシピID",
+          "description": "レシピのID（list_recipes で取得）。"
+        },
+        "changes": {
+          "name": "変更内容",
+          "description": "変更する項目。名前は create_recipe と同じです。"
+        }
+      }
+    },
+    "delete_recipe": {
+      "name": "レシピを削除",
+      "description": "レシピを削除します。翻訳やアレンジがある場合は、cascade をオンにしない限り削除できません。",
+      "fields": {
+        "recipe_id": {
+          "name": "レシピID",
+          "description": "レシピのID（list_recipes で取得）。"
+        },
+        "cascade": {
+          "name": "まとめて削除",
+          "description": "翻訳とアレンジもすべて削除します。"
+        }
+      }
+    },
+    "mark_translation_synced": {
+      "name": "翻訳を最新として扱う",
+      "description": "再翻訳せずに、翻訳の「古い」状態を解除します。",
+      "fields": {
+        "recipe_id": {
+          "name": "レシピID",
+          "description": "レシピのID（list_recipes で取得）。"
+        }
+      }
+    },
+    "get_settings": {
+      "name": "設定を取得",
+      "description": "ライブラリの設定：languages は、すべての材料と単位に名前を付け、レシピの翻訳先となる言語です。"
+    },
+    "update_settings": {
+      "name": "設定を更新",
+      "description": "指定した設定だけを変更します。言語を外しても、その言語で書かれた名前は残ります。",
+      "fields": {
+        "languages": {
+          "name": "言語",
+          "description": "言語コード（例：en、ja）。1つ以上。"
+        }
+      }
+    },
+    "upload_image": {
+      "name": "画像をアップロード",
+      "description": "写真（JPEG・PNG・WebP・GIF、8 MBまで）を保存し、その image_url を返します。update_recipe でレシピに設定します。どのレシピにも使われていない写真は1日後に削除されます。",
+      "fields": {
+        "data": {
+          "name": "画像データ",
+          "description": "ファイルの内容（Base64）。"
+        }
+      }
+    },
+    "get_ai_settings": {
+      "name": "AI設定を取得",
+      "description": "AIプロバイダーの設定（APIキーを除く）：enabled（AI操作が使えるか）、base_url、model、操作ごとのmodels、structured_output、extra_body、api_key_set。"
+    },
+    "update_ai_settings": {
+      "name": "AI設定を更新",
+      "description": "管理者のみ。指定した設定だけを変更します。api_keyが空なら現在のキーを維持し、base_urlかmodelが空ならAIはオフになります。",
+      "fields": {
+        "base_url": {
+          "name": "API URL",
+          "description": "OpenAI互換のAPI。Cloudflare Workers AIの場合：https://api.cloudflare.com/client/v4/accounts/<account id>/ai/v1。"
+        },
+        "api_key": {
+          "name": "APIキー",
+          "description": "保存後は二度と表示されません。"
+        },
+        "model": {
+          "name": "モデル",
+          "description": "個別のモデルがないAI操作すべてに使います。"
+        },
+        "models": {
+          "name": "操作ごとのモデル",
+          "description": "{extract, structure, translate, adapt}：その操作だけに使うモデル。"
+        },
+        "structured_output": {
+          "name": "JSONの強制",
+          "description": "プロバイダーの対応に応じて schema（厳密）、json（JSONモード）、off（プロンプトのみ）。"
+        },
+        "extra_body": {
+          "name": "追加のリクエスト項目",
+          "description": "すべてのリクエストに送ります。Workers AIのGemmaの場合：{\"chat_template_kwargs\": {\"enable_thinking\": false}}。"
+        }
+      }
+    },
+    "list_ingredients": {
+      "name": "材料一覧",
+      "description": "すべての材料を、言語ごとの名前・複数形・別名と密度付きで返します。",
+      "fields": {}
+    },
+    "upsert_ingredient": {
+      "name": "材料を作成・更新",
+      "description": "id なしの場合は新規作成します。id ありの場合は更新します：localized は言語ごとにマージされ（{言語: {name, plural, aliases}}、null でその言語を削除）、他の項目は置き換えます。1つの言葉は、言語ごとに1つの材料にしか使えません。",
+      "fields": {
+        "ingredient": {
+          "name": "材料",
+          "description": "{id?, localized, density（g/ml）}。"
+        }
+      }
+    },
+    "delete_ingredient": {
+      "name": "材料を削除",
+      "description": "いずれかのレシピで使われている間は削除できません。",
+      "fields": {
+        "ingredient_id": {
+          "name": "材料ID",
+          "description": "list_ingredients で取得したID。"
+        }
+      }
+    },
+    "list_units": {
+      "name": "単位一覧",
+      "description": "すべての単位を、言語ごとの名前・複数形・別名、計るもの、基本単位（g、ml、個）での大きさ、単位系付きで返します。",
+      "fields": {}
+    },
+    "upsert_unit": {
+      "name": "単位を作成・更新",
+      "description": "ルールは upsert_ingredient と同じです。項目：id、localized、dimension（mass、volume、count、other）、factor、systems（metric、us、imperial、japanese）。",
+      "fields": {
+        "unit": {
+          "name": "単位",
+          "description": "単位の各項目。"
+        }
+      }
+    },
+    "delete_unit": {
+      "name": "単位を削除",
+      "description": "いずれかのレシピで使われている間は削除できません。",
+      "fields": {
+        "unit_id": {
+          "name": "単位ID",
+          "description": "list_units で取得したID。"
+        }
+      }
+    },
+    "merge_ingredient": {
+      "name": "材料を統合",
+      "description": "重複した材料を別の材料にまとめます。すべてのレシピと受信箱の下書きが統合先に切り替わり、重複側の名前は統合先の別名になり、重複側は削除されます。",
+      "fields": {
+        "source_id": {
+          "name": "重複側のID",
+          "description": "削除する材料（list_ingredients から）。"
+        },
+        "target_id": {
+          "name": "統合先のID",
+          "description": "残す材料（list_ingredients から）。"
+        }
+      }
+    },
+    "merge_unit": {
+      "name": "単位を統合",
+      "description": "merge_ingredient の単位版です。分量は換算されません。",
+      "fields": {
+        "source_id": {
+          "name": "重複側のID",
+          "description": "削除する単位（list_units から）。"
+        },
+        "target_id": {
+          "name": "統合先のID",
+          "description": "残す単位（list_units から）。"
+        }
+      }
+    },
+    "catalog_usage": {
+      "name": "材料・単位の使用状況",
+      "description": "各材料・単位を使っているレシピ：{ingredients: {id: [レシピ概要]}, units: {...}}。未使用の項目は含まれません。"
+    },
+    "import_url": {
+      "name": "URLからレシピを取り込む",
+      "description": "Webページからレシピを取り込みます。ページにレシピデータが埋め込まれていれば下書きはすぐに読め、AIは材料行の整理だけを行います。そうでなければAIがレシピ全体を抽出します。バックグラウンドで実行され、すぐに draft_id を返します。status が ready（または failed）になるまで get_draft で確認し、内容を確認して save_draft で保存します。save をオンにすると、完了時に自動で保存されます。",
+      "fields": {
+        "url": {
+          "name": "URL",
+          "description": "レシピのページ。"
+        },
+        "note": {
+          "name": "メモ",
+          "description": "AIによる整理・抽出への追加指示（任意）。例：メートル法に変換。"
+        },
+        "save": {
+          "name": "保存",
+          "description": "結果をそのまま保存します。オフの場合は未保存の下書きを返すので、確認してから save_draft に渡します。"
+        }
+      }
+    },
+    "structure_lines": {
+      "name": "材料行を整理",
+      "description": "自由形式の材料行を、材料リストと単位リストに紐づいた構造化された行に変換します。未登録の材料は新規として提案します。",
+      "fields": {
+        "lines": {
+          "name": "行",
+          "description": "文字列のリスト、または {text, section} のリスト。"
+        },
+        "language": {
+          "name": "言語",
+          "description": "行の言語コード。"
+        },
+        "note": {
+          "name": "メモ",
+          "description": "AIへの追加指示（任意）。例：メートル法に変換、デザートは除く。"
+        }
+      }
+    },
+    "translate": {
+      "name": "レシピを翻訳",
+      "description": "レシピを別の言語に翻訳し、翻訳の子レシピにします。既に翻訳があれば更新し、変更された文だけを送ります。バックグラウンドで実行され、すぐに draft_id を返します。status が ready（または failed）になるまで get_draft で確認し、内容を確認して save_draft で保存します。save をオンにすると、完了時に自動で保存されます。",
+      "fields": {
+        "recipe_id": {
+          "name": "レシピID",
+          "description": "レシピのID（list_recipes で取得）。"
+        },
+        "language": {
+          "name": "言語",
+          "description": "翻訳先の言語コード。"
+        },
+        "note": {
+          "name": "メモ",
+          "description": "AIへの追加指示（任意）。例：メートル法に変換、デザートは除く。"
+        },
+        "save": {
+          "name": "保存",
+          "description": "結果をそのまま保存します。オフの場合は未保存の下書きを返すので、確認してから save_draft に渡します。"
+        }
+      }
+    },
+    "adapt": {
+      "name": "レシピをアレンジ",
+      "description": "指示に従ってレシピを書き換えます（例：ベジタリアン向けに、手順を簡単に）。バックグラウンドで実行され、すぐに draft_id を返します。status が ready（または failed）になるまで get_draft で確認し、内容を確認して save_draft で保存します。save をオンにすると、完了時に自動で保存されます。",
+      "fields": {
+        "recipe_id": {
+          "name": "レシピID",
+          "description": "レシピのID（list_recipes で取得）。"
+        },
+        "instruction": {
+          "name": "指示",
+          "description": "変更したい内容。"
+        },
+        "as_variant": {
+          "name": "新しいアレンジとして",
+          "description": "元のレシピを編集せず、アレンジの子レシピとして保存します。"
+        },
+        "save": {
+          "name": "保存",
+          "description": "結果をそのまま保存します。オフの場合は未保存の下書きを返すので、確認してから save_draft に渡します。"
+        }
+      }
+    },
+    "save_draft": {
+      "name": "下書きを保存",
+      "description": "確認待ちの下書きを、新しい材料や材料・単位の名前も含めて保存し、受信箱から削除します。",
+      "fields": {
+        "draft_id": {
+          "name": "下書きID",
+          "description": "import_url、translate、adapt が返したID、または list_drafts で取得したID。"
+        },
+        "draft": {
+          "name": "編集済みの下書き",
+          "description": "任意：確認画面で編集した下書きの内容。省略すると保存されている下書きをそのまま保存します。"
+        }
+      }
+    },
+    "list_drafts": {
+      "name": "下書き一覧",
+      "description": "下書きの受信箱：処理中のAI作業（working）、確認待ちの結果（ready）、失敗（failed）。依頼内容と元のレシピ付きで、本文は含みません。",
+      "fields": {
+        "recipe_id": {
+          "name": "レシピID",
+          "description": "このレシピから始めた下書きのみ。"
+        }
+      }
+    },
+    "get_draft": {
+      "name": "下書きを取得",
+      "description": "下書きの状態、エラー、内容を返します：未保存のレシピ、提案された新しい材料、整理中の材料行、整理済みの行の表示用テキスト。",
+      "fields": {
+        "draft_id": {
+          "name": "下書きID",
+          "description": "import_url、translate、adapt が返したID、または list_drafts で取得したID。"
+        }
+      }
+    },
+    "discard_draft": {
+      "name": "下書きを破棄",
+      "description": "下書きを保存せずに受信箱から削除します。",
+      "fields": {
+        "draft_id": {
+          "name": "下書きID",
+          "description": "import_url、translate、adapt が返したID、または list_drafts で取得したID。"
+        }
+      }
+    },
+    "apply_draft": {
+      "name": "下書きを適用",
+      "description": "受信箱を通さずに下書きオブジェクトを直接保存します：レシピと、それに必要な新しい材料や名前。updates_id があればそのレシピの内容を置き換え、parent_id と relation があれば子レシピを作成し、どちらもなければ新しいレシピになります。材料・単位の変更は、適用前にすべて検証されます。",
+      "fields": {
+        "draft": {
+          "name": "下書き",
+          "description": "{recipe, updates_id?, parent_id?, relation?, new_ingredients?, added_names?}"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,371 @@
+{
+  "config": {
+    "abort": {
+      "single_instance_allowed": "Itadaki is already set up."
+    }
+  },
+  "services": {
+    "list_recipes": {
+      "name": "List recipes",
+      "description": "Short summaries (id, language, title, parent, relation), newest first. Use get_recipe for full content.",
+      "fields": {
+        "language": {
+          "name": "Language",
+          "description": "Only recipes in this language code, e.g. en, ja."
+        },
+        "query": {
+          "name": "Query",
+          "description": "Only recipes whose title contains this text."
+        },
+        "prefer_language": {
+          "name": "Prefer language",
+          "description": "Show each dish once, in this language when a translation exists."
+        }
+      }
+    },
+    "get_recipe": {
+      "name": "Get recipe",
+      "description": "Full recipe, its ingredient lines as display text, its parent, whether it is a stale translation, its translations in other languages and its variants.",
+      "fields": {
+        "recipe_id": {
+          "name": "Recipe ID",
+          "description": "ID of the recipe, from list_recipes."
+        },
+        "servings": {
+          "name": "Servings",
+          "description": "Scale ingredient quantities to this many servings."
+        }
+      }
+    },
+    "create_recipe": {
+      "name": "Create recipe",
+      "description": "Creates a recipe. Fields: language (required), title (required), description, servings, prep_minutes, cook_minutes, total_minutes, ingredients, steps [{text, section}], notes, tags, image_url, source_url. Each ingredient line is {ingredient_id (required, from the ingredient list), quantity, unit_id (from the unit list), note, section}. Create missing ingredients first with upsert_ingredient.",
+      "fields": {
+        "recipe": {
+          "name": "Recipe",
+          "description": "The recipe fields."
+        },
+        "parent_id": {
+          "name": "Parent ID",
+          "description": "Makes this a child of that recipe. Requires relation."
+        },
+        "relation": {
+          "name": "Relation",
+          "description": "translation (same dish, other language) or variant (changed dish)."
+        }
+      }
+    },
+    "update_recipe": {
+      "name": "Update recipe",
+      "description": "Changes only the given fields; lists are replaced whole. Every edit makes this recipe's translations stale.",
+      "fields": {
+        "recipe_id": {
+          "name": "Recipe ID",
+          "description": "ID of the recipe, from list_recipes."
+        },
+        "changes": {
+          "name": "Changes",
+          "description": "Fields to change, same names as in create_recipe."
+        }
+      }
+    },
+    "delete_recipe": {
+      "name": "Delete recipe",
+      "description": "Deletes a recipe. Refused if it has translations or variants unless cascade is on.",
+      "fields": {
+        "recipe_id": {
+          "name": "Recipe ID",
+          "description": "ID of the recipe, from list_recipes."
+        },
+        "cascade": {
+          "name": "Cascade",
+          "description": "Also delete all its translations and variants."
+        }
+      }
+    },
+    "mark_translation_synced": {
+      "name": "Mark translation up to date",
+      "description": "Clears the stale flag of a translation without re-translating it.",
+      "fields": {
+        "recipe_id": {
+          "name": "Recipe ID",
+          "description": "ID of the recipe, from list_recipes."
+        }
+      }
+    },
+    "get_settings": {
+      "name": "Get settings",
+      "description": "Library settings: languages, the languages every ingredient and unit is named in and recipes are translated into."
+    },
+    "update_settings": {
+      "name": "Update settings",
+      "description": "Changes only the given settings. Removing a language keeps the names already written in it.",
+      "fields": {
+        "languages": {
+          "name": "Languages",
+          "description": "Language codes, e.g. en, ja. At least one."
+        }
+      }
+    },
+    "upload_image": {
+      "name": "Upload image",
+      "description": "Stores a photo (JPEG, PNG, WebP or GIF, at most 8 MB) and returns its image_url, to set on a recipe with update_recipe. Photos no recipe uses are deleted a day later.",
+      "fields": {
+        "data": {
+          "name": "Image data",
+          "description": "The file's bytes, base64-encoded."
+        }
+      }
+    },
+    "get_ai_settings": {
+      "name": "Get AI settings",
+      "description": "The AI provider settings, without the API key: enabled (whether AI actions are available), base_url, model, models per action, structured_output, extra_body, api_key_set."
+    },
+    "update_ai_settings": {
+      "name": "Update AI settings",
+      "description": "Admins only. Changes only the given settings. An empty api_key keeps the current one; an empty base_url or model turns AI off.",
+      "fields": {
+        "base_url": {
+          "name": "API URL",
+          "description": "Any OpenAI-compatible API. For Cloudflare Workers AI: https://api.cloudflare.com/client/v4/accounts/<account id>/ai/v1."
+        },
+        "api_key": {
+          "name": "API key",
+          "description": "Never shown again once saved."
+        },
+        "model": {
+          "name": "Model",
+          "description": "Used for every AI action without its own model."
+        },
+        "models": {
+          "name": "Models per action",
+          "description": "{extract, structure, translate, adapt}: a model for that action only."
+        },
+        "structured_output": {
+          "name": "JSON enforcement",
+          "description": "schema (strict), json (JSON mode) or off (prompt only), depending on what the provider supports."
+        },
+        "extra_body": {
+          "name": "Extra request fields",
+          "description": "Sent with every request. For Gemma on Workers AI: {\"chat_template_kwargs\": {\"enable_thinking\": false}}."
+        }
+      }
+    },
+    "list_ingredients": {
+      "name": "List ingredients",
+      "description": "All ingredients with their names, plurals and aliases per language, and density.",
+      "fields": {}
+    },
+    "upsert_ingredient": {
+      "name": "Create or update ingredient",
+      "description": "Without id creates one. With id updates it: localized merges per language ({language: {name, plural, aliases}}, null removes a language), other fields are replaced. A word may mean only one ingredient per language.",
+      "fields": {
+        "ingredient": {
+          "name": "Ingredient",
+          "description": "{id?, localized, density (grams per ml)}."
+        }
+      }
+    },
+    "delete_ingredient": {
+      "name": "Delete ingredient",
+      "description": "Refused while any recipe uses it.",
+      "fields": {
+        "ingredient_id": {
+          "name": "Ingredient ID",
+          "description": "ID from list_ingredients."
+        }
+      }
+    },
+    "list_units": {
+      "name": "List units",
+      "description": "All units with names, plurals and aliases per language, dimension, size in base units (g, ml, items) and measurement systems.",
+      "fields": {}
+    },
+    "upsert_unit": {
+      "name": "Create or update unit",
+      "description": "Same rules as upsert_ingredient. Fields: id, localized, dimension (mass, volume, count, other), factor, systems (metric, us, imperial, japanese).",
+      "fields": {
+        "unit": {
+          "name": "Unit",
+          "description": "The unit fields."
+        }
+      }
+    },
+    "delete_unit": {
+      "name": "Delete unit",
+      "description": "Refused while any recipe uses it.",
+      "fields": {
+        "unit_id": {
+          "name": "Unit ID",
+          "description": "ID from list_units."
+        }
+      }
+    },
+    "merge_ingredient": {
+      "name": "Merge ingredients",
+      "description": "Folds a duplicate ingredient into another: every recipe and inbox draft switches to the target, the duplicate's names become the target's aliases, and the duplicate is deleted.",
+      "fields": {
+        "source_id": {
+          "name": "Duplicate ID",
+          "description": "The ingredient to remove, from list_ingredients."
+        },
+        "target_id": {
+          "name": "Target ID",
+          "description": "The ingredient to keep, from list_ingredients."
+        }
+      }
+    },
+    "merge_unit": {
+      "name": "Merge units",
+      "description": "Same as merge_ingredient, for units. Quantities are not converted.",
+      "fields": {
+        "source_id": {
+          "name": "Duplicate ID",
+          "description": "The unit to remove, from list_units."
+        },
+        "target_id": {
+          "name": "Target ID",
+          "description": "The unit to keep, from list_units."
+        }
+      }
+    },
+    "catalog_usage": {
+      "name": "Catalog usage",
+      "description": "Which recipes use each ingredient and unit: {ingredients: {id: [recipe summaries]}, units: {...}}. Unused entries are absent."
+    },
+    "import_url": {
+      "name": "Import recipe from URL",
+      "description": "Imports a recipe from a web page. If the page embeds recipe data the draft is readable immediately and only the ingredient lines are structured by the AI; otherwise the AI extracts the whole recipe. Runs in the background: returns a draft_id at once; poll get_draft until its status is ready (or failed), then review and save_draft. With save on, the result is saved automatically when done.",
+      "fields": {
+        "url": {
+          "name": "URL",
+          "description": "Page with the recipe."
+        },
+        "note": {
+          "name": "Note",
+          "description": "Optional instructions for the AI structuring or extraction step, e.g. convert to metric."
+        },
+        "save": {
+          "name": "Save",
+          "description": "Save the result directly. Off returns an unsaved draft to review and pass to save_draft."
+        }
+      }
+    },
+    "structure_lines": {
+      "name": "Structure ingredient lines",
+      "description": "Turns free-text ingredient lines into structured lines linked to the ingredient and unit lists, proposing new ingredients for unknown ones.",
+      "fields": {
+        "lines": {
+          "name": "Lines",
+          "description": "List of strings, or of {text, section}."
+        },
+        "language": {
+          "name": "Language",
+          "description": "Language code of the lines."
+        },
+        "note": {
+          "name": "Note",
+          "description": "Optional extra instructions for the AI, e.g. convert to metric, skip the dessert."
+        }
+      }
+    },
+    "translate": {
+      "name": "Translate recipe",
+      "description": "Translates a recipe into another language as a translation child. If one exists it is updated, sending only changed text. Runs in the background: returns a draft_id at once; poll get_draft until its status is ready (or failed), then review and save_draft. With save on, the result is saved automatically when done.",
+      "fields": {
+        "recipe_id": {
+          "name": "Recipe ID",
+          "description": "ID of the recipe, from list_recipes."
+        },
+        "language": {
+          "name": "Language",
+          "description": "Target language code."
+        },
+        "note": {
+          "name": "Note",
+          "description": "Optional extra instructions for the AI, e.g. convert to metric, skip the dessert."
+        },
+        "save": {
+          "name": "Save",
+          "description": "Save the result directly. Off returns an unsaved draft to review and pass to save_draft."
+        }
+      }
+    },
+    "adapt": {
+      "name": "Adapt recipe",
+      "description": "Rewrites a recipe following an instruction, e.g. make it vegetarian or simplify it. Runs in the background: returns a draft_id at once; poll get_draft until its status is ready (or failed), then review and save_draft. With save on, the result is saved automatically when done.",
+      "fields": {
+        "recipe_id": {
+          "name": "Recipe ID",
+          "description": "ID of the recipe, from list_recipes."
+        },
+        "instruction": {
+          "name": "Instruction",
+          "description": "What to change."
+        },
+        "as_variant": {
+          "name": "As new variant",
+          "description": "Save as a variant child instead of editing the recipe itself."
+        },
+        "save": {
+          "name": "Save",
+          "description": "Save the result directly. Off returns an unsaved draft to review and pass to save_draft."
+        }
+      }
+    },
+    "save_draft": {
+      "name": "Save draft",
+      "description": "Saves a ready draft, including its new ingredients and catalog names, and removes it from the inbox.",
+      "fields": {
+        "draft_id": {
+          "name": "Draft ID",
+          "description": "ID returned by import_url, translate or adapt, or from list_drafts."
+        },
+        "draft": {
+          "name": "Edited draft",
+          "description": "Optional: the draft content as edited in review; without it the stored draft is saved."
+        }
+      }
+    },
+    "list_drafts": {
+      "name": "List drafts",
+      "description": "The drafts inbox: AI work in progress (working), results waiting for review (ready) and failures (failed), each with what was asked and the recipe it started from, without their content.",
+      "fields": {
+        "recipe_id": {
+          "name": "Recipe ID",
+          "description": "Only drafts started from this recipe."
+        }
+      }
+    },
+    "get_draft": {
+      "name": "Get draft",
+      "description": "A draft with its status, error and content: the unsaved recipe, its proposed new ingredients, raw ingredient lines still being structured, and display text for the structured lines.",
+      "fields": {
+        "draft_id": {
+          "name": "Draft ID",
+          "description": "ID returned by import_url, translate or adapt, or from list_drafts."
+        }
+      }
+    },
+    "discard_draft": {
+      "name": "Discard draft",
+      "description": "Removes a draft from the inbox without saving it.",
+      "fields": {
+        "draft_id": {
+          "name": "Draft ID",
+          "description": "ID returned by import_url, translate or adapt, or from list_drafts."
+        }
+      }
+    },
+    "apply_draft": {
+      "name": "Apply draft",
+      "description": "Saves a draft object directly, without the inbox: a recipe plus the new ingredients and catalog names it needs. With updates_id it replaces that recipe's content; with parent_id and relation it creates a child; otherwise a new recipe. All catalog changes are checked before any is applied.",
+      "fields": {
+        "draft": {
+          "name": "Draft",
+          "description": "{recipe, updates_id?, parent_id?, relation?, new_ingredients?, added_names?}"
+        }
+      }
+    }
+  }
+}

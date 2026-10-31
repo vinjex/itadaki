@@ -1,0 +1,209 @@
+list_recipes:
+  fields:
+    language:
+      selector:
+        text:
+    query:
+      selector:
+        text:
+    prefer_language:
+      selector:
+        text:
+get_recipe:
+  fields:
+    recipe_id: &recipe_id
+      required: true
+      selector:
+        text:
+    servings:
+      selector:
+        number:
+          min: 0.5
+          step: 0.5
+          mode: box
+create_recipe:
+  fields:
+    recipe:
+      required: true
+      selector:
+        object:
+    parent_id:
+      selector:
+        text:
+    relation:
+      selector:
+        select:
+          options: [translation, variant]
+update_recipe:
+  fields:
+    recipe_id: *recipe_id
+    changes:
+      required: true
+      selector:
+        object:
+delete_recipe:
+  fields:
+    recipe_id: *recipe_id
+    cascade:
+      selector:
+        boolean:
+mark_translation_synced:
+  fields:
+    recipe_id: *recipe_id
+get_settings:
+update_settings:
+  fields:
+    languages:
+      selector:
+        text:
+          multiple: true
+upload_image:
+  fields:
+    data:
+      required: true
+      selector:
+        text:
+          multiline: true
+get_ai_settings:
+update_ai_settings:
+  fields:
+    base_url:
+      selector:
+        text:
+          type: url
+    api_key:
+      selector:
+        text:
+          type: password
+    model:
+      selector:
+        text:
+    models:
+      selector:
+        object:
+    structured_output:
+      selector:
+        select:
+          options: [schema, json, "off"]
+    extra_body:
+      selector:
+        object:
+list_ingredients:
+upsert_ingredient:
+  fields:
+    ingredient:
+      required: true
+      selector:
+        object:
+delete_ingredient:
+  fields:
+    ingredient_id:
+      required: true
+      selector:
+        text:
+list_units:
+upsert_unit:
+  fields:
+    unit:
+      required: true
+      selector:
+        object:
+delete_unit:
+  fields:
+    unit_id:
+      required: true
+      selector:
+        text:
+merge_ingredient:
+  fields:
+    source_id:
+      required: true
+      selector:
+        text:
+    target_id:
+      required: true
+      selector:
+        text:
+merge_unit:
+  fields:
+    source_id:
+      required: true
+      selector:
+        text:
+    target_id:
+      required: true
+      selector:
+        text:
+catalog_usage:
+import_url:
+  fields:
+    url:
+      required: true
+      selector:
+        text:
+          type: url
+    note: &note
+      selector:
+        text:
+          multiline: true
+    save: &save
+      selector:
+        boolean:
+structure_lines:
+  fields:
+    lines:
+      required: true
+      selector:
+        object:
+    language:
+      required: true
+      selector:
+        text:
+    note: *note
+translate:
+  fields:
+    recipe_id: *recipe_id
+    language:
+      required: true
+      selector:
+        text:
+    note: *note
+    save: *save
+adapt:
+  fields:
+    recipe_id: *recipe_id
+    instruction:
+      required: true
+      selector:
+        text:
+          multiline: true
+    as_variant:
+      selector:
+        boolean:
+    save: *save
+list_drafts:
+  fields:
+    recipe_id:
+      selector:
+        text:
+get_draft:
+  fields:
+    draft_id: &draft_id
+      required: true
+      selector:
+        text:
+save_draft:
+  fields:
+    draft_id: *draft_id
+    draft:
+      selector:
+        object:
+apply_draft:
+  fields:
+    draft:
+      required: true
+      selector:
+        object:
+discard_draft:
+  fields:
+    draft_id: *draft_id
