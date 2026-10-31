@@ -19,7 +19,7 @@ DEFAULTS: dict[str, Any] = {
     CONF_API_KEY: "",
     CONF_MODEL: "",
     CONF_MODELS: {},
-    CONF_STRUCTURED_OUTPUT: StructuredOutput.SCHEMA.value,
+    CONF_STRUCTURED_OUTPUT: StructuredOutput.JSON.value,
     CONF_EXTRA_BODY: {},
 }
 
@@ -77,6 +77,6 @@ def from_version_1(data: dict[str, Any], options: dict[str, Any]) -> dict[str, A
         **DEFAULTS,
         **{k: data[k] for k in (CONF_BASE_URL, CONF_API_KEY, CONF_MODEL) if k in data},
         CONF_MODELS: {a: options[f"model_{a}"] for a in AI_ACTIONS if options.get(f"model_{a}")},
-        CONF_STRUCTURED_OUTPUT: options.get(CONF_STRUCTURED_OUTPUT, StructuredOutput.SCHEMA.value),
+        CONF_STRUCTURED_OUTPUT: options.get(CONF_STRUCTURED_OUTPUT, DEFAULTS[CONF_STRUCTURED_OUTPUT]),
         CONF_EXTRA_BODY: json.loads(options.get(CONF_EXTRA_BODY) or "{}"),
     }

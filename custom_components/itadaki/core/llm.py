@@ -21,7 +21,8 @@ class AiError(ItadakiError):
 
 class StructuredOutput(StrEnum):
     # How the JSON shape is enforced. Providers differ: Workers AI supports schemas
-    # only on some models, and some servers ignore response_format entirely.
+    # only on some models, and some servers ignore response_format entirely. Strict
+    # schemas can also trap long answers in endless whitespace, so JSON is the default.
     SCHEMA = "schema"
     JSON = "json"
     OFF = "off"
@@ -34,7 +35,7 @@ class AiSettings:
     model: str
     # Optional per-action model, keyed by action name (extract, structure, translate, adapt).
     models: dict[str, str] = field(default_factory=dict)
-    structured_output: StructuredOutput = StructuredOutput.SCHEMA
+    structured_output: StructuredOutput = StructuredOutput.JSON
     # Provider-specific request fields sent as-is, e.g. Workers AI's switch for a
     # model's thinking mode, which otherwise multiplies output tokens.
     extra_body: dict[str, Any] = field(default_factory=dict)
@@ -122,8 +123,9 @@ def complete_json(
 ) -> tuple[T, Usage]:
     """Asks for JSON matching `schema` and runs `validate` on it. A malformed or
     invalid answer gets exactly one retry with the error attached, because models
-    usually fix a pointed complaint and a loop would only burn tokens. The broken
-    answer itself is not sent back: it may be a cap's worth of whitespace."""
+    usually fix a pointed complaint and a loop would only burn tokens. A parsed but
+    invalid answer goes back with the complaint, so the model sees what to fix; one
+    that did not parse does not, since it may be a cap's worth of whitespace."""
     mode = settings.structured_output
     if mode is StructuredOutput.SCHEMA:
         response_format = {
@@ -147,11 +149,20 @@ def complete_json(
             settings.model_for(action), messages, response_format, settings.extra_body, budget
         )
         usage += spent
+        answer = None
         try:
-            return validate(parse_json(text)), usage
+            answer = parse_json(text)
+            return validate(answer), usage
         except (ValueError, TypeError, KeyError, ItadakiError) as err:
             if attempt:
                 raise AiError(f"AI answer for {action} was unusable: {err}") from err
-            retry = f"{user}\n\nAn earlier answer to this was invalid: {err}. Answer again, with valid compact JSON only."
-            messages = [messages[0], {"role": "user", "content": retry}]
+            if answer is None:
+                retry = f"{user}\n\nAn earlier answer to this was not valid JSON: {err}. Answer again."
+                messages = [messages[0], {"role": "user", "content": retry}]
+            else:
+                complaint = f"That answer was invalid: {err}. Reply again with corrected JSON only."
+                messages += [
+                    {"role": "assistant", "content": json.dumps(answer, ensure_ascii=False)},
+                    {"role": "user", "content": complaint},
+                ]
     raise AssertionError("unreachable")

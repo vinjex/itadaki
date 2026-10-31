@@ -223,3 +223,10 @@ def test_without_ai_pages_with_recipe_data_still_import(book, carbonara):
     assert draft.recipe.title == "Toast" and [r.text for r in draft.raw_lines] == ["1 slice bread"]
     with pytest.raises(InvalidRequestError, match="AI is not set up"):
         offline.translate(carbonara.id, "ja")
+
+
+def test_answers_may_leave_out_empty_fields(book):
+    # Plain JSON mode does not enforce the schema, and models drop null keys.
+    chat = FakeChat({"ingredients": [{"name": "milk", "quantity": 1, "unit": "cup_us"}]}, {"names": [{"ja": {"name": "牛乳"}}]})
+    result = assistant(book, chat).structure([RawLine("1 cup milk")], "en")
+    assert result.lines[0].note is None and result.new_ingredients[0].localized["ja"].name == "牛乳"

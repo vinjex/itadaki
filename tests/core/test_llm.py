@@ -27,8 +27,8 @@ def test_retries_once_with_the_error_then_succeeds():
     value, usage = complete_json(chat, settings(), "translate", "sys", "user", SCHEMA, validate)
     assert value == 2
     assert usage.prompt_tokens == 20
-    assert "invalid" in chat.sent() and chat.sent().startswith("user")
-    assert len(chat.calls[1]["messages"]) == 2
+    assert "invalid" in chat.sent()
+    assert chat.calls[1]["messages"][2]["content"] == '{"n": "x"}'
     assert chat.calls[0]["model"] == "cheap"
 
 
@@ -58,3 +58,10 @@ def test_every_call_is_capped():
     chat = FakeChat("{}")
     complete_json(chat, settings(), "extract", "sys", "a" * 400, SCHEMA, lambda a: a)
     assert chat.calls[0]["max_tokens"] == answer_budget("a" * 400)
+
+
+def test_an_answer_that_did_not_parse_is_not_sent_back():
+    chat = FakeChat('{"n": 1' + " " * 50, '{"n": 1}')
+    complete_json(chat, settings(), "extract", "sys", "user", SCHEMA, lambda a: a)
+    retry = chat.calls[1]["messages"]
+    assert len(retry) == 2 and retry[1]["content"].startswith("user") and "not valid JSON" in retry[1]["content"]

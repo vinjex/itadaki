@@ -133,10 +133,10 @@ class _LineResolver:
     def line(self, raw: dict[str, Any]) -> IngredientLine:
         return IngredientLine(
             ingredient_id=self._ingredient(raw),
-            quantity=round_quantity(raw["quantity"]),
-            unit_id=self._unit(raw["unit"]),
-            note=raw["note"] or None,
-            section=raw["section"] or None,
+            quantity=round_quantity(raw.get("quantity")),
+            unit_id=self._unit(raw.get("unit")),
+            note=raw.get("note") or None,
+            section=raw.get("section") or None,
         )
 
     def _unit(self, value: str | None) -> str | None:
@@ -150,12 +150,12 @@ class _LineResolver:
         raise ValueError(f"unknown unit {value!r}; use one of the listed unit ids or null")
 
     def _ingredient(self, raw: dict[str, Any]) -> str:
-        for word in (raw["name"], raw["plural"]):
+        for word in (raw["name"], raw.get("plural")):
             if word and (self._language, word.casefold()) in self._ingredients:
                 return self._ingredients[(self._language, word.casefold())]
 
         # Provisional id: the final one comes from the English name, once known.
-        localized = {self._language: Localized(raw["name"], raw["plural"] or None)}
+        localized = {self._language: Localized(raw["name"], raw.get("plural") or None)}
         entry_id = _unique_id(_slug(raw["name"]) or uuid.uuid4().hex[:8], self._ingredient_ids)
         ingredient = Ingredient(entry_id, localized)
         self.new[entry_id] = ingredient
@@ -400,7 +400,7 @@ class Assistant:
             if len(answer["names"]) != len(names):
                 raise ValueError(f"expected {len(names)} names, got {len(answer['names'])}")
             return [
-                {lang: Localized(e["name"], e["plural"] or None) for lang, e in item.items()}
+                {lang: Localized(e["name"], e.get("plural") or None) for lang, e in item.items()}
                 for item in answer["names"]
             ]
 
