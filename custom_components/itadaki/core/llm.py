@@ -50,6 +50,7 @@ class ChatModel(Protocol):
         messages: list[dict[str, str]],
         response_format: dict[str, Any] | None,
         extra_body: dict[str, Any],
+        max_tokens: int,
     ) -> tuple[str, Usage]: ...
 
 
@@ -67,13 +68,14 @@ class OpenAIChat:
         messages: list[dict[str, str]],
         response_format: dict[str, Any] | None,
         extra_body: dict[str, Any],
+        max_tokens: int,
     ) -> tuple[str, Usage]:
         from openai import OpenAIError
 
         extra = {"response_format": response_format} if response_format else {}
         try:
             response = self._client.chat.completions.create(
-                model=model, messages=messages, extra_body=extra_body or None, **extra
+                model=model, messages=messages, max_tokens=max_tokens, extra_body=extra_body or None, **extra
             )
         except OpenAIError as err:
             raise AiError(f"AI request failed: {err}") from err
@@ -99,6 +101,16 @@ def parse_json(text: str) -> Any:
         return json.loads(text[start : end + 1])
 
 
+def answer_budget(text: str) -> int:
+    """A token cap for an answer to `text`. Answers are at most about as long as what
+    they rework, but a model can get stuck emitting whitespace until the cap, so the
+    cap decides how long a stuck call runs. Tokens are estimated per script: about
+    four ASCII characters each, about one character each for kana and kanji. Twice the
+    input covers English turning into Japanese."""
+    ascii_chars = sum(c.isascii() for c in text)
+    return 2 * (ascii_chars // 4 + len(text) - ascii_chars) + 1024
+
+
 def complete_json(
     chat: ChatModel,
     settings: AiSettings,
@@ -110,7 +122,8 @@ def complete_json(
 ) -> tuple[T, Usage]:
     """Asks for JSON matching `schema` and runs `validate` on it. A malformed or
     invalid answer gets exactly one retry with the error attached, because models
-    usually fix a pointed complaint and a loop would only burn tokens."""
+    usually fix a pointed complaint and a loop would only burn tokens. The broken
+    answer itself is not sent back: it may be a cap's worth of whitespace."""
     mode = settings.structured_output
     if mode is StructuredOutput.SCHEMA:
         response_format = {
@@ -121,14 +134,17 @@ def complete_json(
         response_format = {"type": "json_object"}
     else:
         response_format = None
+    # Compact output: models that pretty-print can drift into endless indentation.
+    system += "\n\nAnswer with compact JSON only, on one line, following the provided JSON Schema."
     if mode is not StructuredOutput.SCHEMA:
-        system += f"\n\nAnswer with JSON only, matching this JSON Schema:\n{json.dumps(schema)}"
+        system += f"\nThe JSON Schema:\n{json.dumps(schema)}"
 
     messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
+    budget = answer_budget(user)
     usage = Usage()
     for attempt in range(2):
         text, spent = chat.complete(
-            settings.model_for(action), messages, response_format, settings.extra_body
+            settings.model_for(action), messages, response_format, settings.extra_body, budget
         )
         usage += spent
         try:
@@ -136,8 +152,6 @@ def complete_json(
         except (ValueError, TypeError, KeyError, ItadakiError) as err:
             if attempt:
                 raise AiError(f"AI answer for {action} was unusable: {err}") from err
-            messages += [
-                {"role": "assistant", "content": text},
-                {"role": "user", "content": f"That answer was invalid: {err}. Reply again with corrected JSON only."},
-            ]
+            retry = f"{user}\n\nAn earlier answer to this was invalid: {err}. Answer again, with valid compact JSON only."
+            messages = [messages[0], {"role": "user", "content": retry}]
     raise AssertionError("unreachable")

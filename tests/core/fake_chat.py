@@ -10,9 +10,15 @@ class FakeChat:
         self.answers = list(answers)
         self.calls = []
 
-    def complete(self, model, messages, response_format, extra_body):
+    def complete(self, model, messages, response_format, extra_body, max_tokens):
         self.calls.append(
-            {"model": model, "messages": messages, "response_format": response_format, "extra_body": extra_body}
+            {
+                "model": model,
+                "messages": messages,
+                "response_format": response_format,
+                "extra_body": extra_body,
+                "max_tokens": max_tokens,
+            }
         )
         answer = self.answers.pop(0)
         return (answer if isinstance(answer, str) else json.dumps(answer, ensure_ascii=False)), Usage(10, 5)

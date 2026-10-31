@@ -1,6 +1,6 @@
 import pytest
 
-from core.llm import AiError, AiSettings, StructuredOutput, complete_json, parse_json
+from core.llm import AiError, AiSettings, StructuredOutput, answer_budget, complete_json, parse_json
 from fake_chat import FakeChat
 
 SCHEMA = {"type": "object"}
@@ -27,7 +27,8 @@ def test_retries_once_with_the_error_then_succeeds():
     value, usage = complete_json(chat, settings(), "translate", "sys", "user", SCHEMA, validate)
     assert value == 2
     assert usage.prompt_tokens == 20
-    assert "invalid" in chat.sent()
+    assert "invalid" in chat.sent() and chat.sent().startswith("user")
+    assert len(chat.calls[1]["messages"]) == 2
     assert chat.calls[0]["model"] == "cheap"
 
 
@@ -45,3 +46,15 @@ def test_json_mode_puts_schema_in_prompt():
     assert call["response_format"] == {"type": "json_object"}
     assert "JSON Schema" in call["messages"][0]["content"]
     assert call["model"] == "default"
+
+
+def test_answer_budget_counts_kana_and_kanji_as_whole_tokens():
+    assert answer_budget("") == 1024
+    assert answer_budget("a" * 400) == 1024 + 200
+    assert answer_budget("卵" * 100) == 1024 + 200
+
+
+def test_every_call_is_capped():
+    chat = FakeChat("{}")
+    complete_json(chat, settings(), "extract", "sys", "a" * 400, SCHEMA, lambda a: a)
+    assert chat.calls[0]["max_tokens"] == answer_budget("a" * 400)
