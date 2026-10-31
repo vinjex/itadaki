@@ -43,7 +43,7 @@ export const shared = css`
   .btn.quiet { background: var(--it-soft); color: var(--it-text); }
   .btn.danger { background: transparent; color: var(--it-error); }
   .btn:disabled { opacity: 0.5; cursor: default; }
-  input[type="text"], input[type="url"], input[type="search"], textarea {
+  input[type="text"], input[type="url"], input[type="search"], input[type="password"], textarea {
     width: 100%; font: inherit; color: var(--it-text);
     background: var(--input-fill-color, var(--secondary-background-color, #f2f2f7));
     border: 1px solid transparent; border-radius: 14px; padding: 12px 14px;

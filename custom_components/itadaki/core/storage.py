@@ -197,13 +197,6 @@ class Store:
         with self._connect() as db:
             db.executemany("DELETE FROM drafts WHERE id = ?", [(i,) for i in draft_ids])
 
-    def fail_working_drafts(self, error: str, updated_at: str) -> None:
-        with self._connect() as db:
-            db.execute(
-                "UPDATE drafts SET status = ?, error = ?, updated_at = ? WHERE status = ?",
-                (DraftStatus.FAILED, error, updated_at, DraftStatus.WORKING),
-            )
-
     def get_ingredient(self, ingredient_id: str) -> Ingredient | None:
         body = self._get_entry("ingredients", ingredient_id)
         return Ingredient.from_dict(body) if body else None

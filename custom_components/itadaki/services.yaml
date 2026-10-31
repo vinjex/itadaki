@@ -181,6 +181,20 @@ adapt:
       selector:
         boolean:
     save: *save
+adapt_draft:
+  fields:
+    draft_id: &draft_id
+      required: true
+      selector:
+        text:
+    instruction:
+      required: true
+      selector:
+        text:
+          multiline: true
+    draft: &draft
+      selector:
+        object:
 list_drafts:
   fields:
     recipe_id:
@@ -188,16 +202,11 @@ list_drafts:
         text:
 get_draft:
   fields:
-    draft_id: &draft_id
-      required: true
-      selector:
-        text:
+    draft_id: *draft_id
 save_draft:
   fields:
     draft_id: *draft_id
-    draft:
-      selector:
-        object:
+    draft: *draft
 apply_draft:
   fields:
     draft:

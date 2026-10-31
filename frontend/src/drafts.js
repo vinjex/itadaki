@@ -4,7 +4,7 @@ export function describeRequest(t, entry) {
   const r = entry.request || {};
   const parts = [];
   if (entry.action === "translate" && r.language) parts.push(`→ ${t.langName(r.language)}`);
-  if (entry.action === "adapt" && r.instruction) parts.push(`“${r.instruction}”`);
+  if (r.instruction) parts.push(`“${r.instruction}”`);
   if (entry.action === "adapt" && r.as_variant) parts.push(t("asNewVariant"));
   if (entry.action === "import" && r.url) {
     try {

@@ -261,10 +261,27 @@ class RecipeBook:
         self._store.put_draft(entry)
         return entry
 
+    def rework_draft(self, draft_id: str, request: dict[str, Any], edited: Draft | None = None) -> DraftEntry:
+        """Sends a ready draft, optionally as edited in review, back to work."""
+        entry = self.get_draft(draft_id)
+        if entry.status is not DraftStatus.READY:
+            raise InvalidRequestError(f"draft {draft_id} is {entry.status}, not ready")
+        entry = replace(
+            entry,
+            status=DraftStatus.WORKING,
+            draft=edited or entry.draft,
+            error=None,
+            request={**entry.request, **request},
+            updated_at=self._now(),
+        )
+        self._store.put_draft(entry)
+        return entry
+
     def finish_draft(self, draft_id: str, draft: Draft) -> DraftEntry:
         entry = replace(
             self.get_draft(draft_id),
             status=DraftStatus.READY,
+            error=None,
             title=draft.recipe.title,
             draft=draft,
             updated_at=self._now(),
@@ -273,7 +290,11 @@ class RecipeBook:
         return entry
 
     def fail_draft(self, draft_id: str, error: str) -> DraftEntry:
-        entry = replace(self.get_draft(draft_id), status=DraftStatus.FAILED, error=error, updated_at=self._now())
+        """A draft that has something to show stays reviewable, with the error on it:
+        lines left unstructured are finished by hand, as without AI."""
+        entry = self.get_draft(draft_id)
+        status = DraftStatus.READY if entry.draft else DraftStatus.FAILED
+        entry = replace(entry, status=status, error=error, updated_at=self._now())
         self._store.put_draft(entry)
         return entry
 
@@ -303,7 +324,9 @@ class RecipeBook:
 
     def fail_interrupted_drafts(self) -> None:
         """Work that was running when the host stopped will never finish."""
-        self._store.fail_working_drafts("interrupted by a restart", self._now())
+        for entry in self._store.full_drafts():
+            if entry.status is DraftStatus.WORKING:
+                self.fail_draft(entry.id, "interrupted by a restart")
 
     def get_draft(self, draft_id: str) -> DraftEntry:
         entry = self._store.get_draft(draft_id)

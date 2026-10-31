@@ -38,6 +38,10 @@ class JobRunner:
         self._hass.loop.call_soon_threadsafe(self._schedule, entry.id, work, save)
         return entry.id
 
+    def rework(self, draft_id: str, work: Callable[[], Draft]) -> None:
+        """Runs more work on a draft already sent back to work with RecipeBook.rework_draft."""
+        self._hass.loop.call_soon_threadsafe(self._schedule, draft_id, work, False)
+
     @callback
     def _schedule(self, draft_id: str, work: Callable[[], Draft], save: bool) -> None:
         self._announce(draft_id, "working")
@@ -54,12 +58,14 @@ class JobRunner:
                 return
             self._announce(draft_id, "ready")
         except ItadakiError as err:
-            await run(self._book.fail_draft, draft_id, str(err))
-            self._announce(draft_id, "failed")
+            await self._fail(draft_id, str(err))
         except Exception:
             _LOGGER.exception("Itadaki job %s failed", draft_id)
-            await run(self._book.fail_draft, draft_id, "unexpected error, see the Home Assistant log")
-            self._announce(draft_id, "failed")
+            await self._fail(draft_id, "unexpected error, see the Home Assistant log")
+
+    async def _fail(self, draft_id: str, error: str) -> None:
+        entry = await self._hass.async_add_executor_job(self._book.fail_draft, draft_id, error)
+        self._announce(draft_id, entry.status)
 
     @callback
     def _announce(self, draft_id: str, status: str, recipe_id: str | None = None) -> None:

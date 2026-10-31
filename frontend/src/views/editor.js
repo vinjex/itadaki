@@ -17,6 +17,7 @@ const num = (v) => (v === "" || v == null ? null : round2(Number(v)));
 let nextKey = 0;
 const keyed = (item) => ({ ...item, _key: ++nextKey });
 const unkeyed = ({ _key, _raw, ...item }) => item;
+const unmatched = (line) => Boolean(line._raw && !line.ingredient_id);
 const text = (v) => (v && v.trim() ? v.trim() : null);
 
 // One editor for every recipe: drafts under review and saved recipes alike. It keeps
@@ -90,8 +91,15 @@ class ItadakiEditor extends LitElement {
     }
   }
 
+  // A draft's page lines not matched to an ingredient yet are left out here and
+  // handed back, as written, by `unmatchedLines`.
   get value() {
-    return { ...this._r, ingredients: this._r.ingredients.map(unkeyed), steps: this._r.steps.map(unkeyed) };
+    const ingredients = this._r.ingredients.filter((l) => !unmatched(l)).map(unkeyed);
+    return { ...this._r, ingredients, steps: this._r.steps.map(unkeyed) };
+  }
+
+  get unmatchedLines() {
+    return this._r.ingredients.filter(unmatched).map((l) => ({ text: l._raw, section: l.section ?? null }));
   }
 
   // Ingredients created during review or editing that a line still uses.
@@ -105,6 +113,11 @@ class ItadakiEditor extends LitElement {
     const entry = { id: newId(name, taken), localized: { [this._r.language]: { name, plural: null, aliases: [] } }, density: null };
     this._new = [...this._new, entry];
     this._setItem("ingredients", index, "ingredient_id", entry.id);
+  }
+
+  // Drops a proposed ingredient by pointing every line that uses it at an existing one.
+  _replaceNew(id, existingId) {
+    this._set("ingredients", this._r.ingredients.map((l) => (l.ingredient_id === id ? { ...l, ingredient_id: existingId } : l)));
   }
 
   _rename(id, lang, name) {
@@ -250,7 +263,9 @@ class ItadakiEditor extends LitElement {
     const t = this.t;
     const r = this._r;
     const lang = r.language;
-    const ingredients = [...this.ingredients, ...this._new].sort((a, b) => nameOf(a, lang).localeCompare(nameOf(b, lang)));
+    const byName = (a, b) => nameOf(a, lang).localeCompare(nameOf(b, lang));
+    const catalog = [...this.ingredients].sort(byName);
+    const ingredients = [...this.ingredients, ...this._new].sort(byName);
     const units = [...this.units].sort((a, b) => nameOf(a, lang).localeCompare(nameOf(b, lang)));
     const field = (key, label, type = "text") => html`<div>
       <label>${label}</label>
@@ -284,6 +299,7 @@ class ItadakiEditor extends LitElement {
             <div class="muted">${t("newIngredientsExplain")}</div>
             <div class="names head">
               ${nameLanguages.map((l) => html`<label>${t.langName(l)}${l === lang ? html` · ${t("usedAs")}` : nothing}</label>`)}
+              <label>${t("useExisting")}</label>
             </div>
             ${repeat(
               proposals,
@@ -293,6 +309,8 @@ class ItadakiEditor extends LitElement {
                   (l) => html`<itadaki-text .value=${p.localized[l]?.name || ""}
                     @change=${(e) => this._rename(p.id, l, e.target.value)}></itadaki-text>`,
                 )}
+                <itadaki-combo .entries=${catalog} .hint=${describe} noCreate placeholder=${t("ingredientSearch")}
+                  @pick=${(e) => this._replaceNew(p.id, e.detail.id)}></itadaki-combo>
               </div>`,
             )}
           </div>`

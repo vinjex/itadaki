@@ -82,7 +82,7 @@ class ItadakiPanel extends LitElement {
       case "import": return html`<itadaki-import .api=${this.api} .t=${t} ?ai=${ai}></itadaki-import>`;
       case "new":
       case "edit": return html`<itadaki-edit .api=${this.api} .t=${t} lang=${lang} .languages=${languages} .recipeId=${v.id}></itadaki-edit>`;
-      case "draft": return html`<itadaki-draft .api=${this.api} .t=${t} lang=${lang} .languages=${languages} .draftId=${v.id}></itadaki-draft>`;
+      case "draft": return html`<itadaki-draft .api=${this.api} .t=${t} lang=${lang} .languages=${languages} ?ai=${ai} .draftId=${v.id}></itadaki-draft>`;
       case "manage": return html`<itadaki-manage .t=${t}></itadaki-manage>`;
       case "languages": return html`<itadaki-languages .api=${this.api} .t=${t} .languages=${languages}></itadaki-languages>`;
       case "ai": return html`<itadaki-ai .api=${this.api} .t=${t}></itadaki-ai>`;

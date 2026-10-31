@@ -52,8 +52,9 @@ def _raw_line(value: Any) -> RawLine:
 
 def _import_url(it: Itadaki, d: dict[str, Any]) -> dict[str, Any]:
     """Instant when the page has embedded recipe data: the draft is readable at once
-    and only its ingredient lines are left to the AI job. Without AI the draft is
-    ready at once and its lines are structured by hand in review."""
+    and only its ingredient lines are left to the AI job, or with a note the whole
+    draft is adapted, which structures the lines too. Without AI the draft is ready
+    at once and its lines are structured by hand in review."""
     url, note = d["url"], d.get("note")
     request = _request(d, "url", "note")
     html = it.assistant.fetch(url)
@@ -63,8 +64,10 @@ def _import_url(it: Itadaki, d: dict[str, Any]) -> dict[str, Any]:
             raise InvalidRequestError("this page has no embedded recipe data, which needs AI to import")
         work = lambda: it.assistant.extract(url, note, html)  # noqa: E731
         return {"draft_id": it.jobs.start("import", url, work, d["save"], request=request)}
-    if it.assistant.enabled:
-        work = lambda: it.assistant.structure_draft(draft, note)  # noqa: E731
+    if it.assistant.enabled and note:
+        work = lambda: it.assistant.adapt_draft(draft, note)  # noqa: E731
+    elif it.assistant.enabled:
+        work = lambda: it.assistant.structure_draft(draft)  # noqa: E731
     else:
         work = lambda: draft  # noqa: E731
     draft_id = it.jobs.start("import", draft.recipe.title, work, d["save"], initial=draft, request=request)
@@ -85,6 +88,15 @@ def _adapt(it: Itadaki, d: dict[str, Any]) -> dict[str, Any]:
     work = lambda: it.assistant.adapt(source.id, d["instruction"], d["as_variant"])  # noqa: E731
     request = _request(d, "instruction", "as_variant")
     return {"draft_id": it.jobs.start("adapt", source.title, work, d["save"], recipe_id=source.id, request=request)}
+
+
+def _adapt_draft(it: Itadaki, d: dict[str, Any]) -> dict[str, Any]:
+    it.assistant.require()
+    edited = _parsed(Draft.from_dict, d["draft"], "draft") if d.get("draft") else None
+    entry = it.book.rework_draft(d["draft_id"], _request(d, "instruction"), edited)
+    draft = entry.draft
+    it.jobs.rework(entry.id, lambda: it.assistant.adapt_draft(draft, d["instruction"]))
+    return {"draft_id": entry.id}
 
 
 def _get_draft(it: Itadaki, d: dict[str, Any]) -> dict[str, Any]:
@@ -251,6 +263,11 @@ ACTIONS: dict[str, tuple[probatio.Schema, Handler, SupportsResponse]] = {
             }
         ),
         _adapt,
+        SupportsResponse.OPTIONAL,
+    ),
+    "adapt_draft": (
+        probatio.Schema({_DRAFT_ID: str, probatio.Required("instruction"): str, probatio.Optional("draft"): dict}),
+        _adapt_draft,
         SupportsResponse.OPTIONAL,
     ),
     "list_drafts": (

@@ -45,8 +45,30 @@ def test_failures_and_discarding(book):
 
 def test_restart_fails_work_that_was_running(book, tmp_path):
     entry = book.start_draft("adapt", "Carbonara")
+    preview = book.start_draft("import", "Oyakodon", draft(raw_lines=[RawLine("2 eggs")]))
     RecipeBook(Store(tmp_path / "itadaki.db")).fail_interrupted_drafts()
     assert book.get_draft(entry.id).status is DraftStatus.FAILED
+    assert book.get_draft(preview.id).status is DraftStatus.READY
+
+
+def test_failed_work_on_a_draft_leaves_it_reviewable(book):
+    entry = book.start_draft("import", "Oyakodon", draft(raw_lines=[RawLine("2 eggs")]))
+    failed = book.fail_draft(entry.id, "AI request failed")
+    assert (failed.status, failed.error) == (DraftStatus.READY, "AI request failed")
+    assert failed.draft.raw_lines[0].text == "2 eggs"
+
+
+def test_rework_sends_a_ready_draft_back_to_work(book):
+    entry = book.start_draft("import", "Oyakodon", request={"url": "https://e.x/r"})
+    with pytest.raises(InvalidRequestError):
+        book.rework_draft(entry.id, {"instruction": "vegetarian"})
+    book.finish_draft(entry.id, draft())
+    book.fail_draft(entry.id, "AI request failed")
+
+    working = book.rework_draft(entry.id, {"instruction": "vegetarian"}, draft("Edited"))
+    assert (working.status, working.error, working.draft.recipe.title) == (DraftStatus.WORKING, None, "Edited")
+    assert working.request == {"url": "https://e.x/r", "instruction": "vegetarian"}
+    assert book.finish_draft(entry.id, draft("Vegetarian")).status is DraftStatus.READY
 
 
 def test_version_1_database_is_upgraded(tmp_path):

@@ -235,7 +235,7 @@
     },
     "import_url": {
       "name": "Import recipe from URL",
-      "description": "Imports a recipe from a web page. If the page embeds recipe data the draft is readable immediately and only the ingredient lines are structured by the AI; otherwise the AI extracts the whole recipe. Runs in the background: returns a draft_id at once; poll get_draft until its status is ready (or failed), then review and save_draft. With save on, the result is saved automatically when done.",
+      "description": "Imports a recipe from a web page. If the page embeds recipe data the draft is readable immediately and only the ingredient lines are structured by the AI, or, with a note, the whole recipe is adapted to it; otherwise the AI extracts the whole recipe. Runs in the background: returns a draft_id at once; poll get_draft until its status is ready (or failed), then review and save_draft. With save on, the result is saved automatically when done.",
       "fields": {
         "url": {
           "name": "URL",
@@ -243,7 +243,7 @@
         },
         "note": {
           "name": "Note",
-          "description": "Optional instructions for the AI structuring or extraction step, e.g. convert to metric."
+          "description": "Optional instructions for the AI, e.g. convert to metric or make it vegetarian. They apply to the whole recipe."
         },
         "save": {
           "name": "Save",
@@ -313,6 +313,24 @@
         }
       }
     },
+    "adapt_draft": {
+      "name": "Adapt draft",
+      "description": "Rewrites a ready draft following an instruction, keeping it in the inbox, e.g. after an import. Runs in the background: the draft goes back to working; poll get_draft until it is ready again, then review and save_draft. If the AI fails, the draft stays ready as it was, with the error.",
+      "fields": {
+        "draft_id": {
+          "name": "Draft ID",
+          "description": "ID returned by import_url, translate or adapt, or from list_drafts."
+        },
+        "instruction": {
+          "name": "Instruction",
+          "description": "What to change."
+        },
+        "draft": {
+          "name": "Edited draft",
+          "description": "Optional: the draft content as edited in review; without it the stored draft is adapted."
+        }
+      }
+    },
     "save_draft": {
       "name": "Save draft",
       "description": "Saves a ready draft, including its new ingredients and catalog names, and removes it from the inbox.",
@@ -339,7 +357,7 @@
     },
     "get_draft": {
       "name": "Get draft",
-      "description": "A draft with its status, error and content: the unsaved recipe, its proposed new ingredients, raw ingredient lines still being structured, and display text for the structured lines.",
+      "description": "A draft with its status, error and content: the unsaved recipe, its proposed new ingredients, raw ingredient lines still being structured, and display text for the structured lines. A ready draft may carry the error of AI work that failed on it; its unstructured lines are then finished by hand.",
       "fields": {
         "draft_id": {
           "name": "Draft ID",

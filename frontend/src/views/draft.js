@@ -1,5 +1,6 @@
 import { LitElement, html, css, nothing } from "lit";
 import { shared } from "../styles.js";
+import "./adapt.js";
 import "./body.js";
 import "./busy.js";
 import "./page.js";
@@ -19,6 +20,7 @@ class ItadakiDraft extends LitElement {
     t: { attribute: false },
     lang: {},
     languages: { attribute: false },
+    ai: { type: Boolean },
     draftId: {},
     _entry: { state: true },
     _catalog: { state: true },
@@ -69,18 +71,28 @@ class ItadakiDraft extends LitElement {
     }
   }
 
-  async _save() {
+  // The draft as edited in review, for saving it or sending it back to the AI.
+  _edited() {
     const editor = this.renderRoot.querySelector("itadaki-editor");
-    const draft = {
+    return {
       ...structuredClone(this._entry.draft),
       recipe: editor.value,
       new_ingredients: editor.newIngredientsUsed,
-      raw_lines: [],
+      raw_lines: editor.unmatchedLines,
     };
+  }
+
+  async _save() {
     await this._act(async () => {
-      const { recipe } = await this.api.call("save_draft", { draft_id: this.draftId, draft });
+      const { recipe } = await this.api.call("save_draft", { draft_id: this.draftId, draft: this._edited() });
       navigate(this, { view: "recipe", id: recipe.id, replace: true });
     });
+  }
+
+  async _adapt(e) {
+    const { instruction } = e.detail;
+    await this._act(() => this.api.call("adapt_draft", { draft_id: this.draftId, instruction, draft: this._edited() }));
+    await this._load();
   }
 
   async _discard() {
@@ -132,6 +144,8 @@ class ItadakiDraft extends LitElement {
       ingredients: [...recipe.ingredients, ...draft.raw_lines.map((r) => ({ section: r.section }))],
     };
     const lines = [...(entry.lines_text || []), ...draft.raw_lines.map((r) => r.text)];
+    // With an instruction or note the AI rewrites the whole draft, not just the lines.
+    const structuringOnly = draft.raw_lines.length && !entry.request.instruction && !entry.request.note;
 
     if (ready) return this._renderReview(draft);
 
@@ -140,7 +154,7 @@ class ItadakiDraft extends LitElement {
         <h2>${entry.title}</h2>
         ${this._request(entry)}
         ${entry.status === "working"
-          ? html`<itadaki-busy .text=${draft.raw_lines.length ? t("structuring") : t("workingLeave")}></itadaki-busy>`
+          ? html`<itadaki-busy .text=${structuringOnly ? t("structuring") : t("workingLeave")}></itadaki-busy>`
           : nothing}
         ${entry.error ? html`<div class="error">${entry.error}</div>` : nothing}
         ${entry.status === "failed" ? html`<button class="btn quiet" @click=${this._discard}>${t("discard")}</button>` : nothing}
@@ -155,17 +169,26 @@ class ItadakiDraft extends LitElement {
     return html`<div class="muted" style="margin-bottom:8px">${t.action(entry.action)}${text ? html` · ${text}` : nothing}</div>`;
   }
 
+  // Lines the AI did not structure (AI is off, or it failed) are finished by hand:
+  // each becomes an empty line showing what the page said. Built once per loaded
+  // draft, since a new object would reset the edits in the editor.
+  _reviewRecipe(draft) {
+    if (this._reviewOf !== draft) {
+      this._reviewOf = draft;
+      this._review = {
+        ...draft.recipe,
+        ingredients: [
+          ...draft.recipe.ingredients,
+          ...draft.raw_lines.map((r) => ({ ingredient_id: null, quantity: null, unit_id: null, note: null, section: r.section, _raw: r.text })),
+        ],
+      };
+    }
+    return this._review;
+  }
+
   _renderReview(draft) {
     const t = this.t;
-    // Lines the AI did not structure (AI is off) are finished by hand: each becomes
-    // an empty line showing what the page said.
-    const recipe = {
-      ...draft.recipe,
-      ingredients: [
-        ...draft.recipe.ingredients,
-        ...draft.raw_lines.map((r) => ({ ingredient_id: null, quantity: null, unit_id: null, note: null, section: r.section, _raw: r.text })),
-      ],
-    };
+    const recipe = this._reviewRecipe(draft);
     return html`
       <div class="card head">
         <h2>${t("review")} · ${t.langName(recipe.language)}</h2>
@@ -173,11 +196,14 @@ class ItadakiDraft extends LitElement {
         <div class="muted" style="font-size:0.8rem">
           ${t("tokens", { in: draft.usage.prompt_tokens, out: draft.usage.completion_tokens })}
         </div>
+        ${this._entry.error ? html`<div class="error">${t("aiFailedKept", { error: this._entry.error })}</div>` : nothing}
       </div>
 
       <itadaki-editor .api=${this.api} .languages=${this.languages} .recipe=${recipe} .t=${t} uiLang=${this.lang} .units=${this._catalog.units}
         .ingredients=${this._catalog.ingredients} .newIngredients=${draft.new_ingredients}
         ?fixedLanguage=${Boolean(draft.updates_id || draft.parent_id)}></itadaki-editor>
+
+      ${this.ai ? html`<itadaki-adapt class="actions" .t=${t} ?disabled=${this._busy} @adapt=${this._adapt}></itadaki-adapt>` : nothing}
 
       <div class="row actions">
         <button class="btn" ?disabled=${this._busy} @click=${this._save}>${t("save")}</button>

@@ -1,5 +1,6 @@
 import { LitElement, html, css, nothing } from "lit";
 import { shared } from "../styles.js";
+import "./adapt.js";
 import "./body.js";
 import "./busy.js";
 import "./menu.js";
@@ -203,7 +204,10 @@ class ItadakiRecipe extends LitElement {
           </div>`
         : nothing}
 
-      ${this._adapting ? this._renderAdapt() : nothing}
+      ${this._adapting
+        ? html`<itadaki-adapt class="adapt" .t=${t} variant ?disabled=${this._busy}
+            @adapt=${(e) => this._ai("adapt", { recipe_id: this.recipeId, instruction: e.detail.instruction, as_variant: e.detail.asVariant })}></itadaki-adapt>`
+        : nothing}
       ${this._drafts?.length
         ? html`<div class="card drafts">
             <h2>${t("inProgress")}</h2>
@@ -228,25 +232,6 @@ class ItadakiRecipe extends LitElement {
             )}</div>
           </div>`
         : nothing}
-    `;
-  }
-
-  _renderAdapt() {
-    const t = this.t;
-    const run = () => {
-      const instruction = this.renderRoot.querySelector("#instruction").value.trim();
-      if (!instruction) return;
-      const asVariant = this.renderRoot.querySelector("#variant").checked;
-      this._ai("adapt", { recipe_id: this.recipeId, instruction, as_variant: asVariant });
-    };
-    return html`
-      <div class="card adapt">
-        <textarea id="instruction" rows="2" placeholder=${t("adaptHint")}></textarea>
-        <div class="row" style="margin-top:12px;justify-content:space-between">
-          <label class="row" style="margin:0"><input type="checkbox" id="variant" /> ${t("asVariant")}</label>
-          <button class="btn" ?disabled=${this._busy} @click=${run}>${t("run")}</button>
-        </div>
-      </div>
     `;
   }
 }

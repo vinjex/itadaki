@@ -2,9 +2,8 @@ import json
 
 import pytest
 
-from core import InvalidRequestError, Relation
+from core import Draft, Ingredient, IngredientLine, InvalidRequestError, Localized, RawLine, Recipe, Relation, Step, Usage
 from core.ai import Assistant
-from core import RawLine
 from core.llm import AiSettings
 from fake_chat import FakeChat, line, names
 
@@ -83,8 +82,8 @@ def test_read_url_is_instant_and_structuring_finishes_it(book):
         book.save_draft(draft)
 
     chat = FakeChat({"ingredients": [line("egg", "eggs", quantity=2)]}, names({"ja": "卵"}))
-    done = assistant(book, chat).structure_draft(draft, note="metric please")
-    assert "secret broth" not in chat.sent(0) and "metric please" in chat.sent(0)
+    done = assistant(book, chat).structure_draft(draft)
+    assert "secret broth" not in chat.sent(0)
     assert done.raw_lines == [] and done.usage.prompt_tokens == 20
 
     saved = book.save_draft(done)
@@ -181,6 +180,31 @@ def test_adapt_updates_in_place_or_creates_variant(book, carbonara, as_variant):
     else:
         assert saved.id == carbonara.id and saved.revision == 2
     assert saved.ingredients[0].ingredient_id == "bacon"
+
+
+def test_adapt_draft_finishes_raw_lines_and_keeps_where_it_lands(book, guanciale):
+    draft = Draft(
+        Recipe(language="en", title="Carbonara", steps=[Step("Cook the pasta.")],
+               ingredients=[IngredientLine("pecorino", 50, "g"), IngredientLine("chili")]),
+        updates_id="r1",
+        new_ingredients=[Ingredient("pecorino", {"en": Localized("pecorino")}), Ingredient("chili", {"en": Localized("chili")})],
+        raw_lines=[RawLine("200 g guanciale")],
+        usage=Usage(1, 1),
+    )
+    answer = {
+        "language": "en", "title": "Bacon carbonara", "description": "", "servings": None,
+        "prep_minutes": None, "cook_minutes": None, "total_minutes": None,
+        "ingredients": [line("pecorino", quantity=50, unit="g"), line("bacon", quantity=200, unit="g")],
+        "steps": [{"text": "Cook the pasta.", "section": None}], "notes": "", "tags": [],
+    }
+    chat = FakeChat(answer, names({"ja": "ベーコン"}))
+    done = assistant(book, chat).adapt_draft(draft, "use bacon")
+
+    assert "50 g pecorino" in chat.sent(0) and "200 g guanciale" in chat.sent(0) and "use bacon" in chat.sent(0)
+    assert json.loads(chat.sent(1)) == {"names": ["bacon"]}
+    assert done.updates_id == "r1" and done.raw_lines == []
+    assert [i.id for i in done.new_ingredients] == ["pecorino", "bacon"]
+    assert done.usage.prompt_tokens == 21
 
 
 def test_single_language_library_makes_no_naming_call(book):

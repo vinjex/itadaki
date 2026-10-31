@@ -30,7 +30,6 @@ from .models import (
     Usage,
 )
 from .page import fetch_html, main_text
-from .render import render_line
 from .units import round_quantity
 from .service import RecipeBook
 
@@ -238,10 +237,10 @@ class Assistant:
     def read_url(self, url: str, fallback_language: str = "en") -> Draft | None:
         return self.read_page(self.fetch(url), url, fallback_language)
 
-    def structure_draft(self, draft: Draft, note: str | None = None) -> Draft:
+    def structure_draft(self, draft: Draft) -> Draft:
         if not draft.raw_lines:
             return draft
-        structured = self.structure(draft.raw_lines, draft.recipe.language, note)
+        structured = self.structure(draft.raw_lines, draft.recipe.language)
         return replace(
             draft,
             recipe=replace(draft.recipe, ingredients=[*draft.recipe.ingredients, *structured.lines]),
@@ -336,19 +335,36 @@ class Assistant:
 
     def adapt(self, recipe_id: str, instruction: str, as_variant: bool = False) -> Draft:
         source = self._book.get_recipe(recipe_id)
-        lines = self._lines_as_text(source)
+        target = {"parent_id": source.id, "relation": Relation.VARIANT} if as_variant else {"updates_id": source.id}
+        return self.adapt_draft(Draft(source, **target), instruction)
+
+    def adapt_draft(self, draft: Draft, instruction: str) -> Draft:
+        """Rewrites a draft's recipe and keeps where it lands. Lines not structured yet
+        go along as written and come back structured, so this also finishes an import.
+        The draft's proposed ingredients count as known, so naming them again reuses them."""
+        source = draft.recipe
+        known = draft.new_ingredients
+        lines = [*self._lines_as_text(source, known), *draft.raw_lines]
         payload = json.dumps(self._raw_payload(source, lines), ensure_ascii=False)
         recipe, new, usage = self._rewrite(
-            "adapt", f"Rewrite this recipe as JSON, applying the user instructions.\n\n{payload}", instruction
+            "adapt", f"Rewrite this recipe as JSON, applying the user instructions.\n\n{payload}", instruction, known
         )
         recipe = replace(recipe, language=source.language, image_url=source.image_url, source_url=source.source_url)
-        target = {"parent_id": source.id, "relation": Relation.VARIANT} if as_variant else {"updates_id": source.id}
-        return Draft(recipe, new_ingredients=new, usage=usage, **target)
+        used = {line.ingredient_id for line in recipe.ingredients}
+        return replace(
+            draft,
+            recipe=recipe,
+            new_ingredients=[*(i for i in known if i.id in used), *new],
+            raw_lines=[],
+            usage=draft.usage + usage,
+        )
 
     # Internals
 
-    def _rewrite(self, action: str, user: str, note: str | None) -> tuple[Recipe, list[Ingredient], Usage]:
-        ingredients, units = self._book.list_ingredients(), self._book.list_units()
+    def _rewrite(
+        self, action: str, user: str, note: str | None, known: Sequence[Ingredient] = ()
+    ) -> tuple[Recipe, list[Ingredient], Usage]:
+        ingredients, units = [*self._book.list_ingredients(), *known], self._book.list_units()
         system = (
             "You turn recipes into structured JSON for a recipe app. Keep the recipe's "
             "language unless the user instructions say otherwise. Steps are one entry per "
@@ -365,7 +381,7 @@ class Assistant:
             return replace(recipe, ingredients=lines, **minutes), list(resolver.new.values())
 
         (recipe, new), usage = self._complete(action, system, _with_note(user, note), _RECIPE_SCHEMA, validate)
-        lines, new, naming = self._name_new_ingredients(recipe.ingredients, new, recipe.language)
+        lines, new, naming = self._name_new_ingredients(recipe.ingredients, new, recipe.language, known)
         return replace(recipe, ingredients=lines), new, usage + naming
 
     def _names_in(
@@ -392,7 +408,7 @@ class Assistant:
         return self._complete("translate", system, user, schema, validate)
 
     def _name_new_ingredients(
-        self, lines: list[IngredientLine], new: list[Ingredient], language: str
+        self, lines: list[IngredientLine], new: list[Ingredient], language: str, known: Sequence[Ingredient] = ()
     ) -> tuple[list[IngredientLine], list[Ingredient], Usage]:
         """Names proposed ingredients in the other catalog languages and gives them
         their final, English-based ids. A name already meaning another entry is left
@@ -402,7 +418,7 @@ class Assistant:
             return lines, new, Usage()
         named, usage = self._names_in([i.localized[language].name for i in new], language, targets)
 
-        catalog = self._book.list_ingredients()
+        catalog = [*self._book.list_ingredients(), *known]
         taken_terms = term_index((i.id, i.localized) for i in catalog)
         taken_ids = {i.id for i in catalog}
         final_ids: dict[str, str] = {}
@@ -438,13 +454,9 @@ class Assistant:
         }
         return {k: v for k, v in payload.items() if v not in (None, "", [])}
 
-    def _lines_as_text(self, recipe: Recipe) -> list[RawLine]:
-        ingredients = {i.id: i for i in self._book.list_ingredients()}
-        units = {u.id: u for u in self._book.list_units()}
-        return [
-            RawLine(render_line(line, recipe.language, ingredients, units), line.section)
-            for line in recipe.ingredients
-        ]
+    def _lines_as_text(self, recipe: Recipe, extra_ingredients: Sequence[Ingredient] = ()) -> list[RawLine]:
+        texts = self._book.rendered_lines(recipe.ingredients, recipe.language, extra_ingredients)
+        return [RawLine(text, line.section) for text, line in zip(texts, recipe.ingredients)]
 
     def _unit_table(self, units: list[Unit], language: str | None) -> str:
         # Only the recipe's language plus English when known, to keep the list short.
