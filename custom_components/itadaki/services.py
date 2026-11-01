@@ -17,7 +17,7 @@ from homeassistant.exceptions import HomeAssistantError, ServiceValidationError,
 
 from .ai_config import build_assistant, changed, public
 from .const import CONF_BASE_URL, CONF_EXTRA_BODY, CONF_MODEL, CONF_MODELS, CONF_STRUCTURED_OUTPUT, DOMAIN
-from .core import AI_ACTIONS, Draft, InUseError, InvalidRequestError, ItadakiError, NoRecipeDataError, RawLine
+from .core import AI_ACTIONS, Draft, InUseError, InvalidRequestError, ItadakiError, NoRecipeDataError, RawLine, Recipe
 from .core.llm import AiError
 
 if TYPE_CHECKING:
@@ -110,7 +110,7 @@ def _get_draft(it: Itadaki, d: dict[str, Any]) -> dict[str, Any]:
     result = entry.to_dict()
     if entry.draft:
         recipe = entry.draft.recipe
-        result["lines_text"] = it.book.rendered_lines(recipe.ingredients, recipe.language, entry.draft.new_ingredients)
+        result["lines"] = _split(it, recipe, entry.draft.new_ingredients)
     return result
 
 
@@ -124,8 +124,11 @@ def _get_recipe(it: Itadaki, d: dict[str, Any]) -> dict[str, Any]:
     related = it.book.related(recipe.id)
     if d.get("servings"):
         recipe = it.book.scaled(recipe, d["servings"])
-    lines = it.book.rendered_lines(recipe.ingredients, recipe.language)
-    return {"recipe": recipe.to_dict(), "lines_text": lines, **related}
+    return {"recipe": recipe.to_dict(), "lines": _split(it, recipe), **related}
+
+
+def _split(it: Itadaki, recipe: Recipe, extra_ingredients=()) -> list[dict[str, str]]:
+    return [p.to_dict() for p in it.book.split_lines(recipe.ingredients, recipe.language, extra_ingredients)]
 
 
 def _structure_lines(it: Itadaki, d: dict[str, Any]) -> dict[str, Any]:

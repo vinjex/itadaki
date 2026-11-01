@@ -1,7 +1,7 @@
 import pytest
 
 from core import IngredientLine
-from core.render import render_line
+from core.render import LineParts, line_parts, render_line
 from core.units import DEFAULT_UNITS
 from core.models import Ingredient, Localized
 
@@ -28,3 +28,9 @@ INGREDIENTS = {
 )
 def test_render_line(line, language, text):
     assert render_line(line, language, INGREDIENTS, UNITS) == text
+
+
+def test_line_parts_keep_name_measure_and_note_apart():
+    line = IngredientLine("soy_sauce", 2, unit_id="tbsp", note="dark")
+    assert line_parts(line, "en", INGREDIENTS, UNITS) == LineParts("soy sauce", "2 tbsp", "dark")
+    assert line_parts(line, "ja", INGREDIENTS, UNITS) == LineParts("醤油", "大さじ2", "dark")

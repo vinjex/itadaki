@@ -26,7 +26,7 @@ from .models import (
     Unit,
 )
 from .storage import Store
-from .render import render_line
+from .render import LineParts, line_parts, render_line
 from .tree import is_stale, pick_per_group, translation_group, validate_child
 from .units import DEFAULT_UNITS, scale_lines
 
@@ -105,9 +105,17 @@ class RecipeBook:
         self, lines: list[IngredientLine], language: str, extra_ingredients: list[Ingredient] = ()
     ) -> list[str]:
         """Display text per line; extra_ingredients covers a draft's not-yet-saved ones."""
+        return self._per_line(render_line, lines, language, extra_ingredients)
+
+    def split_lines(
+        self, lines: list[IngredientLine], language: str, extra_ingredients: list[Ingredient] = ()
+    ) -> list[LineParts]:
+        return self._per_line(line_parts, lines, language, extra_ingredients)
+
+    def _per_line(self, render, lines, language, extra_ingredients):
         ingredients = {i.id: i for i in [*self._store.list_ingredients(), *extra_ingredients]}
         units = {u.id: u for u in self._store.list_units()}
-        return [render_line(line, language, ingredients, units) for line in lines]
+        return [render(line, language, ingredients, units) for line in lines]
 
     def scaled(self, recipe: Recipe, servings: float) -> Recipe:
         if not recipe.servings:

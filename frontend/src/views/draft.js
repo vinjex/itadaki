@@ -150,7 +150,7 @@ class ItadakiDraft extends LitElement {
       ...recipe,
       ingredients: [...recipe.ingredients, ...draft.raw_lines.map((r) => ({ section: r.section }))],
     };
-    const lines = [...(entry.lines_text || []), ...draft.raw_lines.map((r) => r.text)];
+    const lines = [...(entry.lines || []), ...draft.raw_lines.map((r) => ({ name: r.text }))];
 
     if (ready) return this._renderReview(draft);
 

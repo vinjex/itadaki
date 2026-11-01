@@ -5,7 +5,7 @@ import "./body.js";
 import "./busy.js";
 import "./menu.js";
 import "./page.js";
-import { headerButton } from "../icons.js";
+import { headerButton, icon } from "../icons.js";
 import { describeRequest } from "../drafts.js";
 
 import { navigate } from "../router.js";
@@ -26,6 +26,7 @@ class ItadakiRecipe extends LitElement {
     // The AI action waiting on its card: {action: "adapt"} or {action: "translate", recipeId, language}.
     _task: { state: true },
     _drafts: { state: true },
+    _cooking: { state: true },
   };
 
   static styles = [
@@ -47,6 +48,20 @@ class ItadakiRecipe extends LitElement {
       .chip.ready { background: var(--it-accent); color: var(--it-on-accent); }
       .chip.failed { background: color-mix(in srgb, var(--it-error) 18%, transparent); }
       a { color: var(--it-accent); }
+      /* Home Assistant's extended floating action button. */
+      .fab { position: fixed; z-index: 3; right: calc(16px + env(safe-area-inset-right));
+        bottom: calc(16px + env(safe-area-inset-bottom)); display: flex; align-items: center; gap: 8px;
+        height: 56px; padding: 0 20px 0 16px; border: none; border-radius: 16px; cursor: pointer;
+        font: inherit; font-weight: 600; background: var(--it-accent); color: var(--it-on-accent);
+        box-shadow: 0 3px 5px -1px rgba(0, 0, 0, 0.2), 0 6px 10px rgba(0, 0, 0, 0.14); }
+      .fab svg { width: 24px; height: 24px; fill: currentColor; }
+      .fab-space { height: 72px; }
+      .cooking { position: fixed; inset: 0; z-index: 10; overflow-y: auto;
+        background: var(--primary-background-color, #f2f2f7); }
+      .cooking header { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; gap: 8px;
+        padding: 4px 4px 4px 20px; background: var(--primary-background-color, #f2f2f7); }
+      .cooking h1 { flex: 1; min-width: 0; margin: 0; font-size: 1.5rem; }
+      .cooking .body { max-width: 1100px; margin: 0 auto; padding: 8px 16px 32px; }
     `,
   ];
 
@@ -58,12 +73,26 @@ class ItadakiRecipe extends LitElement {
   disconnectedCallback() {
     super.disconnectedCallback();
     this._unsubscribe?.then((stop) => stop());
+    this._keepAwake(false);
+  }
+
+  // The browser drops the lock whenever the page is hidden, so it is taken again on return.
+  _keepAwake(on) {
+    document.removeEventListener("visibilitychange", this._onVisible);
+    this._wakeLock?.then((lock) => lock?.release());
+    this._wakeLock = undefined;
+    if (!on || !navigator.wakeLock) return;
+    this._onVisible ??= () => document.visibilityState === "visible" && this._keepAwake(true);
+    document.addEventListener("visibilitychange", this._onVisible);
+    this._wakeLock = navigator.wakeLock.request("screen").catch(() => undefined);
   }
 
   updated(changed) {
+    if (changed.has("_cooking")) this._keepAwake(Boolean(this._cooking));
     if (changed.has("recipeId")) {
       this._servings = undefined;
       this._task = undefined;
+      this._cooking = false;
       this._load();
       this._loadDrafts();
     }
@@ -130,7 +159,24 @@ class ItadakiRecipe extends LitElement {
   }
 
   render() {
-    return html`<itadaki-page .t=${this.t}>${this._data ? this._actions() : nothing}${this._content()}</itadaki-page>`;
+    if (this._cooking) return this._cookingMode();
+    return html`<itadaki-page .t=${this.t}>${this._data ? this._actions() : nothing}${this._content()}</itadaki-page>
+      ${this._data
+        ? html`<button class="fab" @click=${() => (this._cooking = true)}>${icon("cook")}${this.t("cook")}</button>`
+        : nothing}`;
+  }
+
+  // Only what is needed at the stove, large enough to read from a distance.
+  _cookingMode() {
+    const { recipe, lines } = this._data;
+    return html`<div class="cooking">
+      <header>
+        <h1>${recipe.title}</h1>
+        <button class="icon" aria-label=${this.t("closeCooking")} title=${this.t("closeCooking")}
+          @click=${() => (this._cooking = false)}>${icon("close")}</button>
+      </header>
+      <div class="body"><itadaki-body cooking .recipe=${recipe} .lines=${lines} .t=${this.t}></itadaki-body></div>
+    </div>`;
   }
 
   // Header icons: the language menu switches between this dish's versions and
@@ -185,7 +231,7 @@ class ItadakiRecipe extends LitElement {
   _content() {
     const t = this.t;
     if (!this._data) return this._error ? html`<div class="error">${this._error}</div>` : html`<itadaki-busy></itadaki-busy>`;
-    const { recipe, lines_text, variants, stale, parent } = this._data;
+    const { recipe, lines, variants, stale, parent } = this._data;
     const minutes = recipe.total_minutes || (recipe.prep_minutes || 0) + (recipe.cook_minutes || 0);
 
     return html`
@@ -237,7 +283,7 @@ class ItadakiRecipe extends LitElement {
       ${this._busy ? html`<itadaki-busy .text=${t("working")}></itadaki-busy>` : nothing}
       ${this._error ? html`<div class="error">${this._error}</div>` : nothing}
 
-      <itadaki-body .recipe=${recipe} .lines=${lines_text} .t=${t}></itadaki-body>
+      <itadaki-body .recipe=${recipe} .lines=${lines} .t=${t}></itadaki-body>
 
       ${variants.length
         ? html`<div class="card variants">
@@ -247,6 +293,7 @@ class ItadakiRecipe extends LitElement {
             )}</div>
           </div>`
         : nothing}
+      <div class="fab-space"></div>
     `;
   }
 }
