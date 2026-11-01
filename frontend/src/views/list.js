@@ -1,7 +1,7 @@
 import { LitElement, html, css, nothing } from "lit";
 import { shared } from "../styles.js";
 import { navigate } from "../router.js";
-import { icon } from "../icons.js";
+import { headerButton } from "../icons.js";
 import "./page.js";
 import "./text.js";
 import { describeRequest } from "../drafts.js";
@@ -87,8 +87,7 @@ class ItadakiList extends LitElement {
     const t = this.t;
     return html`<itadaki-page .t=${t} header=${t("recipes")} home ?narrow=${this.narrow}>
       ${this.admin
-        ? html`<button slot="actions" class="icon" @click=${() => navigate(this, { view: "manage" })} aria-label=${t("manage")} title=${t("manage")}>
-            ${icon("cog")}</button>`
+        ? headerButton("cog", t("manage"), () => navigate(this, { view: "manage" }))
         : nothing}
       <div class="tools">
         <itadaki-text style="flex:1" .value=${this._query} placeholder=${t("search")} @input=${this._search}></itadaki-text>

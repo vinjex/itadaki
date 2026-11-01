@@ -16,8 +16,8 @@ from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse, Supp
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError, Unauthorized
 
 from .ai_config import build_assistant, changed, public
-from .const import AI_ACTIONS, CONF_BASE_URL, CONF_EXTRA_BODY, CONF_MODEL, CONF_MODELS, CONF_STRUCTURED_OUTPUT, DOMAIN
-from .core import Draft, InUseError, InvalidRequestError, ItadakiError, RawLine
+from .const import CONF_BASE_URL, CONF_EXTRA_BODY, CONF_MODEL, CONF_MODELS, CONF_STRUCTURED_OUTPUT, DOMAIN
+from .core import AI_ACTIONS, Draft, InUseError, InvalidRequestError, ItadakiError, NoRecipeDataError, RawLine
 from .core.llm import AiError
 
 if TYPE_CHECKING:
@@ -29,6 +29,7 @@ _ID = probatio.Required("recipe_id")
 _NOTE = probatio.Optional("note")
 _SAVE = probatio.Optional("save", default=False)
 _DRAFT_ID = probatio.Required("draft_id")
+_EDITED = probatio.Optional("draft")
 _SOURCE = probatio.Required("source_id")
 _TARGET = probatio.Required("target_id")
 
@@ -51,27 +52,21 @@ def _raw_line(value: Any) -> RawLine:
 
 
 def _import_url(it: Itadaki, d: dict[str, Any]) -> dict[str, Any]:
-    """Instant when the page has embedded recipe data: the draft is readable at once
-    and only its ingredient lines are left to the AI job, or with a note the whole
-    draft is adapted, which structures the lines too. Without AI the draft is ready
-    at once and its lines are structured by hand in review."""
-    url, note = d["url"], d.get("note")
-    request = _request(d, "url", "note")
-    html = it.assistant.fetch(url)
-    draft = it.assistant.read_page(html, url)
+    """Never runs AI: a page that embeds recipe data is a ready draft at once, its
+    ingredient lines left to structure_draft or to matching by hand in review."""
+    url = d["url"]
+    draft = it.assistant.read_page(it.assistant.fetch(url), url)
     if draft is None:
-        if not it.assistant.enabled:
-            raise InvalidRequestError("this page has no embedded recipe data, which needs AI to import")
-        work = lambda: it.assistant.extract(url, note, html)  # noqa: E731
-        return {"draft_id": it.jobs.start("import", url, work, d["save"], request=request)}
-    if it.assistant.enabled and note:
-        work = lambda: it.assistant.adapt_draft(draft, note)  # noqa: E731
-    elif it.assistant.enabled:
-        work = lambda: it.assistant.structure_draft(draft)  # noqa: E731
-    else:
-        work = lambda: draft  # noqa: E731
-    draft_id = it.jobs.start("import", draft.recipe.title, work, d["save"], initial=draft, request=request)
-    return {"draft_id": draft_id}
+        raise NoRecipeDataError(f"{url} embeds no recipe data; extract_url imports it with AI")
+    work = lambda: draft  # noqa: E731
+    return {"draft_id": it.jobs.start("import", draft.recipe.title, work, False, initial=draft, request={"url": url})}
+
+
+def _extract_url(it: Itadaki, d: dict[str, Any]) -> dict[str, Any]:
+    it.assistant.require()
+    url, note = d["url"], d.get("note")
+    work = lambda: it.assistant.extract(url, note)  # noqa: E731
+    return {"draft_id": it.jobs.start("import", url, work, d["save"], request=_request(d, "url", "note"))}
 
 
 def _translate(it: Itadaki, d: dict[str, Any]) -> dict[str, Any]:
@@ -90,13 +85,24 @@ def _adapt(it: Itadaki, d: dict[str, Any]) -> dict[str, Any]:
     return {"draft_id": it.jobs.start("adapt", source.title, work, d["save"], recipe_id=source.id, request=request)}
 
 
-def _adapt_draft(it: Itadaki, d: dict[str, Any]) -> dict[str, Any]:
+def _rework(
+    it: Itadaki, d: dict[str, Any], request: dict[str, Any], work: Callable[[Draft], Draft]
+) -> dict[str, Any]:
+    """Sends a ready draft, as edited in review when given, back to the AI."""
     it.assistant.require()
     edited = _parsed(Draft.from_dict, d["draft"], "draft") if d.get("draft") else None
-    entry = it.book.rework_draft(d["draft_id"], _request(d, "instruction"), edited)
+    entry = it.book.rework_draft(d["draft_id"], request, edited)
     draft = entry.draft
-    it.jobs.rework(entry.id, lambda: it.assistant.adapt_draft(draft, d["instruction"]))
+    it.jobs.rework(entry.id, lambda: work(draft), d["save"])
     return {"draft_id": entry.id}
+
+
+def _adapt_draft(it: Itadaki, d: dict[str, Any]) -> dict[str, Any]:
+    return _rework(it, d, _request(d, "instruction"), lambda draft: it.assistant.adapt_draft(draft, d["instruction"]))
+
+
+def _structure_draft(it: Itadaki, d: dict[str, Any]) -> dict[str, Any]:
+    return _rework(it, d, _request(d, "note"), lambda draft: it.assistant.structure_draft(draft, d.get("note")))
 
 
 def _get_draft(it: Itadaki, d: dict[str, Any]) -> dict[str, Any]:
@@ -188,7 +194,9 @@ ACTIONS: dict[str, tuple[probatio.Schema, Handler, SupportsResponse]] = {
     ),
     "get_settings": (probatio.Schema({}), lambda it, d: it.book.get_settings().to_dict(), SupportsResponse.ONLY),
     "update_settings": (
-        probatio.Schema({probatio.Optional("languages"): [str]}),
+        probatio.Schema(
+            {probatio.Optional("languages"): [str], probatio.Optional("instructions"): {probatio.In(AI_ACTIONS): str}}
+        ),
         lambda it, d: it.book.update_settings(d).to_dict(),
         SupportsResponse.OPTIONAL,
     ),
@@ -238,9 +246,10 @@ ACTIONS: dict[str, tuple[probatio.Schema, Handler, SupportsResponse]] = {
         SupportsResponse.OPTIONAL,
     ),
     "catalog_usage": (probatio.Schema({}), lambda it, d: it.book.catalog_usage(), SupportsResponse.ONLY),
-    "import_url": (
+    "import_url": (probatio.Schema({probatio.Required("url"): str}), _import_url, SupportsResponse.OPTIONAL),
+    "extract_url": (
         probatio.Schema({probatio.Required("url"): str, _NOTE: str, _SAVE: bool}),
-        _import_url,
+        _extract_url,
         SupportsResponse.OPTIONAL,
     ),
     "structure_lines": (
@@ -266,8 +275,13 @@ ACTIONS: dict[str, tuple[probatio.Schema, Handler, SupportsResponse]] = {
         SupportsResponse.OPTIONAL,
     ),
     "adapt_draft": (
-        probatio.Schema({_DRAFT_ID: str, probatio.Required("instruction"): str, probatio.Optional("draft"): dict}),
+        probatio.Schema({_DRAFT_ID: str, probatio.Required("instruction"): str, _EDITED: dict, _SAVE: bool}),
         _adapt_draft,
+        SupportsResponse.OPTIONAL,
+    ),
+    "structure_draft": (
+        probatio.Schema({_DRAFT_ID: str, _NOTE: str, _EDITED: dict, _SAVE: bool}),
+        _structure_draft,
         SupportsResponse.OPTIONAL,
     ),
     "list_drafts": (
@@ -277,7 +291,7 @@ ACTIONS: dict[str, tuple[probatio.Schema, Handler, SupportsResponse]] = {
     ),
     "get_draft": (probatio.Schema({_DRAFT_ID: str}), _get_draft, SupportsResponse.ONLY),
     "save_draft": (
-        probatio.Schema({_DRAFT_ID: str, probatio.Optional("draft"): dict}),
+        probatio.Schema({_DRAFT_ID: str, _EDITED: dict}),
         _save_draft,
         SupportsResponse.OPTIONAL,
     ),
@@ -367,6 +381,8 @@ def _make_service(
             return await run(entries[0], dict(call.data))
         except AiError as err:
             raise HomeAssistantError(str(err)) from err
+        except NoRecipeDataError as err:
+            raise ServiceValidationError(str(err), translation_domain=DOMAIN, translation_key="no_recipe_data") from err
         except InUseError as err:
             # The key lets the panel tell this refusal apart and offer a cascade.
             raise ServiceValidationError(str(err), translation_domain=DOMAIN, translation_key="in_use") from err

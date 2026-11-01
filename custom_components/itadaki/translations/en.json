@@ -95,7 +95,7 @@
     },
     "get_settings": {
       "name": "Get settings",
-      "description": "Library settings: languages, the languages every ingredient and unit is named in and recipes are translated into."
+      "description": "Library settings: languages, the languages every ingredient and unit is named in and recipes are translated into; instructions, the standing instructions sent with every run of each AI action (extract, structure, translate, adapt)."
     },
     "update_settings": {
       "name": "Update settings",
@@ -104,6 +104,10 @@
         "languages": {
           "name": "Languages",
           "description": "Language codes, e.g. en, ja. At least one."
+        },
+        "instructions": {
+          "name": "Standing instructions",
+          "description": "Admins only. {extract, structure, translate, adapt}: text sent with every run of that AI action, before the request's own note. Empty sends none."
         }
       }
     },
@@ -235,7 +239,17 @@
     },
     "import_url": {
       "name": "Import recipe from URL",
-      "description": "Imports a recipe from a web page. If the page embeds recipe data the draft is readable immediately and only the ingredient lines are structured by the AI, or, with a note, the whole recipe is adapted to it; otherwise the AI extracts the whole recipe. Runs in the background: returns a draft_id at once; poll get_draft until its status is ready (or failed), then review and save_draft. With save on, the result is saved automatically when done.",
+      "description": "Imports a recipe from a web page that embeds recipe data, without AI: returns a draft_id whose draft is ready at once. Its ingredient lines are still raw text (raw_lines); structure them with structure_draft, or match them by hand, before save_draft. A page without embedded data is refused; extract_url imports it with AI.",
+      "fields": {
+        "url": {
+          "name": "URL",
+          "description": "Page with the recipe."
+        }
+      }
+    },
+    "extract_url": {
+      "name": "Import recipe from URL with AI",
+      "description": "For pages without embedded recipe data: the AI reads the page text and writes the whole recipe, following the standing extract instructions and the note. Runs in the background: returns a draft_id at once; poll get_draft until its status is ready (or failed), then review and save_draft. With save on, the result is saved automatically when done.",
       "fields": {
         "url": {
           "name": "URL",
@@ -243,7 +257,7 @@
         },
         "note": {
           "name": "Note",
-          "description": "Optional instructions for the AI, e.g. convert to metric or make it vegetarian. They apply to the whole recipe."
+          "description": "Optional instructions for the AI, e.g. convert to metric or make it vegetarian. They win over the standing instructions."
         },
         "save": {
           "name": "Save",
@@ -327,7 +341,33 @@
         },
         "draft": {
           "name": "Edited draft",
-          "description": "Optional: the draft content as edited in review; without it the stored draft is adapted."
+          "description": "Optional: the draft content as edited in review; without it the stored draft is used."
+        },
+        "save": {
+          "name": "Save",
+          "description": "Save the result directly. Off returns an unsaved draft to review and pass to save_draft."
+        }
+      }
+    },
+    "structure_draft": {
+      "name": "Structure draft ingredients",
+      "description": "Structures a ready draft's raw ingredient lines (raw_lines), e.g. after import_url, linking them to the ingredient and unit lists and proposing new ingredients. Runs in the background like adapt_draft.",
+      "fields": {
+        "draft_id": {
+          "name": "Draft ID",
+          "description": "ID returned by import_url, or from list_drafts."
+        },
+        "note": {
+          "name": "Note",
+          "description": "Optional extra instructions for the AI, e.g. convert to metric."
+        },
+        "draft": {
+          "name": "Edited draft",
+          "description": "Optional: the draft content as edited in review; without it the stored draft is used."
+        },
+        "save": {
+          "name": "Save",
+          "description": "Save the result directly. Off returns an unsaved draft to review and pass to save_draft."
         }
       }
     },

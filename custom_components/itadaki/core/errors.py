@@ -15,6 +15,10 @@ class InUseError(ItadakiError):
     pass
 
 
+class NoRecipeDataError(InvalidRequestError):
+    """The page embeds no recipe data, so only the AI can import it."""
+
+
 class TreeError(ItadakiError, ValueError):
     pass
 

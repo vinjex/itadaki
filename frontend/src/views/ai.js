@@ -7,13 +7,15 @@ import "./text.js";
 const TASKS = ["extract", "structure", "translate", "adapt"];
 const JSON_MODES = ["schema", "json", "off"];
 
-// The AI provider. The saved key is never sent back: the page only knows whether
-// one exists. Fires `settings-changed` with {ai} after a save.
+// The AI provider, and the library's standing instructions per action. The saved key
+// is never sent back: the page only knows whether one exists. Fires `settings-changed`
+// with {ai, instructions} after a save.
 class ItadakiAi extends LitElement {
   static properties = {
     api: { attribute: false },
     t: { attribute: false },
     _s: { state: true },
+    _instructions: { state: true },
     _key: { state: true },
     _extra: { state: true },
     _busy: { state: true },
@@ -28,7 +30,8 @@ class ItadakiAi extends LitElement {
       .status { margin: 12px 0 4px; font-weight: 500; }
       details { margin-top: 16px; }
       summary { cursor: pointer; color: var(--it-muted); }
-      textarea { font-family: monospace; font-size: 0.85rem; }
+      details textarea { font-family: monospace; font-size: 0.85rem; }
+      .section { margin-top: 24px; }
       .hint { font-size: 0.8rem; margin-top: 4px; word-break: break-all; }
       .actions { margin-top: 20px; }
     `,
@@ -41,7 +44,9 @@ class ItadakiAi extends LitElement {
 
   async _load() {
     try {
-      this._show(await this.api.call("get_ai_settings"));
+      const [ai, library] = await Promise.all([this.api.call("get_ai_settings"), this.api.call("get_settings")]);
+      this._instructions = library.instructions;
+      this._show(ai);
     } catch (err) {
       this._error = err.message;
     }
@@ -79,10 +84,15 @@ class ItadakiAi extends LitElement {
     this._busy = true;
     this._error = undefined;
     try {
-      const saved = await this.api.call("update_ai_settings", changes);
+      const [saved, library] = await Promise.all([
+        this.api.call("update_ai_settings", changes),
+        this.api.call("update_settings", { instructions: this._instructions }),
+      ]);
       this._show(saved);
+      this._instructions = library.instructions;
       this._saved = true;
-      this.dispatchEvent(new CustomEvent("settings-changed", { detail: { ai: saved.enabled }, bubbles: true, composed: true }));
+      const detail = { ai: saved.enabled, instructions: library.instructions };
+      this.dispatchEvent(new CustomEvent("settings-changed", { detail, bubbles: true, composed: true }));
     } catch (err) {
       this._error = err.message;
     } finally {
@@ -109,6 +119,14 @@ class ItadakiAi extends LitElement {
         <itadaki-text type="password" .value=${this._key} @input=${(e) => ((this._key = e.target.value), (this._saved = false))}></itadaki-text>
         ${s.api_key_set ? html`<div class="muted hint">${t("apiKeySet")}</div>` : nothing}
         ${text("model", t("model"))}
+
+        <h2 class="section">${t("standing")}</h2>
+        <div class="muted" style="font-size:0.85rem">${t("standingHint")}</div>
+        ${TASKS.map(
+          (task) => html`<label>${t("instructionsFor", { action: t(`task_${task}`) })}</label>
+            <textarea rows="2" .value=${this._instructions[task] || ""}
+              @input=${(e) => ((this._instructions = { ...this._instructions, [task]: e.target.value }), (this._saved = false))}></textarea>`,
+        )}
 
         <details>
           <summary>${t("advanced")}</summary>

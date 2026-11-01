@@ -230,3 +230,21 @@ def test_answers_may_leave_out_empty_fields(book):
     chat = FakeChat({"ingredients": [{"name": "milk", "quantity": 1, "unit": "cup_us"}]}, {"names": [{"ja": {"name": "牛乳"}}]})
     result = assistant(book, chat).structure([RawLine("1 cup milk")], "en")
     assert result.lines[0].note is None and result.new_ingredients[0].localized["ja"].name == "牛乳"
+
+
+def test_standing_instructions_go_first_and_the_note_wins(book):
+    book.update_settings({"instructions": {"structure": "Use metric units."}})
+    chat = FakeChat({"ingredients": [line("milk")]}, names({"ja": "牛乳"}))
+    assistant(book, chat).structure([RawLine("1 cup milk")], "en", "Keep cups this time.")
+    sent = chat.sent(0)
+    assert sent.index("Use metric units.") < sent.index("Keep cups this time.")
+    assert "over the standing ones" in sent
+
+
+def test_translation_memory_ignores_standing_instructions(book, carbonara):
+    first = FakeChat({"texts": ["カルボナーラ", "パスタを茹でる。"]})
+    book.save_draft(assistant(book, first).translate(carbonara.id, "ja"))
+    book.update_settings({"instructions": {"translate": "Keep it casual."}})
+    idle = FakeChat()
+    assistant(book, idle).translate(carbonara.id, "ja")
+    assert idle.calls == []

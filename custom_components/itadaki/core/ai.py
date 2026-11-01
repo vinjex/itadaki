@@ -98,10 +98,6 @@ Units (id: words that mean it):
 {units}"""
 
 
-def _with_note(text: str, note: str | None) -> str:
-    return f"{text}\n\nUser instructions, follow them: {note}" if note else text
-
-
 # --- Turning model answers into catalog-linked lines
 
 
@@ -237,10 +233,10 @@ class Assistant:
     def read_url(self, url: str, fallback_language: str = "en") -> Draft | None:
         return self.read_page(self.fetch(url), url, fallback_language)
 
-    def structure_draft(self, draft: Draft) -> Draft:
+    def structure_draft(self, draft: Draft, note: str | None = None) -> Draft:
         if not draft.raw_lines:
             return draft
-        structured = self.structure(draft.raw_lines, draft.recipe.language)
+        structured = self.structure(draft.raw_lines, draft.recipe.language, note)
         return replace(
             draft,
             recipe=replace(draft.recipe, ingredients=[*draft.recipe.ingredients, *structured.lines]),
@@ -272,7 +268,7 @@ class Assistant:
             "You convert recipe ingredient lines into structured JSON.\n\n"
             + _ingredient_rules(self._unit_table(units, language))
         )
-        user = _with_note(f"Recipe language: {language}\n\nLines:\n{numbered}", note)
+        user = self._instructed("structure", f"Recipe language: {language}\n\nLines:\n{numbered}", note)
 
         def validate(answer: dict[str, Any]) -> tuple[list[IngredientLine], list[Ingredient]]:
             resolver = _LineResolver(ingredients, units, language)
@@ -310,7 +306,7 @@ class Assistant:
                 "Return `texts` with exactly one translation per input text, in the same order. "
                 "Use natural cooking language and keep numbers and units as written."
             )
-            user = _with_note(json.dumps({"texts": todo}, ensure_ascii=False), note)
+            user = self._instructed("translate", json.dumps({"texts": todo}, ensure_ascii=False), note)
 
             def validate(answer: dict[str, Any]) -> list[str]:
                 if len(answer["texts"]) != len(todo):
@@ -361,6 +357,17 @@ class Assistant:
 
     # Internals
 
+    def _instructed(self, action: str, text: str, note: str | None) -> str:
+        """The request with the library's standing instructions for this action, then
+        the note for this one request, which wins where the two disagree."""
+        standing = self._book.get_settings().instructions.get(action)
+        parts = [text]
+        if standing:
+            parts.append(f"Standing instructions, follow them: {standing}")
+        if note:
+            parts.append(f"Instructions for this request, follow them over the standing ones: {note}")
+        return "\n\n".join(parts)
+
     def _rewrite(
         self, action: str, user: str, note: str | None, known: Sequence[Ingredient] = ()
     ) -> tuple[Recipe, list[Ingredient], Usage]:
@@ -380,7 +387,7 @@ class Assistant:
             minutes = {k: round(v) if v is not None else None for k, v in answer.items() if k.endswith("_minutes")}
             return replace(recipe, ingredients=lines, **minutes), list(resolver.new.values())
 
-        (recipe, new), usage = self._complete(action, system, _with_note(user, note), _RECIPE_SCHEMA, validate)
+        (recipe, new), usage = self._complete(action, system, self._instructed(action, user, note), _RECIPE_SCHEMA, validate)
         lines, new, naming = self._name_new_ingredients(recipe.ingredients, new, recipe.language, known)
         return replace(recipe, ingredients=lines), new, usage + naming
 

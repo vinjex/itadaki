@@ -62,7 +62,7 @@ def step(label, action):
 
 
 ai = Assistant(book, chat, settings, fetch=lambda u: html)
-original = step("import (embedded data, lines only)", lambda: ai.import_url(url))
+original = step("import (embedded data, lines only)", lambda: ai.structure_draft(ai.read_url(url)))
 if original and "translate" in steps:
     step("translate to ja", lambda: ai.translate(original.id, "ja"))
 if original and "adapt" in steps:
@@ -75,4 +75,4 @@ if "page" not in steps:
 
 stripped = re.sub(r"<script[^>]*ld\+json[^>]*>.*?</script>", "", html, flags=re.S | re.I)
 no_data = Assistant(book, chat, settings, fetch=lambda u: stripped)
-step("import (no embedded data, page text)", lambda: no_data.import_url(url))
+step("import (no embedded data, page text)", lambda: no_data.extract(url))

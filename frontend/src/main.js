@@ -37,12 +37,12 @@ class ItadakiPanel extends LitElement {
     this.api = hassTransport(() => this.hass);
   }
 
-  // The library's languages and whether AI is set up shape most screens, so nothing
-  // renders before they are known.
+  // The library's languages, its standing AI instructions and whether AI is set up
+  // shape most screens, so nothing renders before they are known.
   willUpdate() {
     if (this.hass && !this._loading) {
       this._loading = Promise.all([this.api.call("get_settings"), this.api.call("get_ai_settings")])
-        .then(([library, ai]) => (this._settings = { languages: library.languages, ai: ai.enabled }))
+        .then(([library, ai]) => (this._settings = { languages: library.languages, instructions: library.instructions, ai: ai.enabled }))
         .catch((err) => (this._error = err.message));
     }
   }
@@ -73,16 +73,16 @@ class ItadakiPanel extends LitElement {
   }
 
   _screen(v, t, lang) {
-    const { languages, ai } = this._settings;
+    const { languages, instructions, ai } = this._settings;
     const admin = Boolean(this.hass.user?.is_admin);
     // Library management is for admins; the server refuses their changes anyway.
     if (!admin && MANAGE_VIEWS.has(v.view)) v = { view: "list" };
     switch (v.view) {
-      case "recipe": return html`<itadaki-recipe .api=${this.api} .t=${t} lang=${lang} .languages=${languages} ?ai=${ai} .recipeId=${v.id}></itadaki-recipe>`;
-      case "import": return html`<itadaki-import .api=${this.api} .t=${t} ?ai=${ai}></itadaki-import>`;
+      case "recipe": return html`<itadaki-recipe .api=${this.api} .t=${t} lang=${lang} .languages=${languages} ?ai=${ai} .instructions=${instructions} .recipeId=${v.id}></itadaki-recipe>`;
+      case "import": return html`<itadaki-import .api=${this.api} .t=${t} ?ai=${ai} .instructions=${instructions}></itadaki-import>`;
       case "new":
       case "edit": return html`<itadaki-edit .api=${this.api} .t=${t} lang=${lang} .languages=${languages} .recipeId=${v.id}></itadaki-edit>`;
-      case "draft": return html`<itadaki-draft .api=${this.api} .t=${t} lang=${lang} .languages=${languages} ?ai=${ai} .draftId=${v.id}></itadaki-draft>`;
+      case "draft": return html`<itadaki-draft .api=${this.api} .t=${t} lang=${lang} .languages=${languages} ?ai=${ai} .instructions=${instructions} .draftId=${v.id}></itadaki-draft>`;
       case "manage": return html`<itadaki-manage .t=${t}></itadaki-manage>`;
       case "languages": return html`<itadaki-languages .api=${this.api} .t=${t} .languages=${languages}></itadaki-languages>`;
       case "ai": return html`<itadaki-ai .api=${this.api} .t=${t}></itadaki-ai>`;

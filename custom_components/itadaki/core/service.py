@@ -11,6 +11,7 @@ from .errors import InUseError, InvalidRequestError, NotFoundError
 from .images import IMAGE_PATH, content_id, image_type, stored_image_id
 from .languages import clean_languages, language_code
 from .models import (
+    AI_ACTIONS,
     CatalogKind,
     Draft,
     DraftEntry,
@@ -364,6 +365,12 @@ class RecipeBook:
         settings = self.get_settings()
         if "languages" in changes:
             settings = replace(settings, languages=clean_languages(changes["languages"]))
+        if "instructions" in changes:
+            given = changes["instructions"]
+            if unknown := given.keys() - set(AI_ACTIONS):
+                raise InvalidRequestError(f"unknown AI actions: {', '.join(sorted(unknown))}")
+            cleaned = {action: str(text or "").strip() for action, text in given.items()}
+            settings = replace(settings, instructions={**settings.instructions, **cleaned})
         self._store.put_settings(settings)
         return settings
 

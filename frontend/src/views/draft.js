@@ -1,19 +1,20 @@
 import { LitElement, html, css, nothing } from "lit";
 import { shared } from "../styles.js";
-import "./adapt.js";
+import "./ai-run.js";
 import "./body.js";
 import "./busy.js";
 import "./page.js";
 import "./editor.js";
 import "./text.js";
 import { describeRequest } from "../drafts.js";
+import { headerButton } from "../icons.js";
 
 import { navigate } from "../router.js";
 
-// A draft from the inbox, live: it shows whatever exists so far (an import's recipe
-// is readable while its ingredients are still being structured) and refreshes when
+// A draft from the inbox, live: it shows whatever exists so far and refreshes when
 // the job reports back. When ready, the whole recipe is editable, and so are the
-// names of the ingredients about to join the shared list.
+// names of the ingredients about to join the shared list. More AI work on it (matching
+// the ingredient lines, adapting) only starts from the AI card, never by itself.
 class ItadakiDraft extends LitElement {
   static properties = {
     api: { attribute: false },
@@ -21,7 +22,9 @@ class ItadakiDraft extends LitElement {
     lang: {},
     languages: { attribute: false },
     ai: { type: Boolean },
+    instructions: { attribute: false },
     draftId: {},
+    _task: { state: true },
     _entry: { state: true },
     _catalog: { state: true },
     _busy: { state: true },
@@ -89,9 +92,13 @@ class ItadakiDraft extends LitElement {
     });
   }
 
-  async _adapt(e) {
-    const { instruction } = e.detail;
-    await this._act(() => this.api.call("adapt_draft", { draft_id: this.draftId, instruction, draft: this._edited() }));
+  async _runTask(e) {
+    const { note } = e.detail;
+    const data = { draft_id: this.draftId, draft: this._edited() };
+    if (this._task === "adapt") data.instruction = note;
+    else if (note) data.note = note;
+    await this._act(() => this.api.call(this._task === "adapt" ? "adapt_draft" : "structure_draft", data));
+    this._task = undefined;
     await this._load();
   }
 
@@ -115,7 +122,7 @@ class ItadakiDraft extends LitElement {
   }
 
   render() {
-    return html`<itadaki-page .t=${this.t} header=${this._entry ? this.t.action(this._entry.action) : ""}>${this._content()}</itadaki-page>`;
+    return html`<itadaki-page .t=${this.t} header=${this._entry ? this.t.action(this._entry.action) : ""}>${this._actions()}${this._content()}</itadaki-page>`;
   }
 
   _content() {
@@ -144,8 +151,6 @@ class ItadakiDraft extends LitElement {
       ingredients: [...recipe.ingredients, ...draft.raw_lines.map((r) => ({ section: r.section }))],
     };
     const lines = [...(entry.lines_text || []), ...draft.raw_lines.map((r) => r.text)];
-    // With an instruction or note the AI rewrites the whole draft, not just the lines.
-    const structuringOnly = draft.raw_lines.length && !entry.request.instruction && !entry.request.note;
 
     if (ready) return this._renderReview(draft);
 
@@ -153,9 +158,7 @@ class ItadakiDraft extends LitElement {
       <div class="card head">
         <h2>${entry.title}</h2>
         ${this._request(entry)}
-        ${entry.status === "working"
-          ? html`<itadaki-busy .text=${structuringOnly ? t("structuring") : t("workingLeave")}></itadaki-busy>`
-          : nothing}
+        ${entry.status === "working" ? html`<itadaki-busy .text=${t("workingLeave")}></itadaki-busy>` : nothing}
         ${entry.error ? html`<div class="error">${entry.error}</div>` : nothing}
         ${entry.status === "failed" ? html`<button class="btn quiet" @click=${this._discard}>${t("discard")}</button>` : nothing}
       </div>
@@ -199,11 +202,11 @@ class ItadakiDraft extends LitElement {
         ${this._entry.error ? html`<div class="error">${t("aiFailedKept", { error: this._entry.error })}</div>` : nothing}
       </div>
 
+      ${this._task ? this._taskCard() : nothing}
+
       <itadaki-editor .api=${this.api} .languages=${this.languages} .recipe=${recipe} .t=${t} uiLang=${this.lang} .units=${this._catalog.units}
         .ingredients=${this._catalog.ingredients} .newIngredients=${draft.new_ingredients}
         ?fixedLanguage=${Boolean(draft.updates_id || draft.parent_id)}></itadaki-editor>
-
-      ${this.ai ? html`<itadaki-adapt class="actions" .t=${t} ?disabled=${this._busy} @adapt=${this._adapt}></itadaki-adapt>` : nothing}
 
       <div class="row actions">
         <button class="btn" ?disabled=${this._busy} @click=${this._save}>${t("save")}</button>
@@ -212,6 +215,27 @@ class ItadakiDraft extends LitElement {
       ${this._busy ? html`<itadaki-busy></itadaki-busy>` : nothing}
       ${this._error ? html`<div class="error">${this._error}</div>` : nothing}
     `;
+  }
+
+  // Header icons, as on a recipe: matching is offered while lines are unmatched;
+  // adapting rewrites the whole recipe and matches the lines along the way.
+  _actions() {
+    const t = this.t;
+    const entry = this._entry;
+    if (!this.ai || entry?.status !== "ready") return nothing;
+    const toggle = (task) => () => (this._task = this._task === task ? undefined : task);
+    return html`
+      ${entry.draft.raw_lines.length ? headerButton("match", t("structureAi"), toggle("structure"), this._busy) : nothing}
+      ${headerButton("adapt", t("adaptAi"), toggle("adapt"), this._busy)}
+    `;
+  }
+
+  _taskCard() {
+    const t = this.t;
+    const adapt = this._task === "adapt";
+    return html`<itadaki-ai-run class="actions" .t=${t} cancellable ?noteRequired=${adapt} ?disabled=${this._busy}
+      heading=${adapt ? t("adaptAi") : t("structureAi")} .standing=${this.instructions[this._task]}
+      @run=${this._runTask} @cancel=${() => (this._task = undefined)}></itadaki-ai-run>`;
   }
 }
 customElements.define("itadaki-draft", ItadakiDraft);

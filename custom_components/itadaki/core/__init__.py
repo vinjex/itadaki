@@ -5,10 +5,12 @@ from .errors import (
     InUseError,
     InvalidRequestError,
     ItadakiError,
+    NoRecipeDataError,
     NotFoundError,
     TreeError,
 )
 from .models import (
+    AI_ACTIONS,
     CatalogKind,
     CatalogName,
     Dimension,
@@ -33,6 +35,7 @@ from .storage import Store
 from .units import convert, scale_lines
 
 __all__ = [
+    "AI_ACTIONS",
     "CatalogKind",
     "CatalogName",
     "ConversionError",
@@ -46,6 +49,7 @@ __all__ = [
     "InvalidRequestError",
     "ItadakiError",
     "Localized",
+    "NoRecipeDataError",
     "NotFoundError",
     "RawLine",
     "Recipe",

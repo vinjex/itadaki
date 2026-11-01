@@ -95,7 +95,7 @@
     },
     "get_settings": {
       "name": "設定を取得",
-      "description": "ライブラリの設定：languages は、すべての材料と単位に名前を付け、レシピの翻訳先となる言語です。"
+      "description": "ライブラリの設定：languages は、すべての材料と単位に名前を付け、レシピの翻訳先となる言語です。instructions は、各AI操作（extract、structure、translate、adapt）の実行ごとに送る常設の指示です。"
     },
     "update_settings": {
       "name": "設定を更新",
@@ -104,6 +104,10 @@
         "languages": {
           "name": "言語",
           "description": "言語コード（例：en、ja）。1つ以上。"
+        },
+        "instructions": {
+          "name": "常設の指示",
+          "description": "管理者のみ。{extract, structure, translate, adapt}：そのAI操作の実行ごとに、リクエストのメモより前に送る文。空なら送りません。"
         }
       }
     },
@@ -235,7 +239,17 @@
     },
     "import_url": {
       "name": "URLからレシピを取り込む",
-      "description": "Webページからレシピを取り込みます。ページにレシピデータが埋め込まれていれば下書きはすぐに読め、AIは材料行だけを整理します。メモがある場合はレシピ全体をメモに沿ってアレンジします。データがなければAIがレシピ全体を抽出します。バックグラウンドで実行され、すぐに draft_id を返します。status が ready（または failed）になるまで get_draft で確認し、内容を確認して save_draft で保存します。save をオンにすると、完了時に自動で保存されます。",
+      "description": "レシピデータを埋め込んだWebページから、AIを使わずにレシピを取り込みます。すぐに確認できる下書きの draft_id を返します。材料行はまだテキストのまま（raw_lines）なので、save_draft の前に structure_draft で整理するか、手動で対応付けます。データのないページは拒否されます。extract_url でAIを使って取り込めます。",
+      "fields": {
+        "url": {
+          "name": "URL",
+          "description": "レシピのページ。"
+        }
+      }
+    },
+    "extract_url": {
+      "name": "AIでURLからレシピを取り込む",
+      "description": "レシピデータのないページ向け：AIがページの本文を読み、常設の extract 指示とメモに沿ってレシピ全体を書きます。バックグラウンドで実行され、すぐに draft_id を返します。status が ready（または failed）になるまで get_draft で確認し、内容を確認して save_draft で保存します。save をオンにすると、完了時に自動で保存されます。",
       "fields": {
         "url": {
           "name": "URL",
@@ -243,7 +257,7 @@
         },
         "note": {
           "name": "メモ",
-          "description": "AIへの追加指示（任意）。例：メートル法に変換、ベジタリアン向けに。レシピ全体に適用されます。"
+          "description": "AIへの指示（任意）。例：メートル法に変換、ベジタリアン向けに。常設の指示より優先されます。"
         },
         "save": {
           "name": "保存",
@@ -327,7 +341,33 @@
         },
         "draft": {
           "name": "編集済みの下書き",
-          "description": "任意：確認画面で編集した下書きの内容。省略すると保存されている下書きをアレンジします。"
+          "description": "任意：確認画面で編集した下書きの内容。省略すると保存されている下書きを使います。"
+        },
+        "save": {
+          "name": "保存",
+          "description": "結果をそのまま保存します。オフの場合は未保存の下書きを返すので、確認してから save_draft に渡します。"
+        }
+      }
+    },
+    "structure_draft": {
+      "name": "下書きの材料を整理",
+      "description": "確認待ちの下書きの未整理の材料行（raw_lines）を、材料リストと単位リストに紐づけて整理し、未登録の材料は新規として提案します（import_url の後など）。adapt_draft と同じくバックグラウンドで実行されます。",
+      "fields": {
+        "draft_id": {
+          "name": "下書きID",
+          "description": "import_url が返したID、または list_drafts で取得したID。"
+        },
+        "note": {
+          "name": "メモ",
+          "description": "AIへの追加指示（任意）。例：メートル法に変換。"
+        },
+        "draft": {
+          "name": "編集済みの下書き",
+          "description": "任意：確認画面で編集した下書きの内容。省略すると保存されている下書きを使います。"
+        },
+        "save": {
+          "name": "保存",
+          "description": "結果をそのまま保存します。オフの場合は未保存の下書きを返すので、確認してから save_draft に渡します。"
         }
       }
     },

@@ -57,6 +57,9 @@ update_settings:
       selector:
         text:
           multiple: true
+    instructions:
+      selector:
+        object:
 upload_image:
   fields:
     data:
@@ -137,11 +140,14 @@ merge_unit:
 catalog_usage:
 import_url:
   fields:
-    url:
+    url: &url
       required: true
       selector:
         text:
           type: url
+extract_url:
+  fields:
+    url: *url
     note: &note
       selector:
         text:
@@ -195,6 +201,13 @@ adapt_draft:
     draft: &draft
       selector:
         object:
+    save: *save
+structure_draft:
+  fields:
+    draft_id: *draft_id
+    note: *note
+    draft: *draft
+    save: *save
 list_drafts:
   fields:
     recipe_id:

@@ -38,9 +38,9 @@ class JobRunner:
         self._hass.loop.call_soon_threadsafe(self._schedule, entry.id, work, save)
         return entry.id
 
-    def rework(self, draft_id: str, work: Callable[[], Draft]) -> None:
+    def rework(self, draft_id: str, work: Callable[[], Draft], save: bool) -> None:
         """Runs more work on a draft already sent back to work with RecipeBook.rework_draft."""
-        self._hass.loop.call_soon_threadsafe(self._schedule, draft_id, work, False)
+        self._hass.loop.call_soon_threadsafe(self._schedule, draft_id, work, save)
 
     @callback
     def _schedule(self, draft_id: str, work: Callable[[], Draft], save: bool) -> None:

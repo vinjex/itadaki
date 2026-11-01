@@ -169,19 +169,32 @@ class Unit:
         return cls(**values)
 
 
+AI_ACTIONS = ("extract", "structure", "translate", "adapt")
+DEFAULT_INSTRUCTIONS = {
+    "extract": "Keep only what the recipe needs. Leave out stories, tips, embellishments and anything else that is not part of the recipe.",
+    "structure": "",
+    "translate": "",
+    "adapt": "",
+}
+
+
 @dataclass
 class Settings:
     """Choices about the recipe library itself, stored with it so they move with it."""
 
     # Every ingredient and unit is named in these, and recipes translate into them.
     languages: list[str]
+    # Sent with every run of that AI action, before the request's own note.
+    instructions: dict[str, str] = field(default_factory=lambda: dict(DEFAULT_INSTRUCTIONS))
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Settings:
-        return cls(**_known(cls, data))
+        values = _known(cls, data)
+        values["instructions"] = {**DEFAULT_INSTRUCTIONS, **values.get("instructions", {})}
+        return cls(**values)
 
 
 @dataclass

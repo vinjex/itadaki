@@ -1,11 +1,11 @@
 import { LitElement, html, css, nothing } from "lit";
 import { shared } from "../styles.js";
-import "./adapt.js";
+import "./ai-run.js";
 import "./body.js";
 import "./busy.js";
 import "./menu.js";
 import "./page.js";
-import { icon } from "../icons.js";
+import { headerButton } from "../icons.js";
 import { describeRequest } from "../drafts.js";
 
 import { navigate } from "../router.js";
@@ -17,12 +17,14 @@ class ItadakiRecipe extends LitElement {
     lang: {},
     languages: { attribute: false },
     ai: { type: Boolean },
+    instructions: { attribute: false },
     recipeId: {},
     _data: { state: true },
     _servings: { state: true },
     _busy: { state: true },
     _error: { state: true },
-    _adapting: { state: true },
+    // The AI action waiting on its card: {action: "adapt"} or {action: "translate", recipeId, language}.
+    _task: { state: true },
     _drafts: { state: true },
   };
 
@@ -61,7 +63,7 @@ class ItadakiRecipe extends LitElement {
   updated(changed) {
     if (changed.has("recipeId")) {
       this._servings = undefined;
-      this._adapting = false;
+      this._task = undefined;
       this._load();
       this._loadDrafts();
     }
@@ -149,19 +151,35 @@ class ItadakiRecipe extends LitElement {
       ...(missing.length ? ["-"] : []),
       ...missing.map((l) => ({
         label: t("translateTo", { lang: t.langName(l) }),
-        run: () => this._ai("translate", { recipe_id: recipe.id, language: l }),
+        run: () => (this._task = { action: "translate", recipeId: recipe.id, language: l }),
       })),
     ];
-    const button = (name, label, run) => html`<button slot="actions" class="icon" ?disabled=${this._busy}
-      aria-label=${label} title=${label} @click=${run}>${icon(name)}</button>`;
+    const button = (name, label, run) => headerButton(name, label, run, this._busy);
     return html`
       ${items.length > 1
         ? html`<itadaki-menu slot="actions" icon="translate" label=${t("language")} .items=${items} ?disabled=${this._busy}></itadaki-menu>`
         : nothing}
       ${button("edit", t("edit"), () => navigate(this, { view: "edit", id: recipe.id }))}
-      ${this.ai ? button("adapt", t("adapt"), () => (this._adapting = !this._adapting)) : nothing}
+      ${this.ai ? button("adapt", t("adapt"), () => (this._task = this._task?.action === "adapt" ? undefined : { action: "adapt" })) : nothing}
       ${button("delete", t("delete"), this._delete)}
     `;
+  }
+
+  _taskCard() {
+    const t = this.t;
+    const task = this._task;
+    const translate = task.action === "translate";
+    const run = (e) => {
+      const { note, asVariant } = e.detail;
+      if (!translate) return this._ai("adapt", { recipe_id: this.recipeId, instruction: note, as_variant: asVariant });
+      this._ai("translate", { recipe_id: task.recipeId, language: task.language, ...(note ? { note } : {}) });
+    };
+    return html`<itadaki-ai-run class="adapt" .t=${t} cancellable ?variant=${!translate} ?noteRequired=${!translate}
+      heading=${translate ? t("translateTo", { lang: t.langName(task.language) }) : t("adaptAi")}
+      .standing=${this.instructions[task.action]} ?disabled=${this._busy}
+      @run=${run} @cancel=${() => (this._task = undefined)}>
+      ${task.again ? html`<div class="muted">${t("retranslateNote")}</div>` : nothing}
+    </itadaki-ai-run>`;
   }
 
   _content() {
@@ -199,15 +217,12 @@ class ItadakiRecipe extends LitElement {
         ? html`<div class="banner row">${t("stale")}
             ${this.ai
               ? html`<button class="btn quiet" ?disabled=${this._busy}
-                  @click=${() => this._ai("translate", { recipe_id: parent.id, language: recipe.language })}>${t("retranslate")}</button>`
+                  @click=${() => (this._task = { action: "translate", recipeId: parent.id, language: recipe.language, again: true })}>${t("retranslate")}</button>`
               : nothing}
           </div>`
         : nothing}
 
-      ${this._adapting
-        ? html`<itadaki-adapt class="adapt" .t=${t} variant ?disabled=${this._busy}
-            @adapt=${(e) => this._ai("adapt", { recipe_id: this.recipeId, instruction: e.detail.instruction, as_variant: e.detail.asVariant })}></itadaki-adapt>`
-        : nothing}
+      ${this._task ? this._taskCard() : nothing}
       ${this._drafts?.length
         ? html`<div class="card drafts">
             <h2>${t("inProgress")}</h2>

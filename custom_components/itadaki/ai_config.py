@@ -9,8 +9,8 @@ from typing import Any
 
 from homeassistant.const import CONF_API_KEY
 
-from .const import AI_ACTIONS, CONF_BASE_URL, CONF_EXTRA_BODY, CONF_MODEL, CONF_MODELS, CONF_STRUCTURED_OUTPUT
-from .core import InvalidRequestError, RecipeBook
+from .const import CONF_BASE_URL, CONF_EXTRA_BODY, CONF_MODEL, CONF_MODELS, CONF_STRUCTURED_OUTPUT
+from .core import AI_ACTIONS, InvalidRequestError, RecipeBook
 from .core.ai import Assistant
 from .core.llm import AiSettings, OpenAIChat, StructuredOutput
 
