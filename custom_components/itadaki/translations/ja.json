@@ -137,7 +137,7 @@
       "fields": {
         "base_url": {
           "name": "API URL",
-          "description": "OpenAI互換のAPI。Cloudflare Workers AIの場合：https://api.cloudflare.com/client/v4/accounts/ACCOUNT_ID/ai/v1。"
+          "description": "OpenAI互換のAPI。Cloudflare Workers AIの場合は、アカウントのOpenAI互換エンドポイント（末尾が /ai/v1）。"
         },
         "api_key": {
           "name": "APIキー",

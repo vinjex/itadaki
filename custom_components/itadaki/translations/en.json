@@ -137,7 +137,7 @@
       "fields": {
         "base_url": {
           "name": "API URL",
-          "description": "Any OpenAI-compatible API. For Cloudflare Workers AI: https://api.cloudflare.com/client/v4/accounts/ACCOUNT_ID/ai/v1."
+          "description": "Any OpenAI-compatible API. For Cloudflare Workers AI, the account's OpenAI-compatible endpoint, ending in /ai/v1."
         },
         "api_key": {
           "name": "API key",
