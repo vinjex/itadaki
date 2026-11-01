@@ -10,7 +10,7 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass, replace
 from typing import Any
 
-from .catalog import display_name, term_index
+from .catalog import display_name, is_taken, term_index
 from .errors import InvalidRequestError
 from .importer import draft_from_html
 from .languages import language_code
@@ -320,10 +320,19 @@ class Assistant:
         if missing:
             named, naming = self._names_in(list(missing.values()), source.language, [target_language])
             usage += naming
+            # As for new ingredients: a name already meaning another entry is left out,
+            # since the two are likely duplicates to merge, not two things to tell apart.
+            taken = {
+                CatalogKind.INGREDIENT: term_index((i.id, i.localized) for i in self._book.list_ingredients()),
+                CatalogKind.UNIT: term_index((u.id, u.localized) for u in self._book.list_units()),
+            }
             for key, names in zip(missing, named):
                 kind, entry_id = key.split(":", 1)
-                entry = names[target_language]
-                added.append(CatalogName(CatalogKind(kind), entry_id, target_language, entry.name, entry.plural))
+                kind, entry = CatalogKind(kind), names[target_language]
+                if is_taken(taken[kind], target_language, entry):
+                    continue
+                taken[kind].update(term_index([(entry_id, {target_language: entry})]))
+                added.append(CatalogName(kind, entry_id, target_language, entry.name, entry.plural))
 
         recipe = _translated(source, mapping, target_language)
         target = {"updates_id": existing.id} if existing else {"parent_id": source.id, "relation": Relation.TRANSLATION}
@@ -433,8 +442,7 @@ class Assistant:
         for ingredient, names in zip(new, named):
             localized = dict(ingredient.localized)
             for lang, entry in names.items():
-                words = [w.casefold() for w in (entry.name, entry.plural) if w]
-                if not any((lang, w) in taken_terms for w in words):
+                if not is_taken(taken_terms, lang, entry):
                     localized[lang] = entry
             final_id = _unique_id(_slug(display_name(localized, "en")) or ingredient.id, taken_ids)
             taken_ids.add(final_id)

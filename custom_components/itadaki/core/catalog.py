@@ -71,6 +71,11 @@ def ensure_unique_terms(
         raise InvalidRequestError(f"already used by another entry: {', '.join(clashes)}")
 
 
+def is_taken(index: dict[tuple[str, str], str], language: str, names: Localized) -> bool:
+    """Whether a proposed name already means an entry, so it must not be given to another."""
+    return any((language, word.casefold()) in index for word in (names.name, names.plural) if word)
+
+
 def term_index(entries: Iterable[tuple[str, dict[str, Localized]]]) -> dict[tuple[str, str], str]:
     """(language, case-folded word) -> entry id, for exact lookups."""
     return {term: entry_id for entry_id, localized in entries for term in terms(localized)}

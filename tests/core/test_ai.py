@@ -129,6 +129,16 @@ def test_translation_creates_child_and_fills_missing_catalog_names(book, carbona
     assert book.list_ingredients()[0].localized["ja"].name == "グアンチャーレ"
 
 
+def test_translated_name_already_meaning_another_entry_is_left_out(book, carbonara):
+    # A duplicate entry: the translation's name for guanciale already belongs to it.
+    book.upsert_ingredient({"id": "guanciale", "localized": {"ja": None}})
+    book.upsert_ingredient({"id": "guanciale_2", "localized": {"ja": {"name": "グアンチャーレ"}}})
+    chat = FakeChat({"texts": ["カルボナーラ", "パスタを茹でる。"]}, names({"ja": "グアンチャーレ"}))
+    draft = assistant(book, chat).translate(carbonara.id, "ja")
+    assert draft.added_names == []
+    book.save_draft(draft)
+
+
 def test_retranslation_sends_only_changed_text(book, carbonara):
     first = FakeChat({"texts": ["カルボナーラ", "パスタを茹でる。"]})
     ja = book.save_draft(assistant(book, first).translate(carbonara.id, "ja"))
