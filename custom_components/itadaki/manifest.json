@@ -1,7 +1,9 @@
 {
   "domain": "itadaki",
   "name": "Itadaki",
-  "codeowners": ["@vinjex"],
+  "codeowners": [
+    "@vinjex"
+  ],
   "config_flow": true,
   "dependencies": [
     "frontend",
@@ -9,9 +11,9 @@
     "panel_custom"
   ],
   "documentation": "https://github.com/vinjex/itadaki",
-  "issue_tracker": "https://github.com/vinjex/itadaki/issues",
   "integration_type": "service",
   "iot_class": "calculated",
+  "issue_tracker": "https://github.com/vinjex/itadaki/issues",
   "requirements": [
     "openai>=3.10.0",
     "recipe-scrapers==15.13.0",

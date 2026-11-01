@@ -1,5 +1,11 @@
 {
   "config": {
+    "step": {
+      "user": {
+        "title": "Itadaki",
+        "description": "Itadakiを設定します。AIは任意で、あとからパネルの管理ページで設定します。"
+      }
+    },
     "abort": {
       "single_instance_allowed": "Itadakiはすでに設定されています。"
     }
@@ -39,7 +45,7 @@
     },
     "create_recipe": {
       "name": "レシピを作成",
-      "description": "レシピを作成します。項目：language（必須）、title（必須）、description、servings、prep_minutes、cook_minutes、total_minutes、ingredients、steps [{text, section}]、notes、tags、image_url、source_url。材料行は {ingredient_id（必須、材料リストから）、quantity、unit_id（単位リストから）、note、section} です。未登録の材料は先に upsert_ingredient で作成してください。",
+      "description": "レシピを作成します。項目：language（必須）、title（必須）、description、servings、prep_minutes、cook_minutes、total_minutes、ingredients、steps（各項目に text、section）、notes、tags、image_url、source_url。材料行の項目：ingredient_id（必須、材料リストから）、quantity、unit_id（単位リストから）、note、section。未登録の材料は先に upsert_ingredient で作成してください。",
       "fields": {
         "recipe": {
           "name": "レシピ",
@@ -107,7 +113,7 @@
         },
         "instructions": {
           "name": "常設の指示",
-          "description": "管理者のみ。{extract, structure, translate, adapt}：そのAI操作の実行ごとに、リクエストのメモより前に送る文。空なら送りません。"
+          "description": "管理者のみ。AI操作（extract、structure、translate、adapt）ごとに：そのAI操作の実行ごとに、リクエストのメモより前に送る文。空なら送りません。"
         }
       }
     },
@@ -131,7 +137,7 @@
       "fields": {
         "base_url": {
           "name": "API URL",
-          "description": "OpenAI互換のAPI。Cloudflare Workers AIの場合：https://api.cloudflare.com/client/v4/accounts/<account id>/ai/v1。"
+          "description": "OpenAI互換のAPI。Cloudflare Workers AIの場合：https://api.cloudflare.com/client/v4/accounts/ACCOUNT_ID/ai/v1。"
         },
         "api_key": {
           "name": "APIキー",
@@ -143,7 +149,7 @@
         },
         "models": {
           "name": "操作ごとのモデル",
-          "description": "{extract, structure, translate, adapt}：その操作だけに使うモデル。"
+          "description": "AI操作（extract、structure、translate、adapt）ごとに：その操作だけに使うモデル。"
         },
         "structured_output": {
           "name": "JSONの強制",
@@ -151,7 +157,7 @@
         },
         "extra_body": {
           "name": "追加のリクエスト項目",
-          "description": "すべてのリクエストに送ります。Workers AIのGemmaの場合：{\"chat_template_kwargs\": {\"enable_thinking\": false}}。"
+          "description": "すべてのリクエストに送ります。Workers AIのGemmaの場合：chat_template_kwargs.enable_thinking を false にします。"
         }
       }
     },
@@ -162,11 +168,11 @@
     },
     "upsert_ingredient": {
       "name": "材料を作成・更新",
-      "description": "id なしの場合は新規作成します。id ありの場合は更新します：localized は言語ごとにマージされ（{言語: {name, plural, aliases}}、null でその言語を削除）、他の項目は置き換えます。1つの言葉は、言語ごとに1つの材料にしか使えません。",
+      "description": "id なしの場合は新規作成します。id ありの場合は更新します：localized は言語ごとにマージされ（言語コードごとに name、plural、aliases。null でその言語を削除）、他の項目は置き換えます。1つの言葉は、言語ごとに1つの材料にしか使えません。",
       "fields": {
         "ingredient": {
           "name": "材料",
-          "description": "{id?, localized, density（g/ml）}。"
+          "description": "id（任意）、localized、density（g/ml）を持つオブジェクト。"
         }
       }
     },
@@ -235,7 +241,7 @@
     },
     "catalog_usage": {
       "name": "材料・単位の使用状況",
-      "description": "各材料・単位を使っているレシピ：{ingredients: {id: [レシピ概要]}, units: {...}}。未使用の項目は含まれません。"
+      "description": "各材料・単位を使っているレシピ：ingredients と units、それぞれ id からレシピ概要へ。未使用の項目は含まれません。"
     },
     "import_url": {
       "name": "URLからレシピを取り込む",
@@ -271,7 +277,7 @@
       "fields": {
         "lines": {
           "name": "行",
-          "description": "文字列のリスト、または {text, section} のリスト。"
+          "description": "文字列のリスト、または text と section を持つオブジェクトのリスト。"
         },
         "language": {
           "name": "言語",
@@ -421,7 +427,7 @@
       "fields": {
         "draft": {
           "name": "下書き",
-          "description": "{recipe, updates_id?, parent_id?, relation?, new_ingredients?, added_names?}"
+          "description": "recipe と、任意の updates_id、parent_id、relation、new_ingredients、added_names を持つオブジェクト。"
         }
       }
     }

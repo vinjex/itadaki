@@ -1,5 +1,11 @@
 {
   "config": {
+    "step": {
+      "user": {
+        "title": "Itadaki",
+        "description": "Set up Itadaki. AI is optional and is set up later in the panel's Manage page."
+      }
+    },
     "abort": {
       "single_instance_allowed": "Itadaki is already set up."
     }
@@ -39,7 +45,7 @@
     },
     "create_recipe": {
       "name": "Create recipe",
-      "description": "Creates a recipe. Fields: language (required), title (required), description, servings, prep_minutes, cook_minutes, total_minutes, ingredients, steps [{text, section}], notes, tags, image_url, source_url. Each ingredient line is {ingredient_id (required, from the ingredient list), quantity, unit_id (from the unit list), note, section}. Create missing ingredients first with upsert_ingredient.",
+      "description": "Creates a recipe. Fields: language (required), title (required), description, servings, prep_minutes, cook_minutes, total_minutes, ingredients, steps (each with text, section), notes, tags, image_url, source_url. Each ingredient line has ingredient_id (required, from the ingredient list), quantity, unit_id (from the unit list), note, section. Create missing ingredients first with upsert_ingredient.",
       "fields": {
         "recipe": {
           "name": "Recipe",
@@ -107,7 +113,7 @@
         },
         "instructions": {
           "name": "Standing instructions",
-          "description": "Admins only. {extract, structure, translate, adapt}: text sent with every run of that AI action, before the request's own note. Empty sends none."
+          "description": "Admins only. Per AI action (extract, structure, translate, adapt): text sent with every run of that AI action, before the request's own note. Empty sends none."
         }
       }
     },
@@ -131,7 +137,7 @@
       "fields": {
         "base_url": {
           "name": "API URL",
-          "description": "Any OpenAI-compatible API. For Cloudflare Workers AI: https://api.cloudflare.com/client/v4/accounts/<account id>/ai/v1."
+          "description": "Any OpenAI-compatible API. For Cloudflare Workers AI: https://api.cloudflare.com/client/v4/accounts/ACCOUNT_ID/ai/v1."
         },
         "api_key": {
           "name": "API key",
@@ -143,7 +149,7 @@
         },
         "models": {
           "name": "Models per action",
-          "description": "{extract, structure, translate, adapt}: a model for that action only."
+          "description": "Per AI action (extract, structure, translate, adapt): a model for that action only."
         },
         "structured_output": {
           "name": "JSON enforcement",
@@ -151,7 +157,7 @@
         },
         "extra_body": {
           "name": "Extra request fields",
-          "description": "Sent with every request. For Gemma on Workers AI: {\"chat_template_kwargs\": {\"enable_thinking\": false}}."
+          "description": "Sent with every request. For Gemma on Workers AI, set chat_template_kwargs.enable_thinking to false."
         }
       }
     },
@@ -162,11 +168,11 @@
     },
     "upsert_ingredient": {
       "name": "Create or update ingredient",
-      "description": "Without id creates one. With id updates it: localized merges per language ({language: {name, plural, aliases}}, null removes a language), other fields are replaced. A word may mean only one ingredient per language.",
+      "description": "Without id creates one. With id updates it: localized merges per language (language code to name, plural, aliases; null removes a language), other fields are replaced. A word may mean only one ingredient per language.",
       "fields": {
         "ingredient": {
           "name": "Ingredient",
-          "description": "{id?, localized, density (grams per ml)}."
+          "description": "Object with id (optional), localized, density (grams per ml)."
         }
       }
     },
@@ -235,7 +241,7 @@
     },
     "catalog_usage": {
       "name": "Catalog usage",
-      "description": "Which recipes use each ingredient and unit: {ingredients: {id: [recipe summaries]}, units: {...}}. Unused entries are absent."
+      "description": "Which recipes use each ingredient and unit: ingredients and units, each mapping an id to recipe summaries. Unused entries are absent."
     },
     "import_url": {
       "name": "Import recipe from URL",
@@ -271,7 +277,7 @@
       "fields": {
         "lines": {
           "name": "Lines",
-          "description": "List of strings, or of {text, section}."
+          "description": "List of strings, or of objects with text and section."
         },
         "language": {
           "name": "Language",
@@ -421,7 +427,7 @@
       "fields": {
         "draft": {
           "name": "Draft",
-          "description": "{recipe, updates_id?, parent_id?, relation?, new_ingredients?, added_names?}"
+          "description": "Object with recipe, and optionally updates_id, parent_id, relation, new_ingredients, added_names."
         }
       }
     }
