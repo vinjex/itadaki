@@ -16,7 +16,7 @@ NOTES=$(scripts/release-notes.sh)
 [ -n "$NOTES" ] || fail "nothing to release"
 printf 'v%s\n%s\n\nRelease? [y/N] ' "$VERSION" "$NOTES"
 read -r answer
-[ "$answer" = y ] || fail "aborted"
+case "$answer" in [yY] | [yY][eE][sS]) ;; *) fail "aborted (answered: $answer)" ;; esac
 sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"$VERSION\"/" custom_components/itadaki/manifest.json
 git commit -qm "Release $VERSION" custom_components/itadaki/manifest.json
 git tag -a "v$VERSION" -m "v$VERSION"
