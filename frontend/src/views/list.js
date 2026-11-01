@@ -36,6 +36,14 @@ class ItadakiList extends LitElement {
       .photo .placeholder { background: linear-gradient(135deg, var(--it-soft), transparent); }
       .chip.ready { background: var(--it-accent); color: var(--it-on-accent); }
       .chip.failed { background: color-mix(in srgb, var(--it-error) 18%, transparent); }
+      @media (max-width: 600px) {
+        .grid { gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .recipe:not(.photo) { padding: 12px; }
+        .photo { padding-bottom: 12px; }
+        .photo > :not(img):not(.placeholder) { padding: 0 10px; }
+        .photo img, .photo .placeholder { height: 110px; }
+        .recipe .name { font-size: 0.95rem; }
+      }
     `,
   ];
 
