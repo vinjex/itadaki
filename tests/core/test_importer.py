@@ -39,7 +39,8 @@ def test_reads_schema_org_recipe():
 
 def test_takes_language_from_page():
     html = _page(
-        {"@context": "https://schema.org", "@type": "Recipe", "name": "親子丼", "recipeIngredient": ["卵 2個"]},
+        {"@context": "https://schema.org", "@type": "Recipe", "name": "親子丼", "recipeIngredient": ["卵 2個"],
+         "recipeInstructions": "煮る。"},
         lang="ja-JP",
     )
     assert draft_from_html(html, "https://example.jp/r").recipe.language == "ja"
@@ -47,3 +48,12 @@ def test_takes_language_from_page():
 
 def test_page_without_recipe_returns_none():
     assert draft_from_html("<html><body><p>Just a blog</p></body></html>", "https://example.com") is None
+
+
+def test_recipe_data_without_ingredients_or_steps_counts_as_none():
+    # Like sirogohan.com: microdata naming only the dish, its photo and description.
+    html = """<html lang="ja"><body><div itemscope itemtype="http://schema.org/Recipe">
+      <h1 itemprop="name">おからの煮物</h1><p itemprop="description">定番の副菜。</p>
+      <img itemprop="image" src="https://example.jp/okara.jpg"></div>
+      <ul><li>おから 100g</li></ul></body></html>"""
+    assert draft_from_html(html, "https://example.jp/okara") is None

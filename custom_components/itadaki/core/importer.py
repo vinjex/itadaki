@@ -44,7 +44,9 @@ def _lines(scraper) -> list[RawLine]:
 
 def draft_from_html(html: str, url: str, fallback_language: str = "en") -> Draft | None:
     """Reads the page's schema.org recipe data, or returns None when it has none.
-    Costs no LLM tokens; the ingredient lines come back raw, to be structured."""
+    Costs no LLM tokens; the ingredient lines come back raw, to be structured. Data
+    without both ingredients and steps counts as none: some sites mark up only the
+    title and photo, and the page text is then the better source."""
     try:
         scraper = scrape_html(html, org_url=url, supported_only=False)
         title = scraper.title()
@@ -53,6 +55,10 @@ def draft_from_html(html: str, url: str, fallback_language: str = "en") -> Draft
     if not title:
         return None
 
+    lines = _lines(scraper)
+    steps = [Step(text=text) for text in _optional(scraper.instructions_list) or []]
+    if not (lines and steps):
+        return None
     recipe = Recipe(
         language=_language(_optional(scraper.language), fallback_language),
         title=title,
@@ -61,8 +67,8 @@ def draft_from_html(html: str, url: str, fallback_language: str = "en") -> Draft
         prep_minutes=_optional(scraper.prep_time),
         cook_minutes=_optional(scraper.cook_time),
         total_minutes=_optional(scraper.total_time),
-        steps=[Step(text=text) for text in _optional(scraper.instructions_list) or []],
+        steps=steps,
         image_url=_optional(scraper.image),
         source_url=url,
     )
-    return Draft(recipe, raw_lines=_lines(scraper))
+    return Draft(recipe, raw_lines=lines)
