@@ -1,5 +1,5 @@
 #!/bin/sh
-# Releases a version: tests, checks the committed panel, bumps the manifest, then
+# Releases a version: tests, runs hassfest, checks the committed panel, bumps the manifest, then
 # commits, tags and pushes. CI validates the tag and publishes the GitHub release.
 set -e
 cd "$(dirname "$0")/.."
@@ -10,6 +10,7 @@ echo "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' || fail "usage: $0 X.Y.Z"
 [ -z "$(git status --porcelain)" ] || fail "uncommitted changes"
 git rev-parse -q --verify "refs/tags/v$VERSION" >/dev/null && fail "v$VERSION already exists"
 scripts/test.sh
+scripts/hassfest.sh
 scripts/build-panel.sh
 git diff --quiet custom_components/itadaki/frontend || fail "the committed panel was stale; commit the rebuilt one first"
 NOTES=$(scripts/release-notes.sh)
