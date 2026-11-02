@@ -102,6 +102,13 @@ class ItadakiEditor extends LitElement {
     return this._r.ingredients.filter(unmatched).map((l) => ({ text: l._raw, section: l.section ?? null }));
   }
 
+  // Brings the first line still to match into view, ready to type its ingredient.
+  showUnmatched() {
+    const line = this.renderRoot.querySelector(".line.unmatched");
+    line?.scrollIntoView({ behavior: "smooth", block: "center" });
+    line?.querySelector("itadaki-combo")?.focus({ preventScroll: true });
+  }
+
   // Ingredients created during review or editing that a line still uses.
   get newIngredientsUsed() {
     const used = new Set(this._r.ingredients.map((l) => l.ingredient_id));
@@ -130,7 +137,14 @@ class ItadakiEditor extends LitElement {
     });
   }
 
-  updated() {
+  updated(changed) {
+    if (changed.has("_r")) {
+      const count = this._r.ingredients.filter(unmatched).length;
+      if (count !== this._unmatchedCount) {
+        this._unmatchedCount = count;
+        this.dispatchEvent(new CustomEvent("unmatched-changed", { detail: { count } }));
+      }
+    }
     // Every block's item list becomes a drop zone shared with the other blocks of
     // the same list. Lit owns the DOM, so a drop is undone on the DOM and replayed
     // on the data, and Lit re-renders the result.
@@ -169,7 +183,7 @@ class ItadakiEditor extends LitElement {
       const { image_url } = await this.api.call("upload_image", { data: await shrinkToBase64(file) });
       this._set("image_url", image_url);
     } catch (err) {
-      this._imageError = err.message;
+      this._imageError = this.t.error(err);
     } finally {
       this._uploading = false;
     }
@@ -324,7 +338,7 @@ class ItadakiEditor extends LitElement {
         </div>
         ${this._blocks(
               "ingredients",
-              (line, i, tools) => html`<div class="line">
+              (line, i, tools) => html`<div class="line ${unmatched(line) ? "unmatched" : ""}">
                 ${line._raw ? html`<div class="raw muted">${line._raw}</div>` : nothing}
                 <itadaki-combo .entries=${ingredients} .hint=${describe} value=${line.ingredient_id ?? ""}
                   .label=${byId.has(line.ingredient_id) ? nameOf(byId.get(line.ingredient_id), lang) : ""}

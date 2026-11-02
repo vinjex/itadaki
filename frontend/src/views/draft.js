@@ -25,6 +25,8 @@ class ItadakiDraft extends LitElement {
     instructions: { attribute: false },
     draftId: {},
     _task: { state: true },
+    // Page lines in review still without an ingredient, as the editor counts them.
+    _unmatched: { state: true },
     _entry: { state: true },
     _catalog: { state: true },
     _busy: { state: true },
@@ -70,7 +72,7 @@ class ItadakiDraft extends LitElement {
       this._entry = entry;
       this._error = undefined;
     } catch (err) {
-      this._error = err.message;
+      this._error = this.t.error(err);
     }
   }
 
@@ -115,7 +117,7 @@ class ItadakiDraft extends LitElement {
     try {
       await work();
     } catch (err) {
-      this._error = err.message;
+      this._error = this.t.error(err);
     } finally {
       this._busy = false;
     }
@@ -202,9 +204,10 @@ class ItadakiDraft extends LitElement {
         ${this._entry.error ? html`<div class="error">${t("aiFailedKept", { error: this._entry.error })}</div>` : nothing}
       </div>
 
+      ${this._unmatched && this._task !== "structure" ? this._matchCard() : nothing}
       ${this._task ? this._taskCard() : nothing}
 
-      <itadaki-editor .api=${this.api} .languages=${this.languages} .recipe=${recipe} .t=${t} uiLang=${this.lang} .units=${this._catalog.units}
+      <itadaki-editor @unmatched-changed=${(e) => (this._unmatched = e.detail.count)} .api=${this.api} .languages=${this.languages} .recipe=${recipe} .t=${t} uiLang=${this.lang} .units=${this._catalog.units}
         .ingredients=${this._catalog.ingredients} .newIngredients=${draft.new_ingredients}
         ?fixedLanguage=${Boolean(draft.updates_id || draft.parent_id)}></itadaki-editor>
 
@@ -217,15 +220,29 @@ class ItadakiDraft extends LitElement {
     `;
   }
 
-  // Header icons, as on a recipe: matching is offered while lines are unmatched;
-  // adapting rewrites the whole recipe and matches the lines along the way.
+  // A draft cannot be saved while page lines lack an ingredient, so the review says
+  // so up front and offers both ways to finish them.
+  _matchCard() {
+    const t = this.t;
+    const editor = () => this.renderRoot.querySelector("itadaki-editor");
+    return html`<div class="card actions">
+      <h2>${t("matchTitle", { n: this._unmatched })}</h2>
+      <div class="muted">${t("matchExplain")} ${t(this.ai ? "matchHowAi" : "matchHowHand")}</div>
+      <div class="row" style="margin-top:12px">
+        ${this.ai ? html`<button class="btn" ?disabled=${this._busy} @click=${() => (this._task = "structure")}>${t("structureAi")}</button>` : nothing}
+        <button class="btn quiet" @click=${() => editor().showUnmatched()}>${t("matchByHand")}</button>
+      </div>
+    </div>`;
+  }
+
+  // Header icon, as on a recipe: adapting rewrites the whole recipe and matches the
+  // lines along the way.
   _actions() {
     const t = this.t;
     const entry = this._entry;
     if (!this.ai || entry?.status !== "ready") return nothing;
     const toggle = (task) => () => (this._task = this._task === task ? undefined : task);
     return html`
-      ${entry.draft.raw_lines.length ? headerButton("match", t("structureAi"), toggle("structure"), this._busy) : nothing}
       ${headerButton("adapt", t("adaptAi"), toggle("adapt"), this._busy)}
     `;
   }
@@ -235,7 +252,9 @@ class ItadakiDraft extends LitElement {
     const adapt = this._task === "adapt";
     return html`<itadaki-ai-run class="actions" .t=${t} cancellable ?noteRequired=${adapt} ?disabled=${this._busy}
       heading=${adapt ? t("adaptAi") : t("structureAi")} .standing=${this.instructions[this._task]}
-      @run=${this._runTask} @cancel=${() => (this._task = undefined)}></itadaki-ai-run>`;
+      @run=${this._runTask} @cancel=${() => (this._task = undefined)}>
+      ${adapt ? nothing : html`<div class="muted">${t("matchExplain")}</div>`}
+    </itadaki-ai-run>`;
   }
 }
 customElements.define("itadaki-draft", ItadakiDraft);

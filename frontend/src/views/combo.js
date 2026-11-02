@@ -7,6 +7,9 @@ import { exactMatch, search } from "../search.js";
 // share its name, so similar ingredients are one click away. Fires `pick` with {id}
 // or `create` with {name}.
 class ItadakiCombo extends LitElement {
+  // Focusing the element focuses its text box.
+  static shadowRootOptions = { ...LitElement.shadowRootOptions, delegatesFocus: true };
+
   static properties = {
     entries: { attribute: false },
     value: {},

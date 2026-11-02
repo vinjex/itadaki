@@ -663,6 +663,25 @@ var O = o`
 			translate: "Translation",
 			adapt: "Adaptation"
 		},
+		errors: {
+			fetch_failed: "Could not open that page.",
+			no_recipe_found: "No recipe found on that page.",
+			ai_off: "AI is not set up.",
+			image_too_large: "The image is larger than {mb} MB.",
+			image_type: "Not a JPEG, PNG, WebP or GIF image.",
+			language_codes: "Not language codes: {codes}",
+			language_required: "At least one language is needed.",
+			name_taken: "Already used by another entry: {names}",
+			name_required: "Give it a name in at least one language.",
+			title_required: "The recipe needs a title.",
+			lines_unmatched: "Some ingredient lines are not matched to an ingredient yet.",
+			ingredient_required: "Every ingredient line needs an ingredient.",
+			entries_missing: "Some ingredients or units no longer exist. Pick them again.",
+			used_by_recipes: "Still used by: {titles}",
+			used_by_drafts: "Still used by drafts: {titles}",
+			recipe_not_found: "This recipe no longer exists.",
+			draft_not_found: "This draft no longer exists."
+		},
 		aiFailedKept: "The AI could not finish ({error}). The draft is kept as it was.",
 		workingLeave: "The AI is working on this. You can leave this page; the draft waits in the inbox.",
 		units: "Units",
@@ -735,6 +754,11 @@ var O = o`
 		noRecipeData: "This page has no embedded recipe data. The AI can read the page text and write the recipe from it.",
 		noRecipeDataNoAi: "This page has no embedded recipe data, so only the AI can import it, and AI is off.",
 		structureAi: "Match ingredients with AI",
+		matchTitle: "Ingredients to match: {n}",
+		matchExplain: "These lines from the page are not linked to an ingredient yet. The recipe can be saved once every line is.",
+		matchHowAi: "Let the AI match them, or pick each ingredient by hand in the list below.",
+		matchHowHand: "Pick each ingredient in the list below; the page's text is shown above each line.",
+		matchByHand: "Match by hand",
 		adaptAi: "Adapt with AI",
 		retranslateNote: "With a note, every text is translated again; without one, only the text that changed.",
 		importNoAi: "AI is off, so only pages with embedded recipe data can be imported, and their ingredient lines are matched by hand in review."
@@ -816,6 +840,25 @@ var O = o`
 			translate: "翻訳",
 			adapt: "アレンジ"
 		},
+		errors: {
+			fetch_failed: "そのページを開けませんでした。",
+			no_recipe_found: "そのページにレシピが見つかりませんでした。",
+			ai_off: "AIが設定されていません。",
+			image_too_large: "画像が{mb} MBを超えています。",
+			image_type: "JPEG、PNG、WebP、GIFの画像ではありません。",
+			language_codes: "言語コードではありません：{codes}",
+			language_required: "言語が少なくとも1つ必要です。",
+			name_taken: "別の項目ですでに使われています：{names}",
+			name_required: "少なくとも1つの言語で名前を付けてください。",
+			title_required: "レシピにはタイトルが必要です。",
+			lines_unmatched: "まだ材料に対応付けられていない材料行があります。",
+			ingredient_required: "すべての材料行に材料が必要です。",
+			entries_missing: "一部の材料または単位が存在しなくなりました。選び直してください。",
+			used_by_recipes: "まだ使われています：{titles}",
+			used_by_drafts: "まだ下書きで使われています：{titles}",
+			recipe_not_found: "このレシピはもう存在しません。",
+			draft_not_found: "この下書きはもう存在しません。"
+		},
 		aiFailedKept: "AIの処理が完了しませんでした（{error}）。下書きは元のまま残っています。",
 		workingLeave: "AIが処理中です。このページを離れても、下書きは受信箱に残ります。",
 		units: "単位",
@@ -888,6 +931,11 @@ var O = o`
 		noRecipeData: "このページにはレシピデータが埋め込まれていません。AIがページの本文を読んでレシピを書き起こせます。",
 		noRecipeDataNoAi: "このページにはレシピデータが埋め込まれていないため、AIでしか取り込めませんが、AIはオフです。",
 		structureAi: "AIで材料を対応付ける",
+		matchTitle: "対応付けが必要な材料：{n}",
+		matchExplain: "ページから取り込んだこれらの行は、まだ材料に対応付けられていません。すべての行を対応付けると保存できます。",
+		matchHowAi: "AIに対応付けさせるか、下の一覧で材料を一つずつ選んでください。",
+		matchHowHand: "下の一覧で材料を一つずつ選んでください。各行の上にページの元の文が表示されています。",
+		matchByHand: "手動で対応付ける",
 		adaptAi: "AIでアレンジ",
 		retranslateNote: "メモを付けるとすべての文を翻訳し直します。メモがなければ変更された文だけを翻訳します。",
 		importNoAi: "AIがオフのため、レシピデータを含むページだけをインポートでき、材料行は確認画面で手動で対応付けます。"
@@ -898,14 +946,14 @@ function He(e) {
 	return Ve[t] ? t : "en";
 }
 function Ue(e) {
-	let t = Ve[e], n = (e, n = {}) => String(t[e] ?? Ve.en[e] ?? e).replace(/\{(\w+)\}/g, (e, t) => n[t] ?? ""), r = new Intl.DisplayNames([e], { type: "language" });
-	return n.langName = (e) => {
+	let t = Ve[e], n = (e, t = {}) => String(e).replace(/\{(\w+)\}/g, (e, n) => t[n] ?? ""), r = (e, r) => n(t[e] ?? Ve.en[e] ?? e, r), i = new Intl.DisplayNames([e], { type: "language" });
+	return r.langName = (e) => {
 		try {
-			return r.of(e);
+			return i.of(e);
 		} catch {
 			return e.toUpperCase();
 		}
-	}, n.status = (e) => t.status[e] || e, n.action = (e) => t.action[e] || e, n;
+	}, r.status = (e) => t.status[e] || e, r.action = (e) => t.action[e] || e, r.error = (e) => t.errors[e?.key] ? n(t.errors[e.key], e.params) : e?.message || String(e), r;
 }
 // src/transport.js
 function We(e) {
@@ -920,7 +968,11 @@ function We(e) {
 					return_response: !0
 				})).response;
 			} catch (e) {
-				throw Object.assign(Error(e?.message || String(e)), { key: e?.translation_key });
+				let t = (e?.message || String(e)).replace(/^Validation error: /, ""), n = e?.translation_domain === "itadaki";
+				throw Object.assign(Error(t), n ? {
+					key: e.translation_key,
+					params: e.translation_placeholders
+				} : {});
 			}
 		},
 		subscribeDrafts(t) {
@@ -987,7 +1039,6 @@ var Xe = {
 	ruler: "M1.39,18.36L3.16,16.6L4.58,18L5.64,16.95L4.22,15.54L5.64,14.12L8.11,16.6L9.17,15.54L6.7,13.06L8.11,11.65L9.53,13.06L10.59,12L9.17,10.59L10.59,9.17L13.06,11.65L14.12,10.59L11.65,8.11L13.06,6.7L14.47,8.11L15.54,7.05L14.12,5.64L15.54,4.22L18,6.7L19.07,5.64L16.6,3.16L18.36,1.39L22.61,5.64L5.64,22.61L1.39,18.36Z",
 	chevron: "M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z",
 	check: "M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z",
-	match: "M10.59,13.41C11,13.8 11,14.44 10.59,14.83C10.2,15.22 9.56,15.22 9.17,14.83C7.22,12.88 7.22,9.71 9.17,7.76V7.76L12.71,4.22C14.66,2.27 17.83,2.27 19.78,4.22C21.73,6.17 21.73,9.34 19.78,11.29L18.29,12.78C18.3,11.96 18.17,11.14 17.89,10.36L18.36,9.88C19.54,8.71 19.54,6.81 18.36,5.64C17.19,4.46 15.29,4.46 14.12,5.64L10.59,9.17C9.41,10.34 9.41,12.24 10.59,13.41M13.41,9.17C13.8,8.78 14.44,8.78 14.83,9.17C16.78,11.12 16.78,14.29 14.83,16.24V16.24L11.29,19.78C9.34,21.73 6.17,21.73 4.22,19.78C2.27,17.83 2.27,14.66 4.22,12.71L5.71,11.22C5.7,12.04 5.83,12.86 6.11,13.65L5.64,14.12C4.46,15.29 4.46,17.19 5.64,18.36C6.81,19.54 8.71,19.54 9.88,18.36L13.41,14.83C14.59,13.66 14.59,11.76 13.41,10.59C13,10.2 13,9.56 13.41,9.17Z",
 	cook: "M12.5,1.5C10.73,1.5 9.17,2.67 8.67,4.37C8.14,4.13 7.58,4 7,4A4,4 0 0,0 3,8C3,9.82 4.24,11.41 6,11.87V19H19V11.87C20.76,11.41 22,9.82 22,8A4,4 0 0,0 18,4C17.42,4 16.86,4.13 16.33,4.37C15.83,2.67 14.27,1.5 12.5,1.5M12,10.5H13V17.5H12V10.5M9,12.5H10V17.5H9V12.5M15,12.5H16V17.5H15V12.5M6,20V21A1,1 0 0,0 7,22H18A1,1 0 0,0 19,21V20H6Z",
 	close: "M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"
 }, A = (e) => xe`<svg viewBox="0 0 24 24" aria-hidden="true"><path d=${Xe[e]} /></svg>`, Ze = (e, t, n, r = !1) => T`<button slot="actions" class="icon"
@@ -1142,14 +1193,14 @@ var tt = class extends D {
 			});
 			this._recipes = e.recipes, this._error = void 0;
 		} catch (e) {
-			this._error = e.message;
+			this._error = this.t.error(e);
 		}
 	}
 	async _loadDrafts() {
 		try {
 			this._drafts = (await this.api.call("list_drafts")).drafts;
 		} catch (e) {
-			this._error = e.message;
+			this._error = this.t.error(e);
 		}
 	}
 	_search(e) {
@@ -1458,7 +1509,7 @@ var st = class extends D {
 				...this._servings ? { servings: this._servings } : {}
 			}), this._error = void 0;
 		} catch (e) {
-			this._error = e.message;
+			this._error = this.t.error(e);
 		}
 	}
 	_scale(e) {
@@ -1474,7 +1525,7 @@ var st = class extends D {
 				id: n
 			});
 		} catch (e) {
-			this._error = e.message;
+			this._error = this.t.error(e);
 		} finally {
 			this._busy = !1;
 		}
@@ -1485,7 +1536,7 @@ var st = class extends D {
 				await this.api.call("delete_recipe", { recipe_id: this.recipeId });
 			} catch (e) {
 				if (e.key !== "in_use") {
-					this._error = e.message;
+					this._error = this.t.error(e);
 					return;
 				}
 				if (!confirm(this.t("confirmDeleteAll"))) return;
@@ -1495,7 +1546,7 @@ var st = class extends D {
 						cascade: !0
 					});
 				} catch (e) {
-					this._error = e.message;
+					this._error = this.t.error(e);
 					return;
 				}
 			}
@@ -1668,7 +1719,7 @@ var ct = class extends D {
 				id: n
 			});
 		} catch (e) {
-			e.key === "no_recipe_data" ? this._noData = !0 : this._error = e.message;
+			e.key === "no_recipe_data" ? this._noData = !0 : this._error = this.t.error(e);
 		} finally {
 			this._busy = !1;
 		}
@@ -2954,6 +3005,10 @@ function Pr(e, t) {
 }
 // src/views/combo.js
 var Fr = class extends D {
+	static shadowRootOptions = {
+		...D.shadowRootOptions,
+		delegatesFocus: !0
+	};
 	static properties = {
 		entries: { attribute: !1 },
 		value: {},
@@ -3177,6 +3232,13 @@ var Ur = (e) => e == null ? e : Math.round(e * 100) / 100, Wr = (e) => e === "" 
 			section: e.section ?? null
 		}));
 	}
+	showUnmatched() {
+		let e = this.renderRoot.querySelector(".line.unmatched");
+		e?.scrollIntoView({
+			behavior: "smooth",
+			block: "center"
+		}), e?.querySelector("itadaki-combo")?.focus({ preventScroll: !0 });
+	}
 	get newIngredientsUsed() {
 		let e = new Set(this._r.ingredients.map((e) => e.ingredient_id));
 		return this._new.filter((t) => e.has(t.id));
@@ -3215,7 +3277,11 @@ var Ur = (e) => e == null ? e : Math.round(e * 100) / 100, Wr = (e) => e === "" 
 			};
 		});
 	}
-	updated() {
+	updated(e) {
+		if (e.has("_r")) {
+			let e = this._r.ingredients.filter(Jr).length;
+			e !== this._unmatchedCount && (this._unmatchedCount = e, this.dispatchEvent(new CustomEvent("unmatched-changed", { detail: { count: e } })));
+		}
 		this._sortables ??= /* @__PURE__ */ new WeakMap();
 		for (let e of this.renderRoot.querySelectorAll(".items")) {
 			if (this._sortables.has(e)) continue;
@@ -3242,7 +3308,7 @@ var Ur = (e) => e == null ? e : Math.round(e * 100) / 100, Wr = (e) => e === "" 
 				let { image_url: e } = await this.api.call("upload_image", { data: await Ar(t) });
 				this._set("image_url", e);
 			} catch (e) {
-				this._imageError = e.message;
+				this._imageError = this.t.error(e);
 			} finally {
 				this._uploading = !1;
 			}
@@ -3358,7 +3424,7 @@ var Ur = (e) => e == null ? e : Math.round(e * 100) / 100, Wr = (e) => e === "" 
           <span>${e("ingredient")}</span><span>${e("amount")}</span>
           <span>${e("unit")}</span><span>${e("lineNote")}</span><span></span>
         </div>
-        ${this._blocks("ingredients", (t, r, i) => T`<div class="line">
+        ${this._blocks("ingredients", (t, r, i) => T`<div class="line ${Jr(t) ? "unmatched" : ""}">
                 ${t._raw ? T`<div class="raw muted">${t._raw}</div>` : E}
                 <itadaki-combo .entries=${a} .hint=${c} value=${t.ingredient_id ?? ""}
                   .label=${u.has(t.ingredient_id) ? $(u.get(t.ingredient_id), n) : ""}
@@ -3412,6 +3478,7 @@ var Zr = class extends D {
 		instructions: { attribute: !1 },
 		draftId: {},
 		_task: { state: !0 },
+		_unmatched: { state: !0 },
 		_entry: { state: !0 },
 		_catalog: { state: !0 },
 		_busy: { state: !0 },
@@ -3448,7 +3515,7 @@ var Zr = class extends D {
 			}
 			this._entry = e, this._error = void 0;
 		} catch (e) {
-			this._error = e.message;
+			this._error = this.t.error(e);
 		}
 	}
 	_edited() {
@@ -3490,7 +3557,7 @@ var Zr = class extends D {
 		try {
 			await e();
 		} catch (e) {
-			this._error = e.message;
+			this._error = this.t.error(e);
 		} finally {
 			this._busy = !1;
 		}
@@ -3558,9 +3625,10 @@ var Zr = class extends D {
         ${this._entry.error ? T`<div class="error">${t("aiFailedKept", { error: this._entry.error })}</div>` : E}
       </div>
 
+      ${this._unmatched && this._task !== "structure" ? this._matchCard() : E}
       ${this._task ? this._taskCard() : E}
 
-      <itadaki-editor .api=${this.api} .languages=${this.languages} .recipe=${n} .t=${t} uiLang=${this.lang} .units=${this._catalog.units}
+      <itadaki-editor @unmatched-changed=${(e) => this._unmatched = e.detail.count} .api=${this.api} .languages=${this.languages} .recipe=${n} .t=${t} uiLang=${this.lang} .units=${this._catalog.units}
         .ingredients=${this._catalog.ingredients} .newIngredients=${e.new_ingredients}
         ?fixedLanguage=${!!(e.updates_id || e.parent_id)}></itadaki-editor>
 
@@ -3572,20 +3640,30 @@ var Zr = class extends D {
       ${this._error ? T`<div class="error">${this._error}</div>` : E}
     `;
 	}
+	_matchCard() {
+		let e = this.t, t = () => this.renderRoot.querySelector("itadaki-editor");
+		return T`<div class="card actions">
+      <h2>${e("matchTitle", { n: this._unmatched })}</h2>
+      <div class="muted">${e("matchExplain")} ${e(this.ai ? "matchHowAi" : "matchHowHand")}</div>
+      <div class="row" style="margin-top:12px">
+        ${this.ai ? T`<button class="btn" ?disabled=${this._busy} @click=${() => this._task = "structure"}>${e("structureAi")}</button>` : E}
+        <button class="btn quiet" @click=${() => t().showUnmatched()}>${e("matchByHand")}</button>
+      </div>
+    </div>`;
+	}
 	_actions() {
 		let e = this.t, t = this._entry;
-		if (!this.ai || t?.status !== "ready") return E;
-		let n = (e) => () => this._task = this._task === e ? void 0 : e;
-		return T`
-      ${t.draft.raw_lines.length ? Ze("match", e("structureAi"), n("structure"), this._busy) : E}
-      ${Ze("adapt", e("adaptAi"), n("adapt"), this._busy)}
+		return !this.ai || t?.status !== "ready" ? E : T`
+      ${Ze("adapt", e("adaptAi"), ((e) => () => this._task = this._task === e ? void 0 : e)("adapt"), this._busy)}
     `;
 	}
 	_taskCard() {
 		let e = this.t, t = this._task === "adapt";
 		return T`<itadaki-ai-run class="actions" .t=${e} cancellable ?noteRequired=${t} ?disabled=${this._busy}
       heading=${e(t ? "adaptAi" : "structureAi")} .standing=${this.instructions[this._task]}
-      @run=${this._runTask} @cancel=${() => this._task = void 0}></itadaki-ai-run>`;
+      @run=${this._runTask} @cancel=${() => this._task = void 0}>
+      ${t ? E : T`<div class="muted">${e("matchExplain")}</div>`}
+    </itadaki-ai-run>`;
 	}
 };
 customElements.define("itadaki-draft", Zr);
@@ -3635,7 +3713,7 @@ var Qr = class extends D {
 				units: n.units
 			};
 		} catch (e) {
-			this._error = e.message;
+			this._error = this.t.error(e);
 		}
 	}
 	async _save() {
@@ -3653,7 +3731,7 @@ var Qr = class extends D {
 				replace: !0
 			});
 		} catch (e) {
-			this._error = e.message;
+			this._error = this.t.error(e);
 		} finally {
 			this._busy = !1;
 		}
@@ -3778,7 +3856,7 @@ var $r = [
 		try {
 			await e(), this.dispatchEvent(new CustomEvent("changed"));
 		} catch (e) {
-			this._error = e.message;
+			this._error = this.t.error(e);
 		} finally {
 			this._busy = !1;
 		}
@@ -3919,7 +3997,7 @@ var ii = class extends D {
 			let [t, n] = await Promise.all([this.api.call(e), this.api.call("catalog_usage")]);
 			this._entries = t[this.kind].sort((e, t) => $(e, this.lang).localeCompare($(t, this.lang))), this._usage = n[this.kind], this._error = void 0;
 		} catch (e) {
-			this._error = e.message;
+			this._error = this.t.error(e);
 		}
 	}
 	_changed() {
@@ -4080,7 +4158,7 @@ var si = class extends D {
 				composed: !0
 			}));
 		} catch (e) {
-			this._error = e.message;
+			this._error = this.t.error(e);
 		} finally {
 			this._busy = !1;
 		}
@@ -4150,7 +4228,7 @@ var ci = [
 			let [e, t] = await Promise.all([this.api.call("get_ai_settings"), this.api.call("get_settings")]);
 			this._instructions = t.instructions, this._show(e);
 		} catch (e) {
-			this._error = e.message;
+			this._error = this.t.error(e);
 		}
 	}
 	_show(e) {
@@ -4192,7 +4270,7 @@ var ci = [
 				composed: !0
 			}));
 		} catch (e) {
-			this._error = e.message;
+			this._error = this.t.error(e);
 		} finally {
 			this._busy = !1;
 		}
@@ -4276,7 +4354,7 @@ var di = /* @__PURE__ */ new Set([
 			languages: e.languages,
 			instructions: e.instructions,
 			ai: t.enabled
-		}).catch((e) => this._error = e.message));
+		}).catch((e) => this._error = e));
 	}
 	get _prefix() {
 		return this.route?.prefix ?? "/itadaki";
@@ -4294,7 +4372,7 @@ var di = /* @__PURE__ */ new Set([
 			...e.detail
 		}}>
         ${this._settings ? this._screen(qe(this.route?.path), t, e) : T`<itadaki-page .t=${t} home ?narrow=${this.narrow}>
-              ${this._error ? T`<div class="error">${this._error}</div>` : E}
+              ${this._error ? T`<div class="error">${t.error(this._error)}</div>` : E}
             </itadaki-page>`}
       </div>
     `;
