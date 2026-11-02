@@ -29,8 +29,9 @@ def test_localized_merges_per_language(book):
 
 def test_terms_must_be_unique_per_language_ignoring_case(book):
     book.upsert_ingredient({"localized": {"en": {"name": "egg", "plural": "eggs"}}})
-    with pytest.raises(InvalidRequestError):
+    with pytest.raises(InvalidRequestError) as refused:
         book.upsert_ingredient({"localized": {"en": {"name": "hen egg", "aliases": ["Eggs"]}}})
+    assert (refused.value.key, refused.value.params) == ("name_taken", {"names": "eggs"})
     with pytest.raises(InvalidRequestError):
         book.upsert_unit({"id": "big_spoon", "localized": {"en": {"name": "big spoon", "aliases": ["TBS"]}}})
 
@@ -63,8 +64,9 @@ def test_unknown_fields_are_rejected(book):
 
 
 def test_cannot_delete_catalog_entries_in_use(book, carbonara, guanciale):
-    with pytest.raises(InUseError):
+    with pytest.raises(InUseError) as refused:
         book.delete_ingredient(guanciale.id)
+    assert (refused.value.key, refused.value.params) == ("used_by_recipes", {"titles": carbonara.title})
     with pytest.raises(InUseError):
         book.delete_unit("g")
 

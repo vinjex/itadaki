@@ -22,13 +22,14 @@ _SIGNATURES = {
 
 def image_type(data: bytes) -> str:
     if len(data) > MAX_IMAGE_BYTES:
-        raise InvalidRequestError(f"image larger than {MAX_IMAGE_BYTES // (1024 * 1024)} MB")
+        mb = MAX_IMAGE_BYTES // (1024 * 1024)
+        raise InvalidRequestError(f"image larger than {mb} MB", key="image_too_large", mb=mb)
     if data[:4] == b"RIFF" and data[8:12] == b"WEBP":
         return "image/webp"
     for signature, mime in _SIGNATURES.items():
         if data.startswith(signature):
             return mime
-    raise InvalidRequestError("not a JPEG, PNG, WebP or GIF image")
+    raise InvalidRequestError("not a JPEG, PNG, WebP or GIF image", key="image_type")
 
 
 def content_id(data: bytes) -> str:

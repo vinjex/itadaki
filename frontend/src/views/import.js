@@ -39,7 +39,7 @@ class ItadakiImport extends LitElement {
       navigate(this, { view: "draft", id: draft_id });
     } catch (err) {
       if (err.key === "no_recipe_data") this._noData = true;
-      else this._error = err.message;
+      else this._error = this.t.error(err);
     } finally {
       this._busy = false;
     }

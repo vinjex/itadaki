@@ -52,7 +52,7 @@ def _parse_recipe(data: dict[str, Any]) -> Recipe:
     except (TypeError, ValueError, AttributeError) as err:
         raise InvalidRequestError(f"invalid recipe: {err}") from err
     if not recipe.title.strip():
-        raise InvalidRequestError("a recipe needs a title")
+        raise InvalidRequestError("a recipe needs a title", key="title_required")
     return recipe
 
 
@@ -84,7 +84,7 @@ class RecipeBook:
     def get_recipe(self, recipe_id: str) -> Recipe:
         recipe = self._store.get_recipe(recipe_id)
         if recipe is None:
-            raise NotFoundError(f"recipe {recipe_id} not found")
+            raise NotFoundError(f"recipe {recipe_id} not found", key="recipe_not_found")
         return recipe
 
     def list_recipes(
@@ -194,7 +194,8 @@ class RecipeBook:
         if len(subtree) > 1 and not cascade:
             raise InUseError(
                 f"recipe {recipe_id} has {len(subtree) - 1} translations or variants; "
-                "delete with cascade to remove them too"
+                "delete with cascade to remove them too",
+                key="in_use",
             )
         # Drafts about these recipes could never be saved any more.
         gone = set(subtree)
@@ -232,7 +233,7 @@ class RecipeBook:
         """The one way AI results are saved, whether reviewed in the panel first or
         saved directly: catalog changes first, then the recipe that references them."""
         if draft.raw_lines:
-            raise InvalidRequestError("the ingredient lines are not structured yet")
+            raise InvalidRequestError("the ingredient lines are not structured yet", key="lines_unmatched")
         content = {k: v for k, v in draft.recipe.to_dict().items() if k not in _MANAGED_FIELDS}
         # Everything is checked before anything is written, so a rejected recipe
         # cannot leave its new ingredients behind in the catalog.
@@ -340,7 +341,7 @@ class RecipeBook:
     def get_draft(self, draft_id: str) -> DraftEntry:
         entry = self._store.get_draft(draft_id)
         if entry is None:
-            raise NotFoundError(f"draft {draft_id} not found")
+            raise NotFoundError(f"draft {draft_id} not found", key="draft_not_found")
         return entry
 
     def list_drafts(self, recipe_id: str | None = None) -> list[DraftEntry]:
@@ -460,7 +461,7 @@ class RecipeBook:
             raise InvalidRequestError(f"invalid {cls.__name__.lower()}: {err}") from err
         entry = replace(entry, localized=merge_localized(base.localized, data.get("localized", {})))
         if not entry.localized:
-            raise InvalidRequestError("needs a name in at least one language")
+            raise InvalidRequestError("needs a name in at least one language", key="name_required")
         ensure_unique_terms(entry.id, entry.localized, ((e.id, e.localized) for e in list_all()))
         put(entry)
         return entry
@@ -498,7 +499,7 @@ class RecipeBook:
 
     def _ensure_references(self, recipe: Recipe, pending_ingredient_ids: set[str] = frozenset()) -> None:
         if any(not line.ingredient_id for line in recipe.ingredients):
-            raise InvalidRequestError("every ingredient line needs an ingredient")
+            raise InvalidRequestError("every ingredient line needs an ingredient", key="ingredient_required")
         ingredient_ids = {i.id for i in self._store.list_ingredients()} | pending_ingredient_ids
         unit_ids = {u.id for u in self._store.list_units()}
         missing = sorted(
@@ -506,7 +507,7 @@ class RecipeBook:
             | {line.unit_id for line in recipe.ingredients if line.unit_id} - unit_ids
         )
         if missing:
-            raise InvalidRequestError(f"unknown ingredients or units: {', '.join(missing)}")
+            raise InvalidRequestError(f"unknown ingredients or units: {', '.join(missing)}", key="entries_missing")
 
     def _subtree_leaves_first(self, recipe_id: str) -> list[str]:
         ordered: list[str] = []
@@ -526,7 +527,8 @@ class RecipeBook:
     def _ensure_unused(self, line_field: str, entry_id: str) -> None:
         users = self._users(line_field).get(entry_id)
         if users:
-            raise InUseError(f"{entry_id} is used by: {', '.join(u['title'] for u in users)}")
+            titles = ", ".join(u["title"] for u in users)
+            raise InUseError(f"{entry_id} is used by: {titles}", key="used_by_recipes", titles=titles)
         # A draft that names the entry would break on review or save without it.
         kind = CatalogKind(line_field.removesuffix("_id"))
         drafts = [
@@ -539,7 +541,8 @@ class RecipeBook:
             )
         ]
         if drafts:
-            raise InUseError(f"{entry_id} is used by drafts: {', '.join(drafts)}")
+            titles = ", ".join(drafts)
+            raise InUseError(f"{entry_id} is used by drafts: {titles}", key="used_by_drafts", titles=titles)
 
     def _merge_entry(
         self,

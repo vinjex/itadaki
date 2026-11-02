@@ -71,7 +71,7 @@ class ItadakiCatalog extends LitElement {
       this._usage = usage[this.kind];
       this._error = undefined;
     } catch (err) {
-      this._error = err.message;
+      this._error = this.t.error(err);
     }
   }
 

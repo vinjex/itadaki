@@ -37,7 +37,7 @@ class ItadakiEdit extends LitElement {
       ]);
       this._data = { recipe, ingredients: ingredients.ingredients, units: units.units };
     } catch (err) {
-      this._error = err.message;
+      this._error = this.t.error(err);
     }
   }
 
@@ -52,7 +52,7 @@ class ItadakiEdit extends LitElement {
       const { recipe } = await this.api.call("apply_draft", { draft });
       navigate(this, this.recipeId ? { view: "back" } : { view: "recipe", id: recipe.id, replace: true });
     } catch (err) {
-      this._error = err.message;
+      this._error = this.t.error(err);
     } finally {
       this._busy = false;
     }

@@ -214,7 +214,7 @@ class Assistant:
 
     def require(self) -> None:
         if not self.enabled:
-            raise InvalidRequestError("AI is not set up")
+            raise InvalidRequestError("AI is not set up", key="ai_off")
 
     def _complete(self, *args: Any) -> Any:
         self.require()
@@ -250,7 +250,7 @@ class Assistant:
         fixed size, goes to the AI. Pass `html` when the page was already fetched."""
         page = main_text(html if html is not None else self.fetch(url), url)
         if page is None:
-            raise InvalidRequestError(f"no recipe found at {url}")
+            raise InvalidRequestError(f"no recipe found at {url}", key="no_recipe_found")
         recipe, new, usage = self._rewrite(
             "extract", f"Extract the recipe from this web page text.\n\n{page.text}", note
         )

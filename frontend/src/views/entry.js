@@ -96,7 +96,7 @@ class ItadakiEntry extends LitElement {
       await work();
       this.dispatchEvent(new CustomEvent("changed"));
     } catch (err) {
-      this._error = err.message;
+      this._error = this.t.error(err);
     } finally {
       this._busy = false;
     }

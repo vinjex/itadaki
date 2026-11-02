@@ -48,7 +48,7 @@ class ItadakiAi extends LitElement {
       this._instructions = library.instructions;
       this._show(ai);
     } catch (err) {
-      this._error = err.message;
+      this._error = this.t.error(err);
     }
   }
 
@@ -94,7 +94,7 @@ class ItadakiAi extends LitElement {
       const detail = { ai: saved.enabled, instructions: library.instructions };
       this.dispatchEvent(new CustomEvent("settings-changed", { detail, bubbles: true, composed: true }));
     } catch (err) {
-      this._error = err.message;
+      this._error = this.t.error(err);
     } finally {
       this._busy = false;
     }

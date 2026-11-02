@@ -17,7 +17,7 @@ from homeassistant.exceptions import HomeAssistantError, ServiceValidationError,
 
 from .ai_config import build_assistant, changed, public
 from .const import CONF_BASE_URL, CONF_EXTRA_BODY, CONF_MODEL, CONF_MODELS, CONF_STRUCTURED_OUTPUT, DOMAIN
-from .core import AI_ACTIONS, Draft, InUseError, InvalidRequestError, ItadakiError, NoRecipeDataError, RawLine, Recipe
+from .core import AI_ACTIONS, Draft, InvalidRequestError, ItadakiError, NoRecipeDataError, RawLine, Recipe
 from .core.llm import AiError
 
 if TYPE_CHECKING:
@@ -384,12 +384,13 @@ def _make_service(
             return await run(entries[0], dict(call.data))
         except AiError as err:
             raise HomeAssistantError(str(err)) from err
-        except NoRecipeDataError as err:
-            raise ServiceValidationError(str(err), translation_domain=DOMAIN, translation_key="no_recipe_data") from err
-        except InUseError as err:
-            # The key lets the panel tell this refusal apart and offer a cascade.
-            raise ServiceValidationError(str(err), translation_domain=DOMAIN, translation_key="in_use") from err
         except ItadakiError as err:
-            raise ServiceValidationError(str(err)) from err
+            # The key lets the panel word the refusal in its own language, or react to it.
+            raise ServiceValidationError(
+                str(err),
+                translation_domain=DOMAIN if err.key else None,
+                translation_key=err.key,
+                translation_placeholders=err.params or None,
+            ) from err
 
     return service

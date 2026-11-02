@@ -15,8 +15,10 @@ export function hassTransport(getHass) {
         return result.response;
       } catch (err) {
         // `key` names the kind of refusal, when the backend gives one, so screens
-        // can react to a specific one without parsing the message.
-        throw Object.assign(new Error(err?.message || String(err)), { key: err?.translation_key });
+        // can word it in the UI language or react to it without parsing the message.
+        const message = (err?.message || String(err)).replace(/^Validation error: /, "");
+        const ours = err?.translation_domain === "itadaki";
+        throw Object.assign(new Error(message), ours ? { key: err.translation_key, params: err.translation_placeholders } : {});
       }
     },
     // Calls `onUpdate({draft_id, status, recipe_id?})` whenever a draft changes;

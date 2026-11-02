@@ -22,7 +22,7 @@ class PageText:
 def fetch_html(url: str) -> str:
     html = trafilatura.fetch_url(url)
     if not html:
-        raise InvalidRequestError(f"could not fetch {url}")
+        raise InvalidRequestError(f"could not fetch {url}", key="fetch_failed")
     return html
 
 

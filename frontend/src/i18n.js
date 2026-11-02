@@ -68,6 +68,25 @@ const STRINGS = {
     inProgress: "AI drafts for this recipe",
     status: { working: "Working…", ready: "Ready to review", failed: "Failed" },
     action: { import: "Import", translate: "Translation", adapt: "Adaptation" },
+    errors: {
+      fetch_failed: "Could not open that page.",
+      no_recipe_found: "No recipe found on that page.",
+      ai_off: "AI is not set up.",
+      image_too_large: "The image is larger than {mb} MB.",
+      image_type: "Not a JPEG, PNG, WebP or GIF image.",
+      language_codes: "Not language codes: {codes}",
+      language_required: "At least one language is needed.",
+      name_taken: "Already used by another entry: {names}",
+      name_required: "Give it a name in at least one language.",
+      title_required: "The recipe needs a title.",
+      lines_unmatched: "Some ingredient lines are not matched to an ingredient yet.",
+      ingredient_required: "Every ingredient line needs an ingredient.",
+      entries_missing: "Some ingredients or units no longer exist. Pick them again.",
+      used_by_recipes: "Still used by: {titles}",
+      used_by_drafts: "Still used by drafts: {titles}",
+      recipe_not_found: "This recipe no longer exists.",
+      draft_not_found: "This draft no longer exists.",
+    },
     aiFailedKept: "The AI could not finish ({error}). The draft is kept as it was.",
     workingLeave: "The AI is working on this. You can leave this page; the draft waits in the inbox.",
     units: "Units",
@@ -213,6 +232,25 @@ const STRINGS = {
     inProgress: "このレシピのAI下書き",
     status: { working: "処理中…", ready: "確認待ち", failed: "失敗" },
     action: { import: "取り込み", translate: "翻訳", adapt: "アレンジ" },
+    errors: {
+      fetch_failed: "そのページを開けませんでした。",
+      no_recipe_found: "そのページにレシピが見つかりませんでした。",
+      ai_off: "AIが設定されていません。",
+      image_too_large: "画像が{mb} MBを超えています。",
+      image_type: "JPEG、PNG、WebP、GIFの画像ではありません。",
+      language_codes: "言語コードではありません：{codes}",
+      language_required: "言語が少なくとも1つ必要です。",
+      name_taken: "別の項目ですでに使われています：{names}",
+      name_required: "少なくとも1つの言語で名前を付けてください。",
+      title_required: "レシピにはタイトルが必要です。",
+      lines_unmatched: "まだ材料に対応付けられていない材料行があります。",
+      ingredient_required: "すべての材料行に材料が必要です。",
+      entries_missing: "一部の材料または単位が存在しなくなりました。選び直してください。",
+      used_by_recipes: "まだ使われています：{titles}",
+      used_by_drafts: "まだ下書きで使われています：{titles}",
+      recipe_not_found: "このレシピはもう存在しません。",
+      draft_not_found: "この下書きはもう存在しません。",
+    },
     aiFailedKept: "AIの処理が完了しませんでした（{error}）。下書きは元のまま残っています。",
     workingLeave: "AIが処理中です。このページを離れても、下書きは受信箱に残ります。",
     units: "単位",
@@ -298,8 +336,8 @@ export function uiLanguage(hass) {
 
 export function translator(language) {
   const strings = STRINGS[language];
-  const t = (key, vars = {}) =>
-    String(strings[key] ?? STRINGS.en[key] ?? key).replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? "");
+  const fill = (text, vars = {}) => String(text).replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? "");
+  const t = (key, vars) => fill(strings[key] ?? STRINGS.en[key] ?? key, vars);
   // The browser names every language, in the UI language: French, フランス語.
   const names = new Intl.DisplayNames([language], { type: "language" });
   t.langName = (code) => {
@@ -311,5 +349,7 @@ export function translator(language) {
   };
   t.status = (s) => strings.status[s] || s;
   t.action = (a) => strings.action[a] || a;
+  // A refusal the backend named is worded here; anything else shows as the backend said it.
+  t.error = (err) => (strings.errors[err?.key] ? fill(strings.errors[err.key], err.params) : err?.message || String(err));
   return t;
 }

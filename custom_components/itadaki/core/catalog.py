@@ -62,13 +62,15 @@ def ensure_unique_terms(
     """A word may mean only one entry per language, or parsing a line would have to guess."""
     mine = terms(localized)
     clashes = sorted(
-        f"{language}:{term} ({other_id})"
+        (language, term, other_id)
         for other_id, other in others
         if other_id != entry_id
         for language, term in mine & terms(other)
     )
     if clashes:
-        raise InvalidRequestError(f"already used by another entry: {', '.join(clashes)}")
+        listed = ", ".join(f"{language}:{term} ({other_id})" for language, term, other_id in clashes)
+        names = ", ".join(dict.fromkeys(term for _, term, _ in clashes))
+        raise InvalidRequestError(f"already used by another entry: {listed}", key="name_taken", names=names)
 
 
 def is_taken(index: dict[tuple[str, str], str], language: str, names: Localized) -> bool:

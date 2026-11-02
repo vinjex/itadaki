@@ -114,7 +114,7 @@ class ItadakiRecipe extends LitElement {
       });
       this._error = undefined;
     } catch (err) {
-      this._error = err.message;
+      this._error = this.t.error(err);
     }
   }
 
@@ -131,7 +131,7 @@ class ItadakiRecipe extends LitElement {
       const { draft_id } = await this.api.call(action, data);
       navigate(this, { view: "draft", id: draft_id });
     } catch (err) {
-      this._error = err.message;
+      this._error = this.t.error(err);
     } finally {
       this._busy = false;
     }
@@ -143,7 +143,7 @@ class ItadakiRecipe extends LitElement {
       await this.api.call("delete_recipe", { recipe_id: this.recipeId });
     } catch (err) {
       if (err.key !== "in_use") {
-        this._error = err.message;
+        this._error = this.t.error(err);
         return;
       }
       // Refused because it has translations or variants: ask before taking them too.
@@ -151,7 +151,7 @@ class ItadakiRecipe extends LitElement {
       try {
         await this.api.call("delete_recipe", { recipe_id: this.recipeId, cascade: true });
       } catch (err) {
-        this._error = err.message;
+        this._error = this.t.error(err);
         return;
       }
     }

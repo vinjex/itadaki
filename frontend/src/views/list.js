@@ -69,7 +69,7 @@ class ItadakiList extends LitElement {
       this._recipes = res.recipes;
       this._error = undefined;
     } catch (err) {
-      this._error = err.message;
+      this._error = this.t.error(err);
     }
   }
 
@@ -77,7 +77,7 @@ class ItadakiList extends LitElement {
     try {
       this._drafts = (await this.api.call("list_drafts")).drafts;
     } catch (err) {
-      this._error = err.message;
+      this._error = this.t.error(err);
     }
   }
 

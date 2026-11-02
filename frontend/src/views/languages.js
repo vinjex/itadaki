@@ -41,7 +41,7 @@ class ItadakiLanguages extends LitElement {
       this._code = "";
       this.dispatchEvent(new CustomEvent("settings-changed", { detail: { languages: settings.languages }, bubbles: true, composed: true }));
     } catch (err) {
-      this._error = err.message;
+      this._error = this.t.error(err);
     } finally {
       this._busy = false;
     }

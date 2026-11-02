@@ -43,7 +43,7 @@ class ItadakiPanel extends LitElement {
     if (this.hass && !this._loading) {
       this._loading = Promise.all([this.api.call("get_settings"), this.api.call("get_ai_settings")])
         .then(([library, ai]) => (this._settings = { languages: library.languages, instructions: library.instructions, ai: ai.enabled }))
-        .catch((err) => (this._error = err.message));
+        .catch((err) => (this._error = err));
     }
   }
 
@@ -66,7 +66,7 @@ class ItadakiPanel extends LitElement {
         ${this._settings
           ? this._screen(viewFor(this.route?.path), t, lang)
           : html`<itadaki-page .t=${t} home ?narrow=${this.narrow}>
-              ${this._error ? html`<div class="error">${this._error}</div>` : nothing}
+              ${this._error ? html`<div class="error">${t.error(this._error)}</div>` : nothing}
             </itadaki-page>`}
       </div>
     `;

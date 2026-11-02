@@ -21,7 +21,7 @@ def clean_languages(codes: Iterable[str]) -> list[str]:
     cleaned = list(dict.fromkeys(c.strip().lower() for c in codes))
     bad = [c for c in cleaned if not _CODE.fullmatch(c)]
     if bad:
-        raise InvalidRequestError(f"not language codes: {', '.join(bad)}")
+        raise InvalidRequestError(f"not language codes: {', '.join(bad)}", key="language_codes", codes=", ".join(bad))
     if not cleaned:
-        raise InvalidRequestError("at least one language is needed")
+        raise InvalidRequestError("at least one language is needed", key="language_required")
     return cleaned
