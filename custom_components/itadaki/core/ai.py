@@ -4,13 +4,12 @@ Draft; RecipeBook.save_draft is the only way a result reaches storage."""
 from __future__ import annotations
 
 import json
-import re
 import uuid
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, replace
-from typing import Any
+from typing import Any, TypeVar
 
-from .catalog import display_name, is_taken, term_index
+from .catalog import display_name, is_taken, slug, term_index, unique_id
 from .errors import InvalidRequestError
 from .importer import draft_from_html
 from .languages import language_code
@@ -26,12 +25,16 @@ from .models import (
     Recipe,
     Relation,
     Step,
+    Tag,
+    TagKind,
     Unit,
     Usage,
 )
 from .page import fetch_html, main_text
 from .units import round_quantity
 from .service import RecipeBook
+
+Entry = TypeVar("Entry", Ingredient, Tag)
 
 # --- JSON shapes the model must answer with. Strict-mode compatible: every key
 # required, nullable values as type unions, no extra keys.
@@ -75,10 +78,11 @@ _RECIPE_SCHEMA = _obj(
         "ingredients": {"type": "array", "items": _LINE_SCHEMA},
         "steps": {"type": "array", "items": _obj({"text": _TEXT, "section": _NULLABLE_TEXT})},
         "notes": _TEXT,
-        "tags": {"type": "array", "items": _TEXT},
     }
 )
 _TEXTS_SCHEMA = _obj({"texts": {"type": "array", "items": _TEXT}})
+_TAGS_SCHEMA = _obj({"tags": {"type": "array", "items": _TEXT}})
+_NEW_TAGS_MAX = 3
 _PLURAL_RULE = (
     "Plural only for countable ingredients (eggs, onions); null for uncountable ones "
     "(sugar, soy sauce, rice), for units, and in languages without plural forms."
@@ -99,18 +103,6 @@ Units (id: words that mean it):
 
 
 # --- Turning model answers into catalog-linked lines
-
-
-def _slug(text: str) -> str:
-    return re.sub(r"[^a-z0-9]+", "_", text.lower()).strip("_")
-
-
-def _unique_id(base: str, taken: set[str]) -> str:
-    entry_id, n = base, 1
-    while entry_id in taken:
-        n += 1
-        entry_id = f"{base}_{n}"
-    return entry_id
 
 
 class _LineResolver:
@@ -152,7 +144,7 @@ class _LineResolver:
 
         # Provisional id: the final one comes from the English name, once known.
         localized = {self._language: Localized(raw["name"], raw.get("plural") or None)}
-        entry_id = _unique_id(_slug(raw["name"]) or uuid.uuid4().hex[:8], self._ingredient_ids)
+        entry_id = unique_id(slug(raw["name"]) or uuid.uuid4().hex[:8], self._ingredient_ids)
         ingredient = Ingredient(entry_id, localized)
         self.new[entry_id] = ingredient
         self._ingredient_ids.add(entry_id)
@@ -165,7 +157,7 @@ class _LineResolver:
 
 
 def _segments(recipe: Recipe) -> list[str]:
-    texts = [recipe.title, recipe.description, recipe.notes, *recipe.tags]
+    texts = [recipe.title, recipe.description, recipe.notes]
     texts += [t for step in recipe.steps for t in (step.text, step.section)]
     texts += [t for line in recipe.ingredients for t in (line.note, line.section)]
     return list(dict.fromkeys(t for t in texts if t))
@@ -181,7 +173,6 @@ def _translated(recipe: Recipe, mapping: dict[str, str], language: str) -> Recip
         title=tr(recipe.title),
         description=tr(recipe.description),
         notes=tr(recipe.notes),
-        tags=[tr(t) for t in recipe.tags],
         steps=[Step(tr(s.text), tr(s.section)) for s in recipe.steps],
         ingredients=[replace(line, note=tr(line.note), section=tr(line.section)) for line in recipe.ingredients],
     )
@@ -227,8 +218,19 @@ class Assistant:
     def read_page(self, html: str, url: str, fallback_language: str = "en") -> Draft | None:
         """The page's embedded recipe data as a draft, in seconds and with no AI. Its
         ingredient lines are raw; structure_draft finishes it. None when the page has
-        no embedded recipe, which needs extract instead."""
-        return draft_from_html(html, url, fallback_language)
+        no embedded recipe, which needs extract instead. Words the page tags it with
+        become its tags when they name one; the rest stay suggestions for review."""
+        draft = draft_from_html(html, url, fallback_language)
+        if draft is None:
+            return None
+        language = draft.recipe.language
+        index = term_index((t.id, t.localized) for t in self._book.list_tags(TagKind.RECIPE))
+        linked, unknown = [], []
+        for word in draft.suggested_tags:
+            tag_id = index.get((language, word.casefold()))
+            (linked if tag_id else unknown).append(tag_id or word)
+        recipe = replace(draft.recipe, tags=list(dict.fromkeys(linked)))
+        return replace(draft, recipe=recipe, suggested_tags=unknown)
 
     def read_url(self, url: str, fallback_language: str = "en") -> Draft | None:
         return self.read_page(self.fetch(url), url, fallback_language)
@@ -325,6 +327,7 @@ class Assistant:
             taken = {
                 CatalogKind.INGREDIENT: term_index((i.id, i.localized) for i in self._book.list_ingredients()),
                 CatalogKind.UNIT: term_index((u.id, u.localized) for u in self._book.list_units()),
+                CatalogKind.TAG: term_index((t.id, t.localized) for t in self._book.list_tags(TagKind.RECIPE)),
             }
             for key, names in zip(missing, named):
                 kind, entry_id = key.split(":", 1)
@@ -354,7 +357,9 @@ class Assistant:
         recipe, new, usage = self._rewrite(
             "adapt", f"Rewrite this recipe as JSON, applying the user instructions.\n\n{payload}", instruction, known
         )
-        recipe = replace(recipe, language=source.language, image_url=source.image_url, source_url=source.source_url)
+        recipe = replace(
+            recipe, language=source.language, tags=source.tags, image_url=source.image_url, source_url=source.source_url
+        )
         used = {line.ingredient_id for line in recipe.ingredients}
         return replace(
             draft,
@@ -362,6 +367,75 @@ class Assistant:
             new_ingredients=[*(i for i in known if i.id in used), *new],
             raw_lines=[],
             usage=draft.usage + usage,
+        )
+
+    def tag(self, recipe_id: str, note: str | None = None) -> Draft:
+        source = self._book.get_recipe(recipe_id)
+        return self.tag_draft(Draft(source, updates_id=source.id), note)
+
+    def tag_draft(self, draft: Draft, note: str | None = None) -> Draft:
+        """Adds tags that fit the recipe, picked from the library's recipe tags, plus a
+        few new ones when the list lacks something important. The tag list is sent
+        whole: it is short, and choosing from it keeps near-duplicates out."""
+        recipe = draft.recipe
+        language = recipe.language
+        tags = [*self._book.list_tags(TagKind.RECIPE), *draft.new_tags]
+        names = sorted({display_name(t.localized, language) for t in tags})
+        lines = [*self._lines_as_text(recipe, draft.new_ingredients), *draft.raw_lines]
+        payload = {
+            "title": recipe.title,
+            "description": recipe.description,
+            "ingredients": [l.text for l in lines],
+            "steps": [s.text for s in recipe.steps],
+        }
+        payload = {k: v for k, v in payload.items() if v}
+        system = (
+            "You tag recipes for a recipe app, so they can be found by filtering. Pick every "
+            "listed tag that fits the recipe, using its name exactly as listed. Only when the "
+            "list lacks something a cook would filter by (cuisine, course, main ingredient, "
+            f"diet, method, occasion), add up to {_NEW_TAGS_MAX} new tags: short, singular, "
+            f"lowercase where the language has case, written in {language}."
+        )
+        user = self._instructed(
+            "tag",
+            f"Tags: {json.dumps(names, ensure_ascii=False)}\n\nRecipe: {json.dumps(payload, ensure_ascii=False)}",
+            note,
+        )
+
+        def validate(answer: dict[str, Any]) -> tuple[list[str], list[Tag]]:
+            # Exact lookup in the recipe's language first, then in any language.
+            index = term_index((t.id, t.localized) for t in tags)
+            anywhere = {word: tag_id for (_, word), tag_id in index.items()}
+            taken = {t.id for t in tags}
+            chosen, new = [], []
+            for name in answer["tags"]:
+                name = name.strip()
+                if not name:
+                    continue
+                tag_id = index.get((language, name.casefold())) or anywhere.get(name.casefold())
+                if tag_id is None:
+                    if len(new) == _NEW_TAGS_MAX:
+                        continue
+                    tag = Tag(unique_id(slug(name) or uuid.uuid4().hex[:8], taken), {language: Localized(name)})
+                    taken.add(tag.id)
+                    index.update(term_index([(tag.id, tag.localized)]))
+                    new.append(tag)
+                    tag_id = tag.id
+                chosen.append(tag_id)
+            return chosen, new
+
+        (chosen, new), usage = self._complete("tag", system, user, _TAGS_SCHEMA, validate)
+        new, final_ids, naming = self._name_new_entries(new, language, tags)
+        # The naming call is shared with ingredients, but tags have no plurals.
+        new = [replace(t, localized={l: replace(n, plural=None) for l, n in t.localized.items()}) for t in new]
+        chosen = [final_ids.get(t, t) for t in chosen]
+        tag_ids = list(dict.fromkeys([*recipe.tags, *chosen]))
+        kept = [t for t in draft.new_tags if t.id in tag_ids]
+        return replace(
+            draft,
+            recipe=replace(recipe, tags=tag_ids),
+            new_tags=[*kept, *new],
+            usage=draft.usage + usage + naming,
         )
 
     # Internals
@@ -406,7 +480,7 @@ class Assistant:
         """The one way catalog entries get names in other languages: a short list of
         names in, the same list out, one entry per target language."""
         system = (
-            f"You name cooking ingredients and units in other languages. For each input "
+            f"You name cooking ingredients, units and recipe tags in other languages. For each input "
             f"name, written in {source_language}, give the name in {', '.join(targets)}, "
             f"with exactly one entry per input name, in the same order. {_PLURAL_RULE}"
         )
@@ -426,31 +500,37 @@ class Assistant:
     def _name_new_ingredients(
         self, lines: list[IngredientLine], new: list[Ingredient], language: str, known: Sequence[Ingredient] = ()
     ) -> tuple[list[IngredientLine], list[Ingredient], Usage]:
-        """Names proposed ingredients in the other catalog languages and gives them
-        their final, English-based ids. A name already meaning another entry is left
-        out rather than guessed at; the review is where duplicates get merged."""
-        targets = [lang for lang in self._book.get_settings().languages if lang != language]
-        if not new or not targets:
-            return lines, new, Usage()
-        named, usage = self._names_in([i.localized[language].name for i in new], language, targets)
-
-        catalog = [*self._book.list_ingredients(), *known]
-        taken_terms = term_index((i.id, i.localized) for i in catalog)
-        taken_ids = {i.id for i in catalog}
-        final_ids: dict[str, str] = {}
-        finished = []
-        for ingredient, names in zip(new, named):
-            localized = dict(ingredient.localized)
-            for lang, entry in names.items():
-                if not is_taken(taken_terms, lang, entry):
-                    localized[lang] = entry
-            final_id = _unique_id(_slug(display_name(localized, "en")) or ingredient.id, taken_ids)
-            taken_ids.add(final_id)
-            taken_terms.update(term_index([(final_id, localized)]))
-            final_ids[ingredient.id] = final_id
-            finished.append(Ingredient(final_id, localized))
+        finished, final_ids, usage = self._name_new_entries(new, language, [*self._book.list_ingredients(), *known])
         lines = [replace(l, ingredient_id=final_ids.get(l.ingredient_id, l.ingredient_id)) for l in lines]
         return lines, finished, usage
+
+    def _name_new_entries(
+        self, new: list[Entry], language: str, catalog: Sequence[Entry]
+    ) -> tuple[list[Entry], dict[str, str], Usage]:
+        """Names proposed entries in the other catalog languages and gives them their
+        final, English-based ids (returned as provisional id -> final id). A name already
+        meaning another entry of `catalog` is left out rather than guessed at; the
+        review is where duplicates get merged."""
+        targets = [lang for lang in self._book.get_settings().languages if lang != language]
+        if not new or not targets:
+            return new, {}, Usage()
+        named, usage = self._names_in([e.localized[language].name for e in new], language, targets)
+
+        taken_terms = term_index((e.id, e.localized) for e in catalog)
+        taken_ids = {e.id for e in catalog}
+        final_ids: dict[str, str] = {}
+        finished = []
+        for entry, names in zip(new, named):
+            localized = dict(entry.localized)
+            for lang, name in names.items():
+                if not is_taken(taken_terms, lang, name):
+                    localized[lang] = name
+            final_id = unique_id(slug(display_name(localized, "en")) or entry.id, taken_ids)
+            taken_ids.add(final_id)
+            taken_terms.update(term_index([(final_id, localized)]))
+            final_ids[entry.id] = final_id
+            finished.append(replace(entry, id=final_id, localized=localized))
+        return finished, final_ids, usage
 
     @staticmethod
     def _raw_payload(recipe: Recipe, lines: list[RawLine]) -> dict[str, Any]:
@@ -465,7 +545,6 @@ class Assistant:
             "ingredients": [{"text": l.text, "section": l.section} for l in lines],
             "steps": [{"text": s.text, "section": s.section} for s in recipe.steps],
             "notes": recipe.notes,
-            "tags": recipe.tags,
         }
         return {k: v for k, v in payload.items() if v not in (None, "", [])}
 
@@ -501,4 +580,8 @@ class Assistant:
             for kind, entry in entries:
                 if language not in entry.localized:
                     missing[f"{kind}:{entry.id}"] = display_name(entry.localized, recipe.language)
+        tags = {t.id: t for t in self._book.list_tags(TagKind.RECIPE)}
+        for tag_id in recipe.tags:
+            if language not in tags[tag_id].localized:
+                missing[f"{CatalogKind.TAG}:{tag_id}"] = display_name(tags[tag_id].localized, recipe.language)
         return missing

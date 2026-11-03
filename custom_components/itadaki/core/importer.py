@@ -42,6 +42,24 @@ def _lines(scraper) -> list[RawLine]:
     return [RawLine(text) for text in _optional(scraper.ingredients) or []]
 
 
+_TAG_SEPARATORS = re.compile(r"[,、，;]")
+_MAX_PAGE_TAGS = 12
+
+
+def _page_tags(scraper) -> list[str]:
+    """The words the page tags its recipe with: category, cuisine, then keywords,
+    without repeats. Sites stuff keywords for search engines, so the list is capped."""
+    found: list[str] = []
+    for getter in (scraper.category, scraper.cuisine, scraper.keywords):
+        value = _optional(getter)
+        for text in value if isinstance(value, list) else [value or ""]:
+            found += [w.strip() for w in _TAG_SEPARATORS.split(str(text)) if w.strip()]
+    unique: dict[str, str] = {}
+    for word in found:
+        unique.setdefault(word.casefold(), word)
+    return list(unique.values())[:_MAX_PAGE_TAGS]
+
+
 def draft_from_html(html: str, url: str, fallback_language: str = "en") -> Draft | None:
     """Reads the page's schema.org recipe data, or returns None when it has none.
     Costs no LLM tokens; the ingredient lines come back raw, to be structured. Data
@@ -71,4 +89,4 @@ def draft_from_html(html: str, url: str, fallback_language: str = "en") -> Draft
         image_url=_optional(scraper.image),
         source_url=url,
     )
-    return Draft(recipe, raw_lines=lines)
+    return Draft(recipe, raw_lines=lines, suggested_tags=_page_tags(scraper))

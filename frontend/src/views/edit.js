@@ -1,6 +1,7 @@
 import { LitElement, html, nothing } from "lit";
 import { shared } from "../styles.js";
 import { navigate } from "../router.js";
+import { loadCatalog } from "../catalog.js";
 import "./busy.js";
 import "./page.js";
 import "./editor.js";
@@ -30,12 +31,13 @@ class ItadakiEdit extends LitElement {
 
   async _load() {
     try {
-      const [recipe, ingredients, units] = await Promise.all([
+      const [recipe, ingredients, units, tags] = await Promise.all([
         this.recipeId ? this.api.call("get_recipe", { recipe_id: this.recipeId }).then((r) => r.recipe) : this._blank(),
-        this.api.call("list_ingredients"),
-        this.api.call("list_units"),
+        loadCatalog(this.api, "ingredients"),
+        loadCatalog(this.api, "units"),
+        loadCatalog(this.api, "recipe_tags"),
       ]);
-      this._data = { recipe, ingredients: ingredients.ingredients, units: units.units };
+      this._data = { recipe, ingredients, units, tags };
     } catch (err) {
       this._error = this.t.error(err);
     }
@@ -45,7 +47,7 @@ class ItadakiEdit extends LitElement {
     const editor = this.renderRoot.querySelector("itadaki-editor");
     // Same save path as AI drafts, so ingredients created while editing are added
     // to the list (checked for clashes first) together with the recipe change.
-    const draft = { recipe: editor.value, updates_id: this.recipeId, new_ingredients: editor.newIngredientsUsed };
+    const draft = { recipe: editor.value, updates_id: this.recipeId, new_ingredients: editor.newIngredientsUsed, new_tags: editor.newTagsUsed };
     this._busy = true;
     this._error = undefined;
     try {
@@ -67,7 +69,7 @@ class ItadakiEdit extends LitElement {
     if (!this._data) return this._error ? html`<div class="error">${this._error}</div>` : html`<itadaki-busy></itadaki-busy>`;
     return html`
       <itadaki-editor .api=${this.api} .languages=${this.languages} .recipe=${this._data.recipe} uiLang=${this.lang} .ingredients=${this._data.ingredients}
-        .units=${this._data.units} .t=${t} ?fixedLanguage=${Boolean(this.recipeId)}></itadaki-editor>
+        .units=${this._data.units} .tags=${this._data.tags} .t=${t} ?fixedLanguage=${Boolean(this.recipeId)}></itadaki-editor>
       <div class="row" style="margin:16px 0">
         <button class="btn" ?disabled=${this._busy} @click=${this._save}>${t("save")}</button>
         <button class="btn quiet" ?disabled=${this._busy}

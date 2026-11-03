@@ -26,6 +26,14 @@
         "prefer_language": {
           "name": "Prefer language",
           "description": "Show each dish once, in this language when a translation exists."
+        },
+        "tags": {
+          "name": "Tags",
+          "description": "Only recipes with every one of these tag ids: recipe tags, or ingredient tags of an ingredient the recipe uses."
+        },
+        "exclude_tags": {
+          "name": "Excluded tags",
+          "description": "Leave out recipes with any of these tag ids, as recipe tag or on any of their ingredients."
         }
       }
     },
@@ -45,7 +53,7 @@
     },
     "create_recipe": {
       "name": "Create recipe",
-      "description": "Creates a recipe. Fields: language (required), title (required), description, servings, prep_minutes, cook_minutes, total_minutes, ingredients, steps (each with text, section), notes, tags, image_url, source_url. Each ingredient line has ingredient_id (required, from the ingredient list), quantity, unit_id (from the unit list), note, section. Create missing ingredients first with upsert_ingredient.",
+      "description": "Creates a recipe. Fields: language (required), title (required), description, servings, prep_minutes, cook_minutes, total_minutes, ingredients, steps (each with text, section), notes, tags (recipe tag ids from list_tags; shared by a recipe and its translations, so setting them on one sets them on all), image_url, source_url. Each ingredient line has ingredient_id (required, from the ingredient list), quantity, unit_id (from the unit list), note, section. Create missing ingredients first with upsert_ingredient.",
       "fields": {
         "recipe": {
           "name": "Recipe",
@@ -101,7 +109,7 @@
     },
     "get_settings": {
       "name": "Get settings",
-      "description": "Library settings: languages, the languages every ingredient and unit is named in and recipes are translated into; instructions, the standing instructions sent with every run of each AI action (extract, structure, translate, adapt)."
+      "description": "Library settings: languages, the languages every ingredient and unit is named in and recipes are translated into; instructions, the standing instructions sent with every run of each AI action (extract, structure, translate, adapt, tag)."
     },
     "update_settings": {
       "name": "Update settings",
@@ -113,7 +121,7 @@
         },
         "instructions": {
           "name": "Standing instructions",
-          "description": "Admins only. Per AI action (extract, structure, translate, adapt): text sent with every run of that AI action, before the request's own note. Empty sends none."
+          "description": "Admins only. Per AI action (extract, structure, translate, adapt, tag): text sent with every run of that AI action, before the request's own note. Empty sends none."
         }
       }
     },
@@ -149,7 +157,7 @@
         },
         "models": {
           "name": "Models per action",
-          "description": "Per AI action (extract, structure, translate, adapt): a model for that action only."
+          "description": "Per AI action (extract, structure, translate, adapt, tag): a model for that action only."
         },
         "structured_output": {
           "name": "JSON enforcement",
@@ -172,7 +180,7 @@
       "fields": {
         "ingredient": {
           "name": "Ingredient",
-          "description": "Object with id (optional), localized, density (grams per ml)."
+          "description": "Object with id (optional), localized, density (grams per ml), tags (ingredient tag ids from list_tags)."
         }
       }
     },
@@ -239,9 +247,53 @@
         }
       }
     },
+    "list_tags": {
+      "name": "List tags",
+      "description": "Recipe and ingredient tags, each with id, kind (recipe or ingredient) and localized names (language code to name and aliases).",
+      "fields": {
+        "kind": {
+          "name": "Kind",
+          "description": "Only tags of this kind: recipe or ingredient."
+        }
+      }
+    },
+    "upsert_tag": {
+      "name": "Create or update tag",
+      "description": "Without id creates one. With id updates it: localized merges per language (language code to name and aliases; null removes a language). A word may mean only one tag of each kind per language. The kind cannot change after creation.",
+      "fields": {
+        "tag": {
+          "name": "Tag",
+          "description": "Object with id (optional), kind (recipe or ingredient, default recipe), localized."
+        }
+      }
+    },
+    "delete_tag": {
+      "name": "Delete tag",
+      "description": "Deletes a tag and removes it from every recipe, ingredient and inbox draft.",
+      "fields": {
+        "tag_id": {
+          "name": "Tag ID",
+          "description": "ID of the tag, from list_tags."
+        }
+      }
+    },
+    "merge_tag": {
+      "name": "Merge tags",
+      "description": "Folds a duplicate tag into another of the same kind: everything tagged with the duplicate gets the target, the duplicate's names become the target's aliases, and the duplicate is deleted.",
+      "fields": {
+        "source_id": {
+          "name": "Duplicate ID",
+          "description": "The tag to remove, from list_tags."
+        },
+        "target_id": {
+          "name": "Target ID",
+          "description": "The tag to keep, from list_tags."
+        }
+      }
+    },
     "catalog_usage": {
       "name": "Catalog usage",
-      "description": "Which recipes use each ingredient and unit: ingredients and units, each mapping an id to recipe summaries. Unused entries are absent."
+      "description": "Which recipes use each ingredient, unit and tag: ingredients, units and recipe_tags map an id to recipe summaries (a recipe tag is listed on the original of each translation group); ingredient_tags maps an id to the ingredients carrying it. Unused entries are absent."
     },
     "import_url": {
       "name": "Import recipe from URL",
@@ -333,6 +385,24 @@
         }
       }
     },
+    "suggest_tags": {
+      "name": "Suggest tags with AI",
+      "description": "Adds recipe tags that fit the recipe, picked from the existing ones, plus up to three new ones when nothing fits. Runs in the background and returns a draft_id at once; poll get_draft until ready, then review and save_draft.",
+      "fields": {
+        "recipe_id": {
+          "name": "Recipe ID",
+          "description": "ID of the recipe, from list_recipes."
+        },
+        "note": {
+          "name": "Note",
+          "description": "Optional instructions for this run."
+        },
+        "save": {
+          "name": "Save",
+          "description": "Save the result directly. Off returns an unsaved draft to review and pass to save_draft."
+        }
+      }
+    },
     "adapt_draft": {
       "name": "Adapt draft",
       "description": "Rewrites a ready draft following an instruction, keeping it in the inbox, e.g. after an import. Runs in the background: the draft goes back to working; poll get_draft until it is ready again, then review and save_draft. If the AI fails, the draft stays ready as it was, with the error.",
@@ -374,6 +444,28 @@
         "save": {
           "name": "Save",
           "description": "Save the result directly. Off returns an unsaved draft to review and pass to save_draft."
+        }
+      }
+    },
+    "tag_draft": {
+      "name": "Suggest tags for draft",
+      "description": "Adds fitting recipe tags to a ready draft, keeping it in the inbox. Runs in the background: the draft goes back to working; poll get_draft until it is ready again.",
+      "fields": {
+        "draft_id": {
+          "name": "Draft ID",
+          "description": "ID of a ready draft, from list_drafts."
+        },
+        "note": {
+          "name": "Note",
+          "description": "Optional instructions for this run."
+        },
+        "draft": {
+          "name": "Edited draft",
+          "description": "Optional: the draft content as edited in review; without it the stored draft is used."
+        },
+        "save": {
+          "name": "Save",
+          "description": "Save the result directly. Off keeps it in the inbox for review."
         }
       }
     },

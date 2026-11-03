@@ -4,7 +4,13 @@ import { navigate } from "../router.js";
 import { headerButton } from "../icons.js";
 import "./page.js";
 import "./text.js";
+import "./tags.js";
 import { describeRequest } from "../drafts.js";
+import { byName, loadCatalog, nameOf } from "../catalog.js";
+
+// The search and tag filter outlive the screen, so opening a recipe and coming back
+// keeps them. Reloading the panel clears them.
+const remembered = { query: "", tags: [], excluded: [] };
 
 class ItadakiList extends LitElement {
   static properties = {
@@ -16,6 +22,8 @@ class ItadakiList extends LitElement {
     _recipes: { state: true },
     _drafts: { state: true },
     _query: { state: true },
+    _tags: { state: true },
+    _filter: { state: true },
     _error: { state: true },
   };
 
@@ -28,6 +36,8 @@ class ItadakiList extends LitElement {
       .recipe .name { font-weight: 600; font-size: 1.05rem; }
       .tools { display: flex; gap: 12px; margin-bottom: 20px; }
       .tools input { flex: 1; }
+      .filter { margin: -8px 0 20px; max-width: 480px; }
+      .filter .muted { font-size: 0.8rem; margin-top: 6px; }
       .inbox { margin-bottom: 24px; }
       .request { font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
       .photo { padding: 0 0 16px; overflow: hidden; }
@@ -49,8 +59,10 @@ class ItadakiList extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
-    this._query = "";
+    this._query = remembered.query;
+    this._filter = { tags: remembered.tags, excluded: remembered.excluded };
     this._load();
+    this._loadTags();
     this._loadDrafts();
     this._unsubscribe = this.api.subscribeDrafts((update) => {
       this._loadDrafts();
@@ -63,9 +75,32 @@ class ItadakiList extends LitElement {
     this._unsubscribe?.then((stop) => stop());
   }
 
-  async _load() {
+  // Recipe and ingredient tags in one picker: a recipe matches an ingredient tag
+  // through any ingredient it uses.
+  async _loadTags() {
     try {
-      const res = await this.api.call("list_recipes", { prefer_language: this.lang, query: this._query || undefined });
+      const [recipe, ingredient] = await Promise.all([loadCatalog(this.api, "recipe_tags"), loadCatalog(this.api, "ingredient_tags")]);
+      this._tags = [...recipe, ...ingredient].sort(byName(this.lang));
+    } catch (err) {
+      this._error = this.t.error(err);
+    }
+  }
+
+  _setFilter({ value, excluded }) {
+    this._filter = { tags: value, excluded };
+    Object.assign(remembered, this._filter);
+    this._load();
+  }
+
+  async _load() {
+    const { tags, excluded } = this._filter;
+    try {
+      const res = await this.api.call("list_recipes", {
+        prefer_language: this.lang,
+        query: this._query || undefined,
+        ...(tags.length ? { tags } : {}),
+        ...(excluded.length ? { exclude_tags: excluded } : {}),
+      });
       this._recipes = res.recipes;
       this._error = undefined;
     } catch (err) {
@@ -82,9 +117,23 @@ class ItadakiList extends LitElement {
   }
 
   _search(e) {
-    this._query = e.target.value;
+    this._query = remembered.query = e.target.value;
     clearTimeout(this._timer);
     this._timer = setTimeout(() => this._load(), 250);
+  }
+
+  get _filtered() {
+    return Boolean(this._filter.tags.length || this._filter.excluded.length);
+  }
+
+  _filterBox() {
+    const t = this.t;
+    const hint = (tag) => ({ name: nameOf(tag, this.lang), hint: tag.kind === "ingredient" ? t("ingredientTag") : "" });
+    return html`<div class="filter">
+      <itadaki-tags toggleable .entries=${this._tags} .value=${this._filter.tags} .excluded=${this._filter.excluded}
+        lang=${this.lang} .hint=${hint} .t=${t} placeholder=${t("tagFilter")} @change=${(e) => this._setFilter(e.detail)}></itadaki-tags>
+      ${this._filtered ? html`<div class="muted">${t("tagFilterHint")}</div>` : nothing}
+    </div>`;
   }
 
   _open(id) {
@@ -102,6 +151,7 @@ class ItadakiList extends LitElement {
         <button class="btn" @click=${() => navigate(this, { view: "new" })}>${t("newRecipe")}</button>
         <button class="btn" @click=${() => navigate(this, { view: "import" })}>${t("import")}</button>
       </div>
+      ${this._tags?.length ? this._filterBox() : nothing}
       ${this._error ? html`<div class="error">${this._error}</div>` : nothing}
       ${this._drafts?.length
         ? html`<h2>${t("drafts")}</h2>
@@ -121,7 +171,8 @@ class ItadakiList extends LitElement {
             </div>
             <h2>${t("recipes")}</h2>`
         : nothing}
-      ${this._recipes?.length === 0 && !this._query ? html`<p class="muted">${t("empty")}</p>` : nothing}
+      ${this._recipes?.length === 0 && !this._query && !this._filtered ? html`<p class="muted">${t("empty")}</p>` : nothing}
+      ${this._recipes?.length === 0 && this._filtered ? html`<p class="muted">${t("noMatches")}</p>` : nothing}
       <div class="grid">
         ${(this._recipes || []).map(
           (r) => html`

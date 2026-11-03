@@ -85,6 +85,13 @@ def _adapt(it: Itadaki, d: dict[str, Any]) -> dict[str, Any]:
     return {"draft_id": it.jobs.start("adapt", source.title, work, d["save"], recipe_id=source.id, request=request)}
 
 
+def _suggest_tags(it: Itadaki, d: dict[str, Any]) -> dict[str, Any]:
+    it.assistant.require()
+    source = it.book.get_recipe(d["recipe_id"])
+    work = lambda: it.assistant.tag(source.id, d.get("note"))  # noqa: E731
+    return {"draft_id": it.jobs.start("tag", source.title, work, d["save"], recipe_id=source.id, request=_request(d, "note"))}
+
+
 def _rework(
     it: Itadaki, d: dict[str, Any], request: dict[str, Any], work: Callable[[Draft], Draft]
 ) -> dict[str, Any]:
@@ -103,6 +110,10 @@ def _adapt_draft(it: Itadaki, d: dict[str, Any]) -> dict[str, Any]:
 
 def _structure_draft(it: Itadaki, d: dict[str, Any]) -> dict[str, Any]:
     return _rework(it, d, _request(d, "note"), lambda draft: it.assistant.structure_draft(draft, d.get("note")))
+
+
+def _tag_draft(it: Itadaki, d: dict[str, Any]) -> dict[str, Any]:
+    return _rework(it, d, _request(d, "note"), lambda draft: it.assistant.tag_draft(draft, d.get("note")))
 
 
 def _get_draft(it: Itadaki, d: dict[str, Any]) -> dict[str, Any]:
@@ -154,12 +165,17 @@ ACTIONS: dict[str, tuple[probatio.Schema, Handler, SupportsResponse]] = {
                 probatio.Optional("language"): str,
                 probatio.Optional("query"): str,
                 probatio.Optional("prefer_language"): str,
+                probatio.Optional("tags"): [str],
+                probatio.Optional("exclude_tags"): [str],
             }
         ),
         lambda it, d: {
             "recipes": [
                 r.to_dict()
-                for r in it.book.list_recipes(d.get("language"), d.get("query"), d.get("prefer_language"))
+                for r in it.book.list_recipes(
+                    d.get("language"), d.get("query"), d.get("prefer_language"),
+                    d.get("tags", ()), d.get("exclude_tags", ()),
+                )
             ]
         },
         SupportsResponse.ONLY,
@@ -248,6 +264,26 @@ ACTIONS: dict[str, tuple[probatio.Schema, Handler, SupportsResponse]] = {
         lambda it, d: {"unit": it.book.merge_unit(d["source_id"], d["target_id"]).to_dict()},
         SupportsResponse.OPTIONAL,
     ),
+    "list_tags": (
+        probatio.Schema({probatio.Optional("kind"): probatio.In(["recipe", "ingredient"])}),
+        lambda it, d: {"tags": [t.to_dict() for t in it.book.list_tags(d.get("kind"))]},
+        SupportsResponse.ONLY,
+    ),
+    "upsert_tag": (
+        probatio.Schema({probatio.Required("tag"): dict}),
+        lambda it, d: {"tag": it.book.upsert_tag(d["tag"]).to_dict()},
+        SupportsResponse.OPTIONAL,
+    ),
+    "delete_tag": (
+        probatio.Schema({probatio.Required("tag_id"): str}),
+        _deleted(lambda it, entry_id: it.book.delete_tag(entry_id), "tag_id"),
+        SupportsResponse.OPTIONAL,
+    ),
+    "merge_tag": (
+        probatio.Schema({_SOURCE: str, _TARGET: str}),
+        lambda it, d: {"tag": it.book.merge_tag(d["source_id"], d["target_id"]).to_dict()},
+        SupportsResponse.OPTIONAL,
+    ),
     "catalog_usage": (probatio.Schema({}), lambda it, d: it.book.catalog_usage(), SupportsResponse.ONLY),
     "import_url": (probatio.Schema({probatio.Required("url"): str}), _import_url, SupportsResponse.OPTIONAL),
     "extract_url": (
@@ -275,6 +311,16 @@ ACTIONS: dict[str, tuple[probatio.Schema, Handler, SupportsResponse]] = {
             }
         ),
         _adapt,
+        SupportsResponse.OPTIONAL,
+    ),
+    "suggest_tags": (
+        probatio.Schema({_ID: str, _NOTE: str, _SAVE: bool}),
+        _suggest_tags,
+        SupportsResponse.OPTIONAL,
+    ),
+    "tag_draft": (
+        probatio.Schema({_DRAFT_ID: str, _NOTE: str, _EDITED: dict, _SAVE: bool}),
+        _tag_draft,
         SupportsResponse.OPTIONAL,
     ),
     "adapt_draft": (
@@ -353,6 +399,9 @@ ADMIN_ACTIONS = frozenset(
         "upsert_unit",
         "delete_unit",
         "merge_unit",
+        "upsert_tag",
+        "delete_tag",
+        "merge_tag",
     }
 )
 

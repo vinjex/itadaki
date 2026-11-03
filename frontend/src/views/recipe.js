@@ -9,6 +9,7 @@ import { headerButton, icon } from "../icons.js";
 import { describeRequest } from "../drafts.js";
 
 import { navigate } from "../router.js";
+import { loadCatalog, nameOf } from "../catalog.js";
 
 class ItadakiRecipe extends LitElement {
   static properties = {
@@ -23,7 +24,9 @@ class ItadakiRecipe extends LitElement {
     _servings: { state: true },
     _busy: { state: true },
     _error: { state: true },
-    // The AI action waiting on its card: {action: "adapt"} or {action: "translate", recipeId, language}.
+    _tags: { state: true },
+    // The AI action waiting on its card: {action: "adapt"}, {action: "tag"} or
+    // {action: "translate", recipeId, language}.
     _task: { state: true },
     _drafts: { state: true },
     _cooking: { state: true },
@@ -45,6 +48,7 @@ class ItadakiRecipe extends LitElement {
       .draft { display: flex; gap: 10px; align-items: center; width: 100%; text-align: left; font: inherit;
         color: inherit; background: none; border: none; padding: 8px 0; cursor: pointer; }
       .draft:hover { color: var(--it-accent); }
+      .chip.tag { background: none; border: 1px solid var(--it-divider); }
       .chip.ready { background: var(--it-accent); color: var(--it-on-accent); }
       .chip.failed { background: color-mix(in srgb, var(--it-error) 18%, transparent); }
       a { color: var(--it-accent); }
@@ -108,10 +112,12 @@ class ItadakiRecipe extends LitElement {
 
   async _load() {
     try {
-      this._data = await this.api.call("get_recipe", {
-        recipe_id: this.recipeId,
-        ...(this._servings ? { servings: this._servings } : {}),
-      });
+      const [data, tags] = await Promise.all([
+        this.api.call("get_recipe", { recipe_id: this.recipeId, ...(this._servings ? { servings: this._servings } : {}) }),
+        this._tags ?? loadCatalog(this.api, "recipe_tags"),
+      ]);
+      this._data = data;
+      this._tags = tags;
       this._error = undefined;
     } catch (err) {
       this._error = this.t.error(err);
@@ -206,25 +212,33 @@ class ItadakiRecipe extends LitElement {
         ? html`<itadaki-menu slot="actions" icon="translate" label=${t("language")} .items=${items} ?disabled=${this._busy}></itadaki-menu>`
         : nothing}
       ${button("edit", t("edit"), () => navigate(this, { view: "edit", id: recipe.id }))}
-      ${this.ai ? button("adapt", t("adapt"), () => (this._task = this._task?.action === "adapt" ? undefined : { action: "adapt" })) : nothing}
+      ${this.ai ? button("tag", t("tagAi"), () => this._toggleTask("tag")) : nothing}
+      ${this.ai ? button("adapt", t("adapt"), () => this._toggleTask("adapt")) : nothing}
       ${button("delete", t("delete"), this._delete)}
     `;
+  }
+
+  _toggleTask(action) {
+    this._task = this._task?.action === action ? undefined : { action };
   }
 
   _taskCard() {
     const t = this.t;
     const task = this._task;
-    const translate = task.action === "translate";
+    const adapt = task.action === "adapt";
     const run = (e) => {
       const { note, asVariant } = e.detail;
-      if (!translate) return this._ai("adapt", { recipe_id: this.recipeId, instruction: note, as_variant: asVariant });
-      this._ai("translate", { recipe_id: task.recipeId, language: task.language, ...(note ? { note } : {}) });
+      const noted = note ? { note } : {};
+      if (adapt) return this._ai("adapt", { recipe_id: this.recipeId, instruction: note, as_variant: asVariant });
+      if (task.action === "tag") return this._ai("suggest_tags", { recipe_id: this.recipeId, ...noted });
+      this._ai("translate", { recipe_id: task.recipeId, language: task.language, ...noted });
     };
-    return html`<itadaki-ai-run class="adapt" .t=${t} cancellable ?variant=${!translate} ?noteRequired=${!translate}
-      heading=${translate ? t("translateTo", { lang: t.langName(task.language) }) : t("adaptAi")}
-      .standing=${this.instructions[task.action]} ?disabled=${this._busy}
+    const heading = { adapt: t("adaptAi"), tag: t("tagAi"), translate: t("translateTo", { lang: t.langName(task.language) }) }[task.action];
+    return html`<itadaki-ai-run class="adapt" .t=${t} cancellable ?variant=${adapt} ?noteRequired=${adapt}
+      heading=${heading} .standing=${this.instructions[task.action]} ?disabled=${this._busy}
       @run=${run} @cancel=${() => (this._task = undefined)}>
       ${task.again ? html`<div class="muted">${t("retranslateNote")}</div>` : nothing}
+      ${task.action === "tag" ? html`<div class="muted">${t("tagAiExplain")}</div>` : nothing}
     </itadaki-ai-run>`;
   }
 
@@ -255,6 +269,12 @@ class ItadakiRecipe extends LitElement {
                 </span>`
               : nothing}
           </div>
+          ${recipe.tags.length
+            ? html`<div class="row meta">${recipe.tags.map((id) => {
+                const tag = this._tags.find((x) => x.id === id);
+                return html`<span class="chip tag">${tag ? nameOf(tag, recipe.language) : id}</span>`;
+              })}</div>`
+            : nothing}
           ${recipe.source_url ? html`<div class="muted"><a href=${recipe.source_url} target="_blank" rel="noreferrer">${t("source")}</a></div>` : nothing}
         </div>
       </div>

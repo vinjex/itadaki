@@ -21,9 +21,9 @@ export function exactMatch(entries, query) {
   return entries.find((e) => terms(e).some((w) => w.toLowerCase() === q));
 }
 
-// An id for an ingredient created in the panel, readable when the name allows it.
-export function newId(name, taken) {
-  const base = name.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "") || "ingredient";
+// An id for an entry created in the panel, readable when the name allows it.
+export function newId(name, taken, fallback = "ingredient") {
+  const base = name.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "") || fallback;
   let id = base;
   for (let n = 2; taken.has(id); n++) id = `${base}_${n}`;
   return id;

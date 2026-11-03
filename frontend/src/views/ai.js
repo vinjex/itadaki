@@ -4,7 +4,7 @@ import "./busy.js";
 import "./page.js";
 import "./text.js";
 
-const TASKS = ["extract", "structure", "translate", "adapt"];
+const TASKS = ["extract", "structure", "translate", "adapt", "tag"];
 const JSON_MODES = ["schema", "json", "off"];
 
 // The AI provider, and the library's standing instructions per action. The saved key

@@ -1,12 +1,13 @@
 import { LitElement, html, css, nothing } from "lit";
 import { shared } from "../styles.js";
-import { BASE_UNIT, nameOf } from "../catalog.js";
+import { BASE_UNIT, byName, loadCatalog, nameOf } from "../catalog.js";
 import { search } from "../search.js";
 import "./entry.js";
 import "./page.js";
+import "./tags.js";
 import "./text.js";
 
-// One shared list (ingredients or units) as a table: every name and other name per
+// One shared list (ingredients, units, recipe or ingredient tags) as a table: every name and other name per
 // language at a glance, found by any of them. A row opens its form underneath, to
 // fix names, delete it when unused or merge a duplicate away.
 class ItadakiCatalog extends LitElement {
@@ -19,6 +20,9 @@ class ItadakiCatalog extends LitElement {
     _entries: { state: true },
     _usage: { state: true },
     _query: { state: true },
+    // Ingredient tags, for the ingredient list's tag column, filter and form.
+    _tags: { state: true },
+    _tagFilter: { state: true },
     _open: { state: true },
     _error: { state: true },
   };
@@ -43,6 +47,7 @@ class ItadakiCatalog extends LitElement {
       .name { font-weight: 600; }
       .aliases { color: var(--it-muted); font-size: 0.9rem; min-width: 120px; }
       .num { white-space: nowrap; }
+      .tag-filter { margin: -8px 0 20px; max-width: 480px; }
     `,
   ];
 
@@ -54,21 +59,27 @@ class ItadakiCatalog extends LitElement {
   willUpdate(changed) {
     if (changed.has("kind")) {
       this._entries = undefined;
+      this._tags = [];
+      this._tagFilter = [];
       this._open = undefined;
       this._load();
     }
   }
 
-  get _isUnit() {
-    return this.kind === "units";
+  get _isIngredient() {
+    return this.kind === "ingredients";
   }
 
   async _load() {
-    const action = this._isUnit ? "list_units" : "list_ingredients";
     try {
-      const [list, usage] = await Promise.all([this.api.call(action), this.api.call("catalog_usage")]);
-      this._entries = list[this.kind].sort((a, b) => nameOf(a, this.lang).localeCompare(nameOf(b, this.lang)));
+      const [entries, usage, tags] = await Promise.all([
+        loadCatalog(this.api, this.kind),
+        this.api.call("catalog_usage"),
+        this._isIngredient ? loadCatalog(this.api, "ingredient_tags") : [],
+      ]);
+      this._entries = entries.sort(byName(this.lang));
       this._usage = usage[this.kind];
+      this._tags = tags.sort(byName(this.lang));
       this._error = undefined;
     } catch (err) {
       this._error = this.t.error(err);
@@ -86,14 +97,20 @@ class ItadakiCatalog extends LitElement {
 
   _form(entry) {
     return html`<itadaki-entry .api=${this.api} .t=${this.t} lang=${this.lang} .languages=${this.languages} kind=${this.kind} .entry=${entry}
-      .entries=${this._entries} .usedBy=${entry ? this._usage[entry.id] : []}
+      .entries=${this._entries} .usedBy=${entry ? this._usage[entry.id] : []} .tags=${this._tags}
+      @tag-created=${(e) => (this._tags = [...this._tags, e.detail].sort(byName(this.lang)))}
       @changed=${this._changed} @cancel=${() => (this._open = undefined)}></itadaki-entry>`;
   }
 
   // The kind-specific columns: header labels and the cells for one entry.
   _columns() {
     const t = this.t;
-    if (!this._isUnit) return { heads: [t("density")], cells: (e) => [e.density ?? ""] };
+    if (this._isIngredient) {
+      const tags = new Map(this._tags.map((x) => [x.id, x]));
+      const names = (e) => e.tags.map((id) => (tags.has(id) ? nameOf(tags.get(id), this.lang) : id)).join(", ");
+      return { heads: [t("density"), t("tags")], cells: (e) => [e.density ?? "", names(e)] };
+    }
+    if (this.kind !== "units") return { heads: [], cells: () => [] };
     return {
       heads: [t("dimension"), t("size"), t("systems")],
       cells: (e) => [
@@ -110,7 +127,8 @@ class ItadakiCatalog extends LitElement {
 
   _content() {
     const t = this.t;
-    const shown = this._entries ? search(this._entries, this._query, Infinity) : [];
+    const tagged = (this._entries || []).filter((e) => this._tagFilter.every((id) => e.tags.includes(id)));
+    const shown = search(tagged, this._query, Infinity);
     const languages = this.languages.includes(this.lang) ? [this.lang, ...this.languages.filter((l) => l !== this.lang)] : this.languages;
     const columns = this._columns();
     const span = languages.length * 2 + columns.heads.length + 1;
@@ -119,6 +137,10 @@ class ItadakiCatalog extends LitElement {
         <itadaki-text .value=${this._query} placeholder=${t("catalogSearch")} @input=${(e) => (this._query = e.target.value)}></itadaki-text>
         <button class="btn" @click=${() => this._toggle("new")}>+ ${t("newEntry")}</button>
       </div>
+      ${this._isIngredient && this._tags.length
+        ? html`<itadaki-tags class="tag-filter" .entries=${this._tags} .value=${this._tagFilter} lang=${this.lang} .t=${t}
+            placeholder=${t("tagFilter")} @change=${(e) => (this._tagFilter = e.detail.value)}></itadaki-tags>`
+        : nothing}
       ${this._error ? html`<div class="error">${this._error}</div>` : nothing}
       ${this._open === "new" ? html`<div class="card" style="margin-bottom:16px;padding:20px">${this._form(null)}</div>` : nothing}
       ${this._entries
@@ -128,7 +150,7 @@ class ItadakiCatalog extends LitElement {
                 <tr>
                   ${languages.map((l) => html`<th>${t.langName(l)}</th><th>${t("otherNames")}</th>`)}
                   ${columns.heads.map((h) => html`<th>${h}</th>`)}
-                  <th>${t("recipes")}</th>
+                  <th>${t(this.kind === "ingredient_tags" ? "ingredients" : "recipes")}</th>
                 </tr>
               </thead>
               <tbody>

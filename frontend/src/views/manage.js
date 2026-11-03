@@ -11,6 +11,10 @@ const PAGES = [
     { target: { view: "catalog", id: "units" }, key: "units", icon: "ruler" },
   ],
   [
+    { target: { view: "catalog", id: "recipe_tags" }, key: "recipe_tags", icon: "tag" },
+    { target: { view: "catalog", id: "ingredient_tags" }, key: "ingredient_tags", icon: "tag" },
+  ],
+  [
     { target: { view: "languages" }, key: "languages", icon: "translate" },
     { target: { view: "ai" }, key: "ai", icon: "adapt" },
   ],

@@ -7,7 +7,8 @@ import { IMAGE_PATH, shrinkToBase64 } from "../image.js";
 import "./busy.js";
 import "./text.js";
 import "./combo.js";
-import { newId } from "../search.js";
+import "./tags.js";
+import { exactMatch, newId } from "../search.js";
 import { demoteHeading, groups, insertInGroup, move, promoteToHeading, relocate, renameGroup } from "../sections.js";
 
 // Amounts keep 2 decimals, matching what the backend stores.
@@ -34,11 +35,18 @@ class ItadakiEditor extends LitElement {
     uiLang: {},
     languages: { attribute: false },
     newIngredients: { attribute: false },
+    // The library's recipe tags, plus tags proposed by a draft and words its page
+    // tagged the recipe with.
+    tags: { attribute: false },
+    newTags: { attribute: false },
+    suggestedTags: { attribute: false },
     // Set when the recipe is already placed (saved, or a draft updating or extending
     // one): its language is then not the editor's to change.
     fixedLanguage: { type: Boolean },
     _r: { state: true },
     _new: { state: true },
+    _newTags: { state: true },
+    _suggested: { state: true },
     _uploading: { state: true },
     _imageError: { state: true },
   };
@@ -80,11 +88,14 @@ class ItadakiEditor extends LitElement {
       @container (min-width: 720px) { .split { grid-template-columns: 1fr 300px; } }
       .photo { width: 100%; max-height: 260px; object-fit: cover; border-radius: 14px; display: block; margin-bottom: 8px; }
       .photo-link { margin-top: 8px; }
+      .suggested { margin-top: 10px; font-size: 0.85rem; }
     `,
   ];
 
   willUpdate(changed) {
     if (changed.has("newIngredients") || !this._new) this._new = structuredClone(this.newIngredients || []);
+    if (changed.has("newTags") || !this._newTags) this._newTags = structuredClone(this.newTags || []);
+    if (changed.has("suggestedTags") || !this._suggested) this._suggested = [...(this.suggestedTags || [])];
     if (changed.has("recipe")) {
       const r = structuredClone(this.recipe);
       this._r = { ...r, ingredients: r.ingredients.map(keyed), steps: r.steps.map(keyed) };
@@ -113,6 +124,37 @@ class ItadakiEditor extends LitElement {
   get newIngredientsUsed() {
     const used = new Set(this._r.ingredients.map((l) => l.ingredient_id));
     return this._new.filter((i) => used.has(i.id));
+  }
+
+  // Tags created while editing that the recipe still has.
+  get newTagsUsed() {
+    return this._newTags.filter((tag) => this._r.tags.includes(tag.id));
+  }
+
+  get suggestedTagsLeft() {
+    return this._suggested;
+  }
+
+  get _allTags() {
+    return [...(this.tags || []), ...this._newTags];
+  }
+
+  _createTag(name) {
+    const tag = {
+      id: newId(name, new Set(this._allTags.map((x) => x.id)), "tag"),
+      kind: "recipe",
+      localized: { [this._r.language]: { name, plural: null, aliases: [] } },
+    };
+    this._newTags = [...this._newTags, tag];
+    this._set("tags", [...this._r.tags, tag.id]);
+  }
+
+  // A word from the page becomes the tag it names, or a new one.
+  _useSuggestion(word) {
+    this._suggested = this._suggested.filter((w) => w !== word);
+    const existing = exactMatch(this._allTags, word);
+    if (!existing) this._createTag(word);
+    else if (!this._r.tags.includes(existing.id)) this._set("tags", [...this._r.tags, existing.id]);
   }
 
   _create(index, name) {
@@ -377,8 +419,15 @@ class ItadakiEditor extends LitElement {
         <label>${t("notes")}</label>
         <textarea rows="3" .value=${r.notes || ""} @input=${(e) => this._set("notes", e.target.value)}></textarea>
         <label>${t("tags")}</label>
-        <itadaki-text .value=${(r.tags || []).join(", ")}
-          @change=${(e) => this._set("tags", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))}></itadaki-text>
+        <itadaki-tags .entries=${this._allTags.sort(byName)} .value=${r.tags} lang=${lang} .hint=${describe} .t=${t}
+          placeholder=${t("tagSearch")} createLabel=${t("create")}
+          @change=${(e) => this._set("tags", e.detail.value)} @create=${(e) => this._createTag(e.detail.name)}></itadaki-tags>
+        ${this._suggested.length
+          ? html`<div class="row suggested">
+              <span class="muted">${t("pageTags")}</span>
+              ${this._suggested.map((w) => html`<button class="chip" @click=${() => this._useSuggestion(w)}>+ ${w}</button>`)}
+            </div>`
+          : nothing}
       </div>
     `;
   }

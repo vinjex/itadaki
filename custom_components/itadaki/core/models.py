@@ -67,6 +67,7 @@ class Recipe:
     ingredients: list[IngredientLine] = field(default_factory=list)
     steps: list[Step] = field(default_factory=list)
     notes: str = ""
+    # Recipe tag ids. Shared by a translation group: stored on its original only.
     tags: list[str] = field(default_factory=list)
     image_url: str | None = None
     source_url: str | None = None
@@ -135,6 +136,8 @@ class Ingredient:
     localized: dict[str, Localized] = field(default_factory=dict)
     # Grams per millilitre, which is what lets a cup of flour become grams.
     density: float | None = None
+    # Ingredient tag ids.
+    tags: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -143,6 +146,29 @@ class Ingredient:
     def from_dict(cls, data: dict[str, Any]) -> Ingredient:
         values = _known(cls, data)
         values["localized"] = _localized(data.get("localized", {}))
+        return cls(**values)
+
+
+class TagKind(StrEnum):
+    RECIPE = "recipe"
+    INGREDIENT = "ingredient"
+
+
+@dataclass
+class Tag:
+    id: str
+    localized: dict[str, Localized] = field(default_factory=dict)
+    # Recipe and ingredient tags are separate lists: a word may name one of each.
+    kind: TagKind = TagKind.RECIPE
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> Tag:
+        values = _known(cls, data)
+        values["localized"] = _localized(data.get("localized", {}))
+        values["kind"] = TagKind(values.get("kind", TagKind.RECIPE))
         return cls(**values)
 
 
@@ -169,12 +195,13 @@ class Unit:
         return cls(**values)
 
 
-AI_ACTIONS = ("extract", "structure", "translate", "adapt")
+AI_ACTIONS = ("extract", "structure", "translate", "adapt", "tag")
 DEFAULT_INSTRUCTIONS = {
     "extract": "Keep only what the recipe needs. Leave out stories, tips, embellishments and anything else that is not part of the recipe.",
     "structure": "",
     "translate": "",
     "adapt": "",
+    "tag": "",
 }
 
 
@@ -212,6 +239,7 @@ class Usage:
 class CatalogKind(StrEnum):
     INGREDIENT = "ingredient"
     UNIT = "unit"
+    TAG = "tag"
 
 
 @dataclass
@@ -238,6 +266,10 @@ class Draft:
     # Saving marks the translation as up to date with its parent.
     syncs_translation: bool = False
     new_ingredients: list[Ingredient] = field(default_factory=list)
+    new_tags: list[Tag] = field(default_factory=list)
+    # Words the source page tagged the recipe with that match no tag: offered in
+    # review, never created by themselves.
+    suggested_tags: list[str] = field(default_factory=list)
     added_names: list[CatalogName] = field(default_factory=list)
     # Source text -> translated text, reused by later re-translations.
     memory: dict[str, str] = field(default_factory=dict)
@@ -255,6 +287,7 @@ class Draft:
         if values.get("relation"):
             values["relation"] = Relation(values["relation"])
         values["new_ingredients"] = [Ingredient.from_dict(i) for i in data.get("new_ingredients", [])]
+        values["new_tags"] = [Tag.from_dict(t) for t in data.get("new_tags", [])]
         values["added_names"] = [
             CatalogName(**{**_known(CatalogName, n), "kind": CatalogKind(n["kind"])})
             for n in data.get("added_names", [])

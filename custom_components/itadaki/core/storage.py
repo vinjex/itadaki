@@ -8,9 +8,9 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
-from .models import Draft, DraftEntry, DraftStatus, Ingredient, Recipe, Settings, Unit
+from .models import Draft, DraftEntry, DraftStatus, Ingredient, Recipe, Settings, Tag, Unit
 
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 
 # The full document lives in `body`; the other columns are copies kept only so
 # listing and tree lookups can use indexes without parsing JSON.
@@ -58,6 +58,13 @@ _MIGRATIONS = {
     """,
     5: """
     CREATE TABLE images (id TEXT PRIMARY KEY, mime TEXT NOT NULL, created_at TEXT NOT NULL, data BLOB NOT NULL);
+    """,
+    # Tags were free words until here; they become references to the tag list, so
+    # the old words are dropped rather than left to fail as unknown tags.
+    6: """
+    CREATE TABLE tags (id TEXT PRIMARY KEY, body TEXT NOT NULL);
+    UPDATE recipes SET body = json_set(body, '$.tags', json('[]'));
+    UPDATE drafts SET body = json_set(body, '$.recipe.tags', json('[]')) WHERE body IS NOT NULL;
     """,
 }
 
@@ -222,6 +229,19 @@ class Store:
 
     def delete_unit(self, unit_id: str) -> None:
         self._delete_entry("units", unit_id)
+
+    def get_tag(self, tag_id: str) -> Tag | None:
+        body = self._get_entry("tags", tag_id)
+        return Tag.from_dict(body) if body else None
+
+    def list_tags(self) -> list[Tag]:
+        return [Tag.from_dict(b) for b in self._list_entries("tags")]
+
+    def put_tag(self, tag: Tag) -> None:
+        self._put_entry("tags", tag.id, tag.to_dict())
+
+    def delete_tag(self, tag_id: str) -> None:
+        self._delete_entry("tags", tag_id)
 
     def get_settings(self) -> Settings | None:
         body = self._get_entry("settings", "library")

@@ -26,6 +26,14 @@
         "prefer_language": {
           "name": "優先言語",
           "description": "料理ごとに1件だけ表示し、翻訳があればこの言語のものを使います。"
+        },
+        "tags": {
+          "name": "タグ",
+          "description": "これらのタグIDをすべて持つレシピだけ。レシピのタグ、またはレシピで使う材料のタグ。"
+        },
+        "exclude_tags": {
+          "name": "除外するタグ",
+          "description": "これらのタグIDのどれかを、レシピのタグまたは材料のタグとして持つレシピを除きます。"
         }
       }
     },
@@ -45,7 +53,7 @@
     },
     "create_recipe": {
       "name": "レシピを作成",
-      "description": "レシピを作成します。項目：language（必須）、title（必須）、description、servings、prep_minutes、cook_minutes、total_minutes、ingredients、steps（各項目に text、section）、notes、tags、image_url、source_url。材料行の項目：ingredient_id（必須、材料リストから）、quantity、unit_id（単位リストから）、note、section。未登録の材料は先に upsert_ingredient で作成してください。",
+      "description": "レシピを作成します。項目：language（必須）、title（必須）、description、servings、prep_minutes、cook_minutes、total_minutes、ingredients、steps（各項目に text、section）、notes、tags（list_tags のレシピタグID。レシピとその翻訳で共有され、どれかに設定するとすべてに反映されます）、image_url、source_url。材料行の項目：ingredient_id（必須、材料リストから）、quantity、unit_id（単位リストから）、note、section。未登録の材料は先に upsert_ingredient で作成してください。",
       "fields": {
         "recipe": {
           "name": "レシピ",
@@ -101,7 +109,7 @@
     },
     "get_settings": {
       "name": "設定を取得",
-      "description": "ライブラリの設定：languages は、すべての材料と単位に名前を付け、レシピの翻訳先となる言語です。instructions は、各AI操作（extract、structure、translate、adapt）の実行ごとに送る常設の指示です。"
+      "description": "ライブラリの設定：languages は、すべての材料と単位に名前を付け、レシピの翻訳先となる言語です。instructions は、各AI操作（extract、structure、translate、adapt、tag）の実行ごとに送る常設の指示です。"
     },
     "update_settings": {
       "name": "設定を更新",
@@ -113,7 +121,7 @@
         },
         "instructions": {
           "name": "常設の指示",
-          "description": "管理者のみ。AI操作（extract、structure、translate、adapt）ごとに：そのAI操作の実行ごとに、リクエストのメモより前に送る文。空なら送りません。"
+          "description": "管理者のみ。AI操作（extract、structure、translate、adapt、tag）ごとに：そのAI操作の実行ごとに、リクエストのメモより前に送る文。空なら送りません。"
         }
       }
     },
@@ -149,7 +157,7 @@
         },
         "models": {
           "name": "操作ごとのモデル",
-          "description": "AI操作（extract、structure、translate、adapt）ごとに：その操作だけに使うモデル。"
+          "description": "AI操作（extract、structure、translate、adapt、tag）ごとに：その操作だけに使うモデル。"
         },
         "structured_output": {
           "name": "JSONの強制",
@@ -172,7 +180,7 @@
       "fields": {
         "ingredient": {
           "name": "材料",
-          "description": "id（任意）、localized、density（g/ml）を持つオブジェクト。"
+          "description": "id（任意）、localized、density（g/ml）、tags（list_tags の材料タグID）を持つオブジェクト。"
         }
       }
     },
@@ -239,9 +247,53 @@
         }
       }
     },
+    "list_tags": {
+      "name": "タグ一覧",
+      "description": "レシピタグと材料タグ。それぞれ id、kind（recipe または ingredient）、localized（言語コードごとの name と aliases）を持ちます。",
+      "fields": {
+        "kind": {
+          "name": "種類",
+          "description": "この種類のタグだけ：recipe または ingredient。"
+        }
+      }
+    },
+    "upsert_tag": {
+      "name": "タグを作成・更新",
+      "description": "id なしの場合は新規作成します。id ありの場合は更新します：localized は言語ごとにマージされます（言語コードごとに name と aliases。null でその言語を削除）。1つの言葉は、言語と種類ごとに1つのタグにしか使えません。作成後に種類は変えられません。",
+      "fields": {
+        "tag": {
+          "name": "タグ",
+          "description": "id（任意）、kind（recipe または ingredient、既定は recipe）、localized を持つオブジェクト。"
+        }
+      }
+    },
+    "delete_tag": {
+      "name": "タグを削除",
+      "description": "タグを削除し、すべてのレシピ・材料・受信箱の下書きから外します。",
+      "fields": {
+        "tag_id": {
+          "name": "タグID",
+          "description": "タグのID（list_tags から）。"
+        }
+      }
+    },
+    "merge_tag": {
+      "name": "タグを統合",
+      "description": "重複したタグを同じ種類の別のタグにまとめます。重複側が付いていたものはすべて統合先に切り替わり、重複側の名前は統合先の別名になり、重複側は削除されます。",
+      "fields": {
+        "source_id": {
+          "name": "重複側のID",
+          "description": "削除するタグ（list_tags から）。"
+        },
+        "target_id": {
+          "name": "統合先のID",
+          "description": "残すタグ（list_tags から）。"
+        }
+      }
+    },
     "catalog_usage": {
       "name": "材料・単位の使用状況",
-      "description": "各材料・単位を使っているレシピ：ingredients と units、それぞれ id からレシピ概要へ。未使用の項目は含まれません。"
+      "description": "各材料・単位・タグを使っているもの：ingredients、units、recipe_tags はそれぞれ id からレシピ概要へ（レシピタグは翻訳グループの元のレシピに表示）。ingredient_tags は id からそのタグを持つ材料へ。未使用の項目は含まれません。"
     },
     "import_url": {
       "name": "URLからレシピを取り込む",
@@ -333,6 +385,24 @@
         }
       }
     },
+    "suggest_tags": {
+      "name": "AIでタグを提案",
+      "description": "既存のタグから合うものを選び、合うものがなければ新しいタグを最大3つ加えます。バックグラウンドで実行され、すぐに draft_id を返します。ready になるまで get_draft で確認し、内容を確認して save_draft で保存します。",
+      "fields": {
+        "recipe_id": {
+          "name": "レシピID",
+          "description": "レシピのID（list_recipes から）。"
+        },
+        "note": {
+          "name": "メモ",
+          "description": "任意：今回の実行への指示。"
+        },
+        "save": {
+          "name": "保存",
+          "description": "結果をそのまま保存します。オフの場合は未保存の下書きを返すので、確認してから save_draft に渡します。"
+        }
+      }
+    },
     "adapt_draft": {
       "name": "下書きをアレンジ",
       "description": "指示に従って確認待ちの下書きを書き換え、受信箱に残します（取り込み後など）。バックグラウンドで実行され、下書きは処理中に戻ります。再び ready になるまで get_draft で確認し、内容を確認して save_draft で保存します。AIが失敗した場合、下書きは元のまま ready に戻り、エラーが付きます。",
@@ -374,6 +444,28 @@
         "save": {
           "name": "保存",
           "description": "結果をそのまま保存します。オフの場合は未保存の下書きを返すので、確認してから save_draft に渡します。"
+        }
+      }
+    },
+    "tag_draft": {
+      "name": "下書きにタグを提案",
+      "description": "確認待ちの下書きに合うレシピタグを加え、受信箱に残します。バックグラウンドで実行され、下書きは処理中に戻ります。再び ready になるまで get_draft で確認します。",
+      "fields": {
+        "draft_id": {
+          "name": "下書きID",
+          "description": "確認待ちの下書きのID（list_drafts から）。"
+        },
+        "note": {
+          "name": "メモ",
+          "description": "任意：今回の実行への指示。"
+        },
+        "draft": {
+          "name": "編集済みの下書き",
+          "description": "任意：確認画面で編集した下書きの内容。省略すると保存されている下書きを使います。"
+        },
+        "save": {
+          "name": "保存",
+          "description": "結果をそのまま保存します。オフの場合は確認のため受信箱に残します。"
         }
       }
     },

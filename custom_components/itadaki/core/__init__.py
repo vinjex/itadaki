@@ -27,6 +27,8 @@ from .models import (
     Settings,
     Step,
     System,
+    Tag,
+    TagKind,
     Unit,
     Usage,
 )
@@ -60,6 +62,8 @@ __all__ = [
     "Step",
     "Store",
     "System",
+    "Tag",
+    "TagKind",
     "TreeError",
     "Unit",
     "Usage",

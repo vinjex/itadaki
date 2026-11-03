@@ -9,6 +9,11 @@ list_recipes:
     prefer_language:
       selector:
         text:
+    tags: &tag_ids
+      selector:
+        text:
+          multiple: true
+    exclude_tags: *tag_ids
 get_recipe:
   fields:
     recipe_id: &recipe_id
@@ -137,6 +142,34 @@ merge_unit:
       required: true
       selector:
         text:
+list_tags:
+  fields:
+    kind: &tag_kind
+      selector:
+        select:
+          options: [recipe, ingredient]
+upsert_tag:
+  fields:
+    tag:
+      required: true
+      selector:
+        object:
+delete_tag:
+  fields:
+    tag_id:
+      required: true
+      selector:
+        text:
+merge_tag:
+  fields:
+    source_id:
+      required: true
+      selector:
+        text:
+    target_id:
+      required: true
+      selector:
+        text:
 catalog_usage:
 import_url:
   fields:
@@ -187,6 +220,11 @@ adapt:
       selector:
         boolean:
     save: *save
+suggest_tags:
+  fields:
+    recipe_id: *recipe_id
+    note: *note
+    save: *save
 adapt_draft:
   fields:
     draft_id: &draft_id
@@ -203,6 +241,12 @@ adapt_draft:
         object:
     save: *save
 structure_draft:
+  fields:
+    draft_id: *draft_id
+    note: *note
+    draft: *draft
+    save: *save
+tag_draft:
   fields:
     draft_id: *draft_id
     note: *note

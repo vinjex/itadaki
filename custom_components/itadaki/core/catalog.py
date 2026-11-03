@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from collections.abc import Iterable
 from typing import Any
 
@@ -87,3 +88,15 @@ def display_name(localized: dict[str, Localized], language: str, plural: bool = 
     """Best available name: the requested language, then English, then any."""
     entry = localized.get(language) or localized.get("en") or next(iter(localized.values()))
     return (entry.plural if plural and entry.plural else None) or entry.name
+
+
+def slug(text: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "_", text.lower()).strip("_")
+
+
+def unique_id(base: str, taken: set[str]) -> str:
+    entry_id, n = base, 1
+    while entry_id in taken:
+        n += 1
+        entry_id = f"{base}_{n}"
+    return entry_id

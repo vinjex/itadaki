@@ -6,7 +6,7 @@ from dataclasses import fields, replace
 from datetime import UTC, datetime, timedelta
 from typing import Any, TypeVar
 
-from .catalog import absorb_names, ensure_unique_terms, merge_localized
+from .catalog import absorb_names, ensure_unique_terms, merge_localized, slug, unique_id
 from .errors import InUseError, InvalidRequestError, NotFoundError
 from .images import IMAGE_PATH, content_id, image_type, stored_image_id
 from .languages import clean_languages, language_code
@@ -23,11 +23,14 @@ from .models import (
     RecipeSummary,
     Relation,
     Settings,
+    Tag,
+    TagKind,
     Unit,
 )
 from .storage import Store
 from .render import LineParts, line_parts, render_line
-from .tree import is_stale, pick_per_group, translation_group, validate_child
+from .tags import matches, recipe_tag_set, retagged
+from .tree import anchor_of, is_stale, pick_per_group, translation_group, validate_child
 from .units import DEFAULT_UNITS, scale_lines
 
 # Set by the service, never by callers: identity, tree position and bookkeeping.
@@ -53,10 +56,15 @@ def _parse_recipe(data: dict[str, Any]) -> Recipe:
         raise InvalidRequestError(f"invalid recipe: {err}") from err
     if not recipe.title.strip():
         raise InvalidRequestError("a recipe needs a title", key="title_required")
-    return recipe
+    return replace(recipe, tags=list(dict.fromkeys(recipe.tags)))
 
 
-CatalogEntry = TypeVar("CatalogEntry", Ingredient, Unit)
+def _content(recipe: Recipe) -> Recipe:
+    """What a translation is made from: everything but the shared tags."""
+    return replace(recipe, tags=[])
+
+
+CatalogEntry = TypeVar("CatalogEntry", Ingredient, Unit, Tag)
 
 
 class RecipeBook:
@@ -82,9 +90,12 @@ class RecipeBook:
     # Recipes
 
     def get_recipe(self, recipe_id: str) -> Recipe:
+        """The recipe with its translation group's tags."""
         recipe = self._store.get_recipe(recipe_id)
         if recipe is None:
             raise NotFoundError(f"recipe {recipe_id} not found", key="recipe_not_found")
+        if recipe.relation is Relation.TRANSLATION:
+            recipe = replace(recipe, tags=anchor_of(recipe, self._store.get_recipe).tags)
         return recipe
 
     def list_recipes(
@@ -92,12 +103,28 @@ class RecipeBook:
         language: str | None = None,
         query: str | None = None,
         prefer_language: str | None = None,
+        tags: Sequence[str] = (),
+        exclude_tags: Sequence[str] = (),
     ) -> list[RecipeSummary]:
         """With prefer_language, each dish appears once: the version in that language
-        when one exists, else the original of its translation group."""
+        when one exists, else the original of its translation group. Tags filter by
+        recipe tags and by the tags of the ingredients a recipe uses: every one of
+        `tags` must be present, none of `exclude_tags`."""
         recipes = self._store.list_recipes(language, query)
-        if prefer_language:
+        if prefer_language or tags or exclude_tags:
             everything = {r.id: r for r in self._store.list_recipes()}
+        if tags or exclude_tags:
+            ingredient_tags = {i.id: i.tags for i in self._store.list_ingredients()}
+            recipes = [
+                r
+                for r in recipes
+                if matches(
+                    recipe_tag_set(anchor_of(r, everything.get).tags, r.ingredients, ingredient_tags),
+                    tags,
+                    exclude_tags,
+                )
+            ]
+        if prefer_language:
             recipes = pick_per_group(recipes, everything, prefer_language)
         return [RecipeSummary.of(r) for r in recipes]
 
@@ -137,8 +164,11 @@ class RecipeBook:
         recipe = replace(
             draft, id=self._new_id(), revision=1, created_at=timestamp, updated_at=timestamp, **tree
         )
-        self._store.put_recipe(recipe)
-        return recipe
+        self._put_recipe(recipe)
+        # A new translation joins its group's tags; it changes them only when asked to.
+        if recipe.relation is Relation.TRANSLATION and "tags" in data:
+            self._set_group_tags(recipe, recipe.tags)
+        return self.get_recipe(recipe.id)
 
     def _tree_position(
         self, parent_id: str | None, relation: Relation | str | None, language: str
@@ -163,7 +193,9 @@ class RecipeBook:
 
     def update_recipe(self, recipe_id: str, changes: dict[str, Any]) -> Recipe:
         """Applies a partial update: only the given fields change, lists are replaced
-        whole. Every update bumps the revision, which makes translations stale."""
+        whole. A content change bumps the revision, which makes translations stale.
+        Tags are the translation group's: changing them on any member changes them for
+        all, and never makes a translation stale, since there is nothing to translate."""
         self._reject_managed(changes)
         unknown = changes.keys() - _RECIPE_FIELDS
         if unknown:
@@ -172,11 +204,13 @@ class RecipeBook:
         merged = _parse_recipe({**current.to_dict(), **changes})
         if current.parent_id and "language" in changes:
             validate_child(self.get_recipe(current.parent_id), current.relation, merged.language)
-        if "ingredients" in changes:
+        if changes.keys() & {"ingredients", "tags"}:
             self._ensure_references(merged)
-        recipe = replace(merged, revision=current.revision + 1, updated_at=self._now())
-        self._store.put_recipe(recipe)
-        return recipe
+        if _content(merged) != _content(current):
+            self._put_recipe(replace(merged, revision=current.revision + 1, updated_at=self._now()))
+        if "tags" in changes:
+            self._set_group_tags(self._store.get_recipe(recipe_id), merged.tags)
+        return self.get_recipe(recipe_id)
 
     def mark_translation_synced(self, recipe_id: str) -> Recipe:
         recipe = self.get_recipe(recipe_id)
@@ -184,7 +218,7 @@ class RecipeBook:
             raise InvalidRequestError("only translations can be synced")
         parent = self.get_recipe(recipe.parent_id)
         synced = replace(recipe, parent_revision=parent.revision, updated_at=self._now())
-        self._store.put_recipe(synced)
+        self._put_recipe(synced)
         return synced
 
     def delete_recipe(self, recipe_id: str, cascade: bool = False) -> list[str]:
@@ -234,16 +268,19 @@ class RecipeBook:
         saved directly: catalog changes first, then the recipe that references them."""
         if draft.raw_lines:
             raise InvalidRequestError("the ingredient lines are not structured yet", key="lines_unmatched")
+        draft = self._renumber_new_tags(draft)
         content = {k: v for k, v in draft.recipe.to_dict().items() if k not in _MANAGED_FIELDS}
         # Everything is checked before anything is written, so a rejected recipe
         # cannot leave its new ingredients behind in the catalog.
         self._preflight_catalog(draft)
         self._preflight_recipe(draft, _parse_recipe(content))
+        for tag in draft.new_tags:
+            self.upsert_tag(tag.to_dict())
         for ingredient in draft.new_ingredients:
             self.upsert_ingredient(ingredient.to_dict())
+        upserts = {CatalogKind.INGREDIENT: self.upsert_ingredient, CatalogKind.UNIT: self.upsert_unit, CatalogKind.TAG: self.upsert_tag}
         for added in draft.added_names:
-            upsert = self.upsert_ingredient if added.kind is CatalogKind.INGREDIENT else self.upsert_unit
-            upsert({"id": added.id, "localized": {added.language: {"name": added.name, "plural": added.plural}}})
+            upserts[added.kind]({"id": added.id, "localized": {added.language: {"name": added.name, "plural": added.plural}}})
 
         if draft.updates_id:
             recipe = self.update_recipe(draft.updates_id, content)
@@ -390,8 +427,10 @@ class RecipeBook:
 
     def upsert_ingredient(self, data: dict[str, Any]) -> Ingredient:
         """Creates or partially updates an ingredient; `localized` merges per language."""
+        if "tags" in data:
+            data = {**data, "tags": self._known_tags(data["tags"], TagKind.INGREDIENT)}
         return self._upsert_entry(
-            Ingredient, data, self._store.get_ingredient, self._store.list_ingredients,
+            Ingredient, data, self._store.get_ingredient, lambda _: self._store.list_ingredients(),
             self._store.put_ingredient,
         )
 
@@ -405,7 +444,7 @@ class RecipeBook:
     def upsert_unit(self, data: dict[str, Any]) -> Unit:
         """Creates or partially updates a unit; `localized` merges per language."""
         return self._upsert_entry(
-            Unit, data, self._store.get_unit, self._store.list_units, self._store.put_unit
+            Unit, data, self._store.get_unit, lambda _: self._store.list_units(), self._store.put_unit
         )
 
     def delete_unit(self, unit_id: str) -> None:
@@ -427,13 +466,142 @@ class RecipeBook:
         )
 
     def catalog_usage(self) -> dict[str, dict[str, list[dict[str, Any]]]]:
-        """Per catalog, entry id -> summaries of the recipes using it. Unused entries are absent."""
+        """Per catalog, entry id -> summaries of the recipes using it (for ingredient
+        tags: the ingredients, as id and names). Unused entries are absent. A recipe
+        tag counts once per translation group, on its original."""
+        recipe_tags: dict[str, list[dict[str, Any]]] = {}
+        for recipe in self._store.list_recipes():
+            for tag_id in recipe.tags:
+                recipe_tags.setdefault(tag_id, []).append(RecipeSummary.of(recipe).to_dict())
+        ingredient_tags: dict[str, list[dict[str, Any]]] = {}
+        for ingredient in self._store.list_ingredients():
+            for tag_id in ingredient.tags:
+                ingredient_tags.setdefault(tag_id, []).append({"id": ingredient.id, "localized": ingredient.to_dict()["localized"]})
         return {
             "ingredients": self._users("ingredient_id"),
             "units": self._users("unit_id"),
+            "recipe_tags": recipe_tags,
+            "ingredient_tags": ingredient_tags,
         }
 
+    def list_tags(self, kind: TagKind | str | None = None) -> list[Tag]:
+        tags = self._store.list_tags()
+        return [t for t in tags if t.kind == kind] if kind else tags
+
+    def upsert_tag(self, data: dict[str, Any]) -> Tag:
+        """Creates or partially updates a tag; `localized` merges per language. A word
+        may mean only one tag of each kind per language. The kind is fixed once created."""
+        current = self._store.get_tag(data["id"]) if data.get("id") else None
+        if current and "kind" in data and data["kind"] != current.kind:
+            raise InvalidRequestError("a tag's kind cannot change")
+        if not data.get("id"):
+            data = {**data, "id": self._new_tag_id(data.get("localized") or {})}
+        return self._upsert_entry(
+            Tag, data, self._store.get_tag,
+            lambda tag: [t for t in self._store.list_tags() if t.kind is tag.kind], self._store.put_tag,
+        )
+
+    def _new_tag_id(self, localized: dict[str, Any], taken: set[str] | None = None) -> str:
+        """Readable, from the English name when there is one. Recipe and ingredient
+        tags share one id space, so it is checked against both."""
+        names = [n.get("name", "") for n in [localized.get("en"), *localized.values()] if isinstance(n, dict)]
+        taken = taken if taken is not None else {t.id for t in self._store.list_tags()}
+        return unique_id(next((slug(n) for n in names if slug(n)), "tag"), taken)
+
+    def delete_tag(self, tag_id: str) -> None:
+        """Deletes a tag and takes it off every recipe, ingredient and draft."""
+        self._get_tag(tag_id)
+        self._retag(tag_id, None)
+        self._store.delete_tag(tag_id)
+
+    def merge_tag(self, source_id: str, target_id: str) -> Tag:
+        """Everything tagged with the source gets the target instead, the source's words
+        become the target's aliases, and the source is deleted."""
+        if source_id == target_id:
+            raise InvalidRequestError("cannot merge an entry into itself")
+        source, target = self._get_tag(source_id), self._get_tag(target_id)
+        if source.kind is not target.kind:
+            raise InvalidRequestError("recipe tags and ingredient tags cannot be merged")
+        self._retag(source_id, target_id)
+        merged = replace(target, localized=absorb_names(target.localized, source.localized))
+        self._store.put_tag(merged)
+        self._store.delete_tag(source_id)
+        return merged
+
     # Internals
+
+    def _put_recipe(self, recipe: Recipe) -> None:
+        """A translation's tags live on its group's original, never on itself."""
+        self._store.put_recipe(_content(recipe) if recipe.relation is Relation.TRANSLATION else recipe)
+
+    def _set_group_tags(self, recipe: Recipe, tags: list[str]) -> None:
+        """Written straight to the group's original: its revision stays, so its
+        translations do not go stale."""
+        anchor = anchor_of(recipe, self._store.get_recipe)
+        if anchor.tags != tags:
+            self._store.put_recipe(replace(anchor, tags=tags))
+
+    def _renumber_new_tags(self, draft: Draft) -> Draft:
+        """A draft's new tags got their ids where the draft was made, which may not see
+        every existing tag; one whose id is taken gets a fresh one, so saving it can
+        never overwrite another tag."""
+        taken = {t.id for t in self._store.list_tags()}
+        renamed: dict[str, str] = {}
+        tags = []
+        for tag in draft.new_tags:
+            if tag.id in taken:
+                renamed[tag.id] = self._new_tag_id(tag.to_dict()["localized"], taken)
+                tag = replace(tag, id=renamed[tag.id])
+            taken.add(tag.id)
+            tags.append(tag)
+        if not renamed:
+            return draft
+        recipe = replace(draft.recipe, tags=[renamed.get(t, t) for t in draft.recipe.tags])
+        return replace(draft, recipe=recipe, new_tags=tags)
+
+    def _get_tag(self, tag_id: str) -> Tag:
+        tag = self._store.get_tag(tag_id)
+        if tag is None:
+            raise NotFoundError(f"tag {tag_id} not found")
+        return tag
+
+    def _known_tags(self, tag_ids: Any, kind: TagKind, pending: Sequence[Tag] = ()) -> list[str]:
+        """The ids without repeats, after checking each is a tag of `kind`."""
+        if not isinstance(tag_ids, list):
+            raise InvalidRequestError("tags must be a list of tag ids")
+        kinds = {t.id: t.kind for t in [*self._store.list_tags(), *pending]}
+        wrong = sorted({t for t in tag_ids if kinds.get(t) is not kind})
+        if wrong:
+            raise InvalidRequestError(f"unknown {kind} tags: {', '.join(wrong)}", key="entries_missing")
+        return list(dict.fromkeys(tag_ids))
+
+    def _retag(self, source_id: str, target_id: str | None) -> None:
+        """Swaps a tag for another, or removes it, wherever it is used. Recipe revisions
+        stay, as for a catalog merge."""
+        swap = lambda ids: retagged(ids, source_id, target_id)  # noqa: E731
+        for recipe in self._store.list_recipes():
+            if source_id in recipe.tags:
+                self._store.put_recipe(replace(recipe, tags=swap(recipe.tags)))
+        for ingredient in self._store.list_ingredients():
+            if source_id in ingredient.tags:
+                self._store.put_ingredient(replace(ingredient, tags=swap(ingredient.tags)))
+        for entry in self._store.full_drafts():
+            if entry.draft is None:
+                continue
+            draft = entry.draft
+            names = [
+                replace(n, id=target_id) if n.kind is CatalogKind.TAG and n.id == source_id else n
+                for n in draft.added_names
+                if target_id or not (n.kind is CatalogKind.TAG and n.id == source_id)
+            ]
+            updated = replace(
+                draft,
+                recipe=replace(draft.recipe, tags=swap(draft.recipe.tags)),
+                new_ingredients=[replace(i, tags=swap(i.tags)) for i in draft.new_ingredients],
+                added_names=names,
+            )
+            if updated != draft:
+                self._store.put_draft(replace(entry, draft=updated))
 
     @staticmethod
     def _reject_managed(data: dict[str, Any]) -> None:
@@ -446,9 +614,10 @@ class RecipeBook:
         cls: type[CatalogEntry],
         data: dict[str, Any],
         get: Callable[[str], CatalogEntry | None],
-        list_all: Callable[[], list[CatalogEntry]],
+        peers: Callable[[CatalogEntry], list[CatalogEntry]],
         put: Callable[[CatalogEntry], None],
     ) -> CatalogEntry:
+        """`peers` lists the entries whose words the new one must not reuse."""
         unknown = data.keys() - {f.name for f in fields(cls)}
         if unknown:
             raise InvalidRequestError(f"unknown fields: {', '.join(sorted(unknown))}")
@@ -462,19 +631,26 @@ class RecipeBook:
         entry = replace(entry, localized=merge_localized(base.localized, data.get("localized", {})))
         if not entry.localized:
             raise InvalidRequestError("needs a name in at least one language", key="name_required")
-        ensure_unique_terms(entry.id, entry.localized, ((e.id, e.localized) for e in list_all()))
+        ensure_unique_terms(entry.id, entry.localized, ((e.id, e.localized) for e in peers(entry)))
         put(entry)
         return entry
 
     def _preflight_catalog(self, draft: Draft) -> None:
         """Checks every catalog change before applying any, so a clash cannot leave
         half a draft's ingredients saved."""
+        tags = self._store.list_tags()
         catalogs = {
             CatalogKind.INGREDIENT: {i.id: i.localized for i in self._store.list_ingredients()},
             CatalogKind.UNIT: {u.id: u.localized for u in self._store.list_units()},
+            CatalogKind.TAG: {t.id: t.localized for t in tags},
         }
+        tag_kinds = {t.id: t.kind for t in [*tags, *draft.new_tags]}
         changed: set[tuple[CatalogKind, str]] = set()
+        for tag in draft.new_tags:
+            catalogs[CatalogKind.TAG][tag.id] = tag.localized
+            changed.add((CatalogKind.TAG, tag.id))
         for ingredient in draft.new_ingredients:
+            self._known_tags(ingredient.tags, TagKind.INGREDIENT, draft.new_tags)
             catalogs[CatalogKind.INGREDIENT][ingredient.id] = ingredient.localized
             changed.add((CatalogKind.INGREDIENT, ingredient.id))
         for added in draft.added_names:
@@ -484,12 +660,15 @@ class RecipeBook:
             entries[added.id] = {**entries[added.id], added.language: Localized(added.name, added.plural)}
             changed.add((added.kind, added.id))
         for kind, entry_id in changed:
-            ensure_unique_terms(entry_id, catalogs[kind][entry_id], catalogs[kind].items())
+            peers = catalogs[kind].items()
+            if kind is CatalogKind.TAG:
+                peers = [(i, l) for i, l in peers if tag_kinds.get(i) is tag_kinds[entry_id]]
+            ensure_unique_terms(entry_id, catalogs[kind][entry_id], peers)
 
     def _preflight_recipe(self, draft: Draft, recipe: Recipe) -> None:
         """Checks the recipe and where it lands, counting the draft's own new
         ingredients as known; the saves that follow repeat the checks cheaply."""
-        self._ensure_references(recipe, {i.id for i in draft.new_ingredients})
+        self._ensure_references(recipe, {i.id for i in draft.new_ingredients}, draft.new_tags)
         if draft.updates_id:
             current = self.get_recipe(draft.updates_id)
             if current.parent_id:
@@ -497,7 +676,10 @@ class RecipeBook:
         else:
             self._tree_position(draft.parent_id, draft.relation, recipe.language)
 
-    def _ensure_references(self, recipe: Recipe, pending_ingredient_ids: set[str] = frozenset()) -> None:
+    def _ensure_references(
+        self, recipe: Recipe, pending_ingredient_ids: set[str] = frozenset(), pending_tags: Sequence[Tag] = ()
+    ) -> None:
+        self._known_tags(recipe.tags, TagKind.RECIPE, pending_tags)
         if any(not line.ingredient_id for line in recipe.ingredients):
             raise InvalidRequestError("every ingredient line needs an ingredient", key="ingredient_required")
         ingredient_ids = {i.id for i in self._store.list_ingredients()} | pending_ingredient_ids
@@ -584,6 +766,8 @@ class RecipeBook:
             if recipe != draft.recipe or names != draft.added_names:
                     self._store.put_draft(replace(entry, draft=replace(draft, recipe=recipe, added_names=names)))
         merged = replace(target, localized=absorb_names(target.localized, source.localized))
+        if isinstance(merged, Ingredient):
+            merged = replace(merged, tags=list(dict.fromkeys([*target.tags, *source.tags])))
         put(merged)
         delete(source_id)
         return merged

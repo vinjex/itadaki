@@ -10,6 +10,7 @@ import { describeRequest } from "../drafts.js";
 import { headerButton } from "../icons.js";
 
 import { navigate } from "../router.js";
+import { loadCatalog } from "../catalog.js";
 
 // A draft from the inbox, live: it shows whatever exists so far and refreshes when
 // the job reports back. When ready, the whole recipe is editable, and so are the
@@ -63,11 +64,8 @@ class ItadakiDraft extends LitElement {
     try {
       const entry = await this.api.call("get_draft", { draft_id: this.draftId });
       if (entry.status === "ready" && !this._catalog) {
-        const [ingredients, units] = await Promise.all([
-          this.api.call("list_ingredients"),
-          this.api.call("list_units"),
-        ]);
-        this._catalog = { ingredients: ingredients.ingredients, units: units.units };
+        const [ingredients, units, tags] = await Promise.all(["ingredients", "units", "recipe_tags"].map((k) => loadCatalog(this.api, k)));
+        this._catalog = { ingredients, units, tags };
       }
       this._entry = entry;
       this._error = undefined;
@@ -83,6 +81,8 @@ class ItadakiDraft extends LitElement {
       ...structuredClone(this._entry.draft),
       recipe: editor.value,
       new_ingredients: editor.newIngredientsUsed,
+      new_tags: editor.newTagsUsed,
+      suggested_tags: editor.suggestedTagsLeft,
       raw_lines: editor.unmatchedLines,
     };
   }
@@ -99,7 +99,8 @@ class ItadakiDraft extends LitElement {
     const data = { draft_id: this.draftId, draft: this._edited() };
     if (this._task === "adapt") data.instruction = note;
     else if (note) data.note = note;
-    await this._act(() => this.api.call(this._task === "adapt" ? "adapt_draft" : "structure_draft", data));
+    const action = { adapt: "adapt_draft", structure: "structure_draft", tag: "tag_draft" }[this._task];
+    await this._act(() => this.api.call(action, data));
     this._task = undefined;
     await this._load();
   }
@@ -209,6 +210,7 @@ class ItadakiDraft extends LitElement {
 
       <itadaki-editor @unmatched-changed=${(e) => (this._unmatched = e.detail.count)} .api=${this.api} .languages=${this.languages} .recipe=${recipe} .t=${t} uiLang=${this.lang} .units=${this._catalog.units}
         .ingredients=${this._catalog.ingredients} .newIngredients=${draft.new_ingredients}
+        .tags=${this._catalog.tags} .newTags=${draft.new_tags} .suggestedTags=${draft.suggested_tags}
         ?fixedLanguage=${Boolean(draft.updates_id || draft.parent_id)}></itadaki-editor>
 
       <div class="row actions">
@@ -243,6 +245,7 @@ class ItadakiDraft extends LitElement {
     if (!this.ai || entry?.status !== "ready") return nothing;
     const toggle = (task) => () => (this._task = this._task === task ? undefined : task);
     return html`
+      ${headerButton("tag", t("tagAi"), toggle("tag"), this._busy)}
       ${headerButton("adapt", t("adaptAi"), toggle("adapt"), this._busy)}
     `;
   }
@@ -250,10 +253,12 @@ class ItadakiDraft extends LitElement {
   _taskCard() {
     const t = this.t;
     const adapt = this._task === "adapt";
+    const heading = { adapt: t("adaptAi"), structure: t("structureAi"), tag: t("tagAi") }[this._task];
+    const explain = { structure: t("matchExplain"), tag: t("tagAiExplain") }[this._task];
     return html`<itadaki-ai-run class="actions" .t=${t} cancellable ?noteRequired=${adapt} ?disabled=${this._busy}
-      heading=${adapt ? t("adaptAi") : t("structureAi")} .standing=${this.instructions[this._task]}
+      heading=${heading} .standing=${this.instructions[this._task]}
       @run=${this._runTask} @cancel=${() => (this._task = undefined)}>
-      ${adapt ? nothing : html`<div class="muted">${t("matchExplain")}</div>`}
+      ${explain ? html`<div class="muted">${explain}</div>` : nothing}
     </itadaki-ai-run>`;
   }
 }

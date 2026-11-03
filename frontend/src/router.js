@@ -2,7 +2,7 @@
 // phone's back gesture share one history, and recipe links can be shared. A screen
 // that stops existing (a saved draft) is replaced in history instead of stacked.
 
-const CATALOGS = ["ingredients", "units"];
+import { CATALOGS } from "./catalog.js";
 
 export function pathFor({ view, id }) {
   switch (view) {
@@ -26,7 +26,7 @@ export function viewFor(path = "") {
   if (first === "new") return { view: "new" };
   if (first === "import") return { view: "import" };
   if (first === "manage" && (id === "languages" || id === "ai")) return { view: id };
-  if (first === "manage") return CATALOGS.includes(id) ? { view: "catalog", id } : { view: "manage" };
+  if (first === "manage") return Object.hasOwn(CATALOGS, id ?? "") ? { view: "catalog", id } : { view: "manage" };
   return { view: "list" };
 }
 
