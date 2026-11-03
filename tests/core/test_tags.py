@@ -5,7 +5,7 @@ import pytest
 from core import Draft, InvalidRequestError, Relation, TagKind
 from core.ai import Assistant
 from core.llm import AiSettings
-from core.tags import matches, recipe_tag_set, retagged
+from core.tags import recipe_tag_set, retagged
 from core.models import IngredientLine
 from fake_chat import FakeChat, names
 
@@ -32,9 +32,6 @@ def test_filter_set_includes_ingredient_tags():
     lines = [IngredientLine("pork"), IngredientLine("egg")]
     found = recipe_tag_set(["quick"], lines, {"pork": ["meat"], "egg": []})
     assert found == {"quick", "meat"}
-    assert matches(found, ["quick"], ["nuts"])
-    assert not matches(found, [], ["meat"])
-    assert not matches(found, ["quick", "dessert"])
 
 
 # Catalog
@@ -113,13 +110,12 @@ def test_list_filters_by_recipe_and_ingredient_tags(book, carbonara, ja, guancia
     _tag(book, "meat", "meat", kind="ingredient")
     book.upsert_ingredient({"id": guanciale.id, "tags": ["meat"]})
     book.update_recipe(carbonara.id, {"tags": ["quick"]})
-    salad = book.create_recipe({"language": "en", "title": "Salad"})
+    book.create_recipe({"language": "en", "title": "Salad"})
 
     ids = lambda **kw: {r.id for r in book.list_recipes(**kw)}  # noqa: E731
     # The translation has no lines of its own here, so only the original contains meat.
     assert ids(tags=["quick"]) == {carbonara.id, ja.id}
     assert ids(tags=["meat"]) == {carbonara.id}
-    assert ids(exclude_tags=["meat"]) == {ja.id, salad.id}
     assert ids(tags=["quick"], prefer_language="ja") == {ja.id}
 
 
@@ -243,3 +239,13 @@ def test_upgrade_drops_old_free_word_tags(tmp_path):
     db.commit()
     db.close()
     assert Store(path).get_recipe("r").tags == []
+
+
+def test_list_cards_carry_group_tags_languages_and_times(book, carbonara, ja):
+    _tag(book, "quick", "quick")
+    book.update_recipe(carbonara.id, {"tags": ["quick"], "cook_minutes": 15})
+    salad = book.create_recipe({"language": "en", "title": "Salad"})
+    cards = {c.id: c for c in book.list_recipes()}
+    assert (cards[ja.id].tags, cards[ja.id].languages) == (["quick"], ["en", "ja"])
+    assert cards[carbonara.id].cook_minutes == 15
+    assert cards[salad.id].languages == ["en"]

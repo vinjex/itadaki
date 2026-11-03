@@ -1,4 +1,4 @@
-import { LitElement, html, nothing } from "lit";
+import { LitElement, html, css, nothing } from "lit";
 import { shared } from "../styles.js";
 import { navigate } from "../router.js";
 import "./ai-run.js";
@@ -6,8 +6,9 @@ import "./busy.js";
 import "./page.js";
 import "./text.js";
 
-// Importing never runs the AI by itself: a page with embedded recipe data opens as a
-// draft at once; for a page without it, the AI import is offered and started by hand.
+// Adding a recipe: import it from a web page, or write it by hand. Importing never
+// runs the AI by itself: a page with embedded recipe data opens as a draft at once;
+// for a page without it, the AI import is offered and started by hand.
 class ItadakiImport extends LitElement {
   static properties = {
     api: { attribute: false },
@@ -18,7 +19,7 @@ class ItadakiImport extends LitElement {
     _busy: { state: true },
     _error: { state: true },
   };
-  static styles = [shared];
+  static styles = [shared, css`.card + .card, .card + itadaki-ai-run { margin-top: 16px; }`];
 
   get _url() {
     return this.renderRoot.querySelector("#url").value.trim();
@@ -47,7 +48,7 @@ class ItadakiImport extends LitElement {
 
   render() {
     const t = this.t;
-    return html`<itadaki-page .t=${t} header=${t("import")}>
+    return html`<itadaki-page .t=${t} header=${t("addRecipe")}>
       <form class="card" @submit=${this._import}>
         <h2>${t("importTitle")}</h2>
         <label for="url">${t("url")}</label>
@@ -61,11 +62,18 @@ class ItadakiImport extends LitElement {
         ${this._error ? html`<div class="error">${this._error}</div>` : nothing}
       </form>
       ${this._noData && this.ai
-        ? html`<itadaki-ai-run style="margin-top:16px" .t=${t} heading=${t("importAi")} .standing=${this.instructions.extract}
+        ? html`<itadaki-ai-run .t=${t} heading=${t("importAi")} .standing=${this.instructions.extract}
             ?disabled=${this._busy} @run=${(e) => this._open("extract_url", { url: this._url, ...(e.detail.note ? { note: e.detail.note } : {}) })}>
             <div class="muted">${t("noRecipeData")}</div>
           </itadaki-ai-run>`
         : nothing}
+      <div class="card">
+        <h2>${t("writeTitle")}</h2>
+        <div class="muted">${t("writeHint")}</div>
+        <div class="row" style="margin-top:16px">
+          <button class="btn quiet" @click=${() => navigate(this, { view: "new", replace: true })}>${t("writeRecipe")}</button>
+        </div>
+      </div>
     </itadaki-page>`;
   }
 }

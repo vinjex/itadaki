@@ -10,7 +10,7 @@ export function pathFor({ view, id }) {
     case "edit": return `/recipe/${id}/edit`;
     case "draft": return `/draft/${id}`;
     case "new": return "/new";
-    case "import": return "/import";
+    case "add": return "/add";
     case "manage": return "/manage";
     case "languages": return "/manage/languages";
     case "ai": return "/manage/ai";
@@ -24,7 +24,7 @@ export function viewFor(path = "") {
   if (first === "recipe" && id) return extra === "edit" ? { view: "edit", id } : { view: "recipe", id };
   if (first === "draft" && id) return { view: "draft", id };
   if (first === "new") return { view: "new" };
-  if (first === "import") return { view: "import" };
+  if (first === "add") return { view: "add" };
   if (first === "manage" && (id === "languages" || id === "ai")) return { view: id };
   if (first === "manage") return Object.hasOwn(CATALOGS, id ?? "") ? { view: "catalog", id } : { view: "manage" };
   return { view: "list" };

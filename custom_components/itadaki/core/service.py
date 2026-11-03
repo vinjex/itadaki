@@ -20,6 +20,7 @@ from .models import (
     IngredientLine,
     Localized,
     Recipe,
+    RecipeCard,
     RecipeSummary,
     Relation,
     Settings,
@@ -29,7 +30,7 @@ from .models import (
 )
 from .storage import Store
 from .render import LineParts, line_parts, render_line
-from .tags import matches, recipe_tag_set, retagged
+from .tags import recipe_tag_set, retagged
 from .tree import anchor_of, is_stale, pick_per_group, translation_group, validate_child
 from .units import DEFAULT_UNITS, scale_lines
 
@@ -104,29 +105,35 @@ class RecipeBook:
         query: str | None = None,
         prefer_language: str | None = None,
         tags: Sequence[str] = (),
-        exclude_tags: Sequence[str] = (),
-    ) -> list[RecipeSummary]:
+    ) -> list[RecipeCard]:
         """With prefer_language, each dish appears once: the version in that language
         when one exists, else the original of its translation group. Tags filter by
         recipe tags and by the tags of the ingredients a recipe uses: every one of
-        `tags` must be present, none of `exclude_tags`."""
+        `tags` must be present."""
         recipes = self._store.list_recipes(language, query)
-        if prefer_language or tags or exclude_tags:
-            everything = {r.id: r for r in self._store.list_recipes()}
-        if tags or exclude_tags:
+        everything = {r.id: r for r in self._store.list_recipes()}
+        anchors = {r.id: anchor_of(r, everything.get) for r in everything.values()}
+        languages: dict[str, set[str]] = {}
+        for recipe in everything.values():
+            languages.setdefault(anchors[recipe.id].id, set()).add(recipe.language)
+        if tags:
             ingredient_tags = {i.id: i.tags for i in self._store.list_ingredients()}
             recipes = [
-                r
-                for r in recipes
-                if matches(
-                    recipe_tag_set(anchor_of(r, everything.get).tags, r.ingredients, ingredient_tags),
-                    tags,
-                    exclude_tags,
-                )
+                r for r in recipes if recipe_tag_set(anchors[r.id].tags, r.ingredients, ingredient_tags).issuperset(tags)
             ]
         if prefer_language:
             recipes = pick_per_group(recipes, everything, prefer_language)
-        return [RecipeSummary.of(r) for r in recipes]
+        return [
+            RecipeCard(
+                **vars(RecipeSummary.of(r)),
+                prep_minutes=r.prep_minutes,
+                cook_minutes=r.cook_minutes,
+                total_minutes=r.total_minutes,
+                tags=anchors[r.id].tags,
+                languages=sorted(languages[anchors[r.id].id]),
+            )
+            for r in recipes
+        ]
 
     def rendered_lines(
         self, lines: list[IngredientLine], language: str, extra_ingredients: list[Ingredient] = ()

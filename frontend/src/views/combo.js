@@ -5,7 +5,9 @@ import { exactMatch, search } from "../search.js";
 // Search box for picking an ingredient, or creating one when nothing matches.
 // An empty field shows nothing until you type; a filled one shows the entries that
 // share its name, so similar ingredients are one click away. Fires `pick` with {id}
-// or `create` with {name}.
+// or `create` with {name}. With `freeText` the typed text is the owner's (`label`,
+// updated through `text` events with {value}) and entries are only suggestions: a
+// pick clears it, and Enter picks only a highlighted suggestion.
 class ItadakiCombo extends LitElement {
   // Focusing the element focuses its text box.
   static shadowRootOptions = { ...LitElement.shadowRootOptions, delegatesFocus: true };
@@ -18,6 +20,7 @@ class ItadakiCombo extends LitElement {
     placeholder: {},
     createLabel: {},
     noCreate: { type: Boolean },
+    freeText: { type: Boolean },
     invalid: { type: Boolean, reflect: true },
     _query: { state: true },
     _open: { state: true },
@@ -51,7 +54,7 @@ class ItadakiCombo extends LitElement {
     const typed = this._query !== undefined;
     const query = typed ? this._query : this.label ?? "";
     const matches = query.trim() ? search(this.entries, query) : [];
-    const create = !this.noCreate && typed && query.trim() && !exactMatch(this.entries, query);
+    const create = !this.noCreate && !this.freeText && typed && query.trim() && !exactMatch(this.entries, query);
     return { matches, create };
   }
 
@@ -61,7 +64,12 @@ class ItadakiCombo extends LitElement {
     else if (create) this.dispatchEvent(new CustomEvent("create", { detail: { name: this._query.trim() } }));
     this._open = false;
     this._query = undefined;
-    this.renderRoot.querySelector("input").blur();
+    if (this.freeText) this._text("");
+    else this.renderRoot.querySelector("input").blur();
+  }
+
+  _text(value) {
+    this.dispatchEvent(new CustomEvent("text", { detail: { value } }));
   }
 
   _key(e) {
@@ -69,7 +77,7 @@ class ItadakiCombo extends LitElement {
     const count = matches.length + (create ? 1 : 0);
     if (e.key === "ArrowDown") this._active = Math.min((this._active ?? -1) + 1, count - 1);
     else if (e.key === "ArrowUp") this._active = Math.max((this._active ?? 0) - 1, 0);
-    else if (e.key === "Enter" && count) this._choose(this._active ?? 0);
+    else if (e.key === "Enter" && count && !(this.freeText && this._active === undefined)) this._choose(this._active ?? 0);
     else if (e.key === "Escape") {
       this._open = false;
       this._query = undefined;
@@ -82,9 +90,14 @@ class ItadakiCombo extends LitElement {
     return html`
       <input type="text" placeholder=${this.placeholder ?? ""}
         .value=${this._query ?? this.label ?? ""}
-        @focus=${(e) => { e.target.select(); this._open = Boolean(this.label); this._active = undefined; }}
+        @focus=${(e) => { if (!this.freeText) e.target.select(); this._open = Boolean(this.label); this._active = undefined; }}
         @blur=${() => { this._open = false; this._query = undefined; }}
-        @input=${(e) => { this._query = e.target.value; this._open = Boolean(this._query.trim()); this._active = 0; }}
+        @input=${(e) => {
+          this._query = e.target.value;
+          this._open = Boolean(this._query.trim());
+          this._active = this.freeText ? undefined : 0;
+          if (this.freeText) this._text(this._query);
+        }}
         @keydown=${this._key} />
       ${this._open && (matches.length || create)
         ? html`<ul @mousedown=${(e) => e.preventDefault()}>

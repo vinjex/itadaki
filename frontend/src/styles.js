@@ -59,6 +59,14 @@ export const shared = css`
   .icon { background: none; border: none; color: inherit; cursor: pointer; padding: 12px; display: flex; border-radius: 50%; }
   .icon:hover { background: var(--it-soft); }
   .icon:disabled { opacity: 0.5; cursor: default; }
+  /* Home Assistant's extended floating action button, and room for it below the content. */
+  .fab { position: fixed; z-index: 3; right: calc(16px + env(safe-area-inset-right));
+    bottom: calc(16px + env(safe-area-inset-bottom)); display: flex; align-items: center; gap: 8px;
+    height: 56px; padding: 0 20px 0 16px; border: none; border-radius: 16px; cursor: pointer;
+    font: inherit; font-weight: 600; background: var(--it-accent); color: var(--it-on-accent);
+    box-shadow: 0 3px 5px -1px rgba(0, 0, 0, 0.2), 0 6px 10px rgba(0, 0, 0, 0.14); }
+  .fab svg { width: 24px; height: 24px; fill: currentColor; }
+  .fab-space { height: 72px; }
   .icon svg { width: 24px; height: 24px; fill: currentColor; }
   .banner {
     border-radius: 14px; padding: 12px 16px; margin-bottom: 16px;

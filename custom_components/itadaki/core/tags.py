@@ -23,7 +23,3 @@ def recipe_tag_set(
     for line in lines:
         found.update(ingredient_tags.get(line.ingredient_id, ()))
     return found
-
-
-def matches(tags: set[str], required: Iterable[str] = (), excluded: Iterable[str] = ()) -> bool:
-    return tags.issuperset(required) and tags.isdisjoint(excluded)

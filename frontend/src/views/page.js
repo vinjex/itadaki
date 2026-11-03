@@ -5,7 +5,8 @@ import { navigate } from "../router.js";
 
 // The frame of every screen, like Home Assistant's own pages: a header with back
 // (or, on the home screen of a phone, the sidebar menu), the title and the screen's
-// own action icons in the `actions` slot, then the content.
+// own action icons in the `actions` slot, then the content. A screen may put its own
+// element, such as a search field, in the `title` slot instead of the title.
 class ItadakiPage extends LitElement {
   static properties = {
     t: { attribute: false },
@@ -25,8 +26,10 @@ class ItadakiPage extends LitElement {
         color: var(--app-header-text-color, var(--it-text));
         border-bottom: var(--app-header-border-bottom, none);
       }
-      .title { flex: 1; min-width: 0; font-size: 1.25rem; margin-left: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .title { flex: 1; min-width: 0; margin-left: 8px; }
+      .text { display: block; font-size: 1.25rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
       .actions { display: flex; }
+      ::slotted([slot="title"]) { font-size: 1rem; }
       main { max-width: 1100px; margin: 0 auto; padding: 16px; }
     `,
   ];
@@ -43,7 +46,7 @@ class ItadakiPage extends LitElement {
     return html`
       <header>
         ${lead}
-        <span class="title">${this.header ?? ""}</span>
+        <div class="title"><slot name="title"><span class="text">${this.header ?? ""}</span></slot></div>
         <div class="actions"><slot name="actions"></slot></div>
       </header>
       <main><slot></slot></main>

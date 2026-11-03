@@ -13,7 +13,7 @@
   "services": {
     "list_recipes": {
       "name": "List recipes",
-      "description": "Short summaries (id, language, title, parent, relation), newest first. Use get_recipe for full content.",
+      "description": "Short summaries (id, language, title, parent, relation, image, times, tags shared by the translation group, and every language the dish exists in), newest first. Use get_recipe for full content.",
       "fields": {
         "language": {
           "name": "Language",
@@ -30,10 +30,6 @@
         "tags": {
           "name": "Tags",
           "description": "Only recipes with every one of these tag ids: recipe tags, or ingredient tags of an ingredient the recipe uses."
-        },
-        "exclude_tags": {
-          "name": "Excluded tags",
-          "description": "Leave out recipes with any of these tag ids, as recipe tag or on any of their ingredients."
         }
       }
     },

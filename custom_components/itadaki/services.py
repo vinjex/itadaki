@@ -166,7 +166,6 @@ ACTIONS: dict[str, tuple[probatio.Schema, Handler, SupportsResponse]] = {
                 probatio.Optional("query"): str,
                 probatio.Optional("prefer_language"): str,
                 probatio.Optional("tags"): [str],
-                probatio.Optional("exclude_tags"): [str],
             }
         ),
         lambda it, d: {
@@ -174,7 +173,7 @@ ACTIONS: dict[str, tuple[probatio.Schema, Handler, SupportsResponse]] = {
                 r.to_dict()
                 for r in it.book.list_recipes(
                     d.get("language"), d.get("query"), d.get("prefer_language"),
-                    d.get("tags", ()), d.get("exclude_tags", ()),
+                    d.get("tags", ()),
                 )
             ]
         },

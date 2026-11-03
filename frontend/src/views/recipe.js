@@ -5,7 +5,8 @@ import "./body.js";
 import "./busy.js";
 import "./menu.js";
 import "./page.js";
-import { headerButton, icon } from "../icons.js";
+import { fab, headerButton, icon } from "../icons.js";
+import { totalMinutes } from "../recipes.js";
 import { describeRequest } from "../drafts.js";
 
 import { navigate } from "../router.js";
@@ -52,14 +53,6 @@ class ItadakiRecipe extends LitElement {
       .chip.ready { background: var(--it-accent); color: var(--it-on-accent); }
       .chip.failed { background: color-mix(in srgb, var(--it-error) 18%, transparent); }
       a { color: var(--it-accent); }
-      /* Home Assistant's extended floating action button. */
-      .fab { position: fixed; z-index: 3; right: calc(16px + env(safe-area-inset-right));
-        bottom: calc(16px + env(safe-area-inset-bottom)); display: flex; align-items: center; gap: 8px;
-        height: 56px; padding: 0 20px 0 16px; border: none; border-radius: 16px; cursor: pointer;
-        font: inherit; font-weight: 600; background: var(--it-accent); color: var(--it-on-accent);
-        box-shadow: 0 3px 5px -1px rgba(0, 0, 0, 0.2), 0 6px 10px rgba(0, 0, 0, 0.14); }
-      .fab svg { width: 24px; height: 24px; fill: currentColor; }
-      .fab-space { height: 72px; }
       .cooking { position: fixed; inset: 0; z-index: 10; overflow-y: auto;
         background: var(--primary-background-color, #f2f2f7); }
       .cooking header { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; gap: 8px;
@@ -168,7 +161,7 @@ class ItadakiRecipe extends LitElement {
     if (this._cooking) return this._cookingMode();
     return html`<itadaki-page .t=${this.t}>${this._data ? this._actions() : nothing}${this._content()}</itadaki-page>
       ${this._data
-        ? html`<button class="fab" @click=${() => (this._cooking = true)}>${icon("cook")}${this.t("cook")}</button>`
+        ? fab("cook", this.t("cook"), () => (this._cooking = true))
         : nothing}`;
   }
 
@@ -246,7 +239,7 @@ class ItadakiRecipe extends LitElement {
     const t = this.t;
     if (!this._data) return this._error ? html`<div class="error">${this._error}</div>` : html`<itadaki-busy></itadaki-busy>`;
     const { recipe, lines, variants, stale, parent } = this._data;
-    const minutes = recipe.total_minutes || (recipe.prep_minutes || 0) + (recipe.cook_minutes || 0);
+    const minutes = totalMinutes(recipe);
 
     return html`
       <div class="hero">

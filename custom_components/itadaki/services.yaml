@@ -9,11 +9,10 @@ list_recipes:
     prefer_language:
       selector:
         text:
-    tags: &tag_ids
+    tags:
       selector:
         text:
           multiple: true
-    exclude_tags: *tag_ids
 get_recipe:
   fields:
     recipe_id: &recipe_id

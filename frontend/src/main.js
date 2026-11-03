@@ -79,7 +79,7 @@ class ItadakiPanel extends LitElement {
     if (!admin && MANAGE_VIEWS.has(v.view)) v = { view: "list" };
     switch (v.view) {
       case "recipe": return html`<itadaki-recipe .api=${this.api} .t=${t} lang=${lang} .languages=${languages} ?ai=${ai} .instructions=${instructions} .recipeId=${v.id}></itadaki-recipe>`;
-      case "import": return html`<itadaki-import .api=${this.api} .t=${t} ?ai=${ai} .instructions=${instructions}></itadaki-import>`;
+      case "add": return html`<itadaki-import .api=${this.api} .t=${t} ?ai=${ai} .instructions=${instructions}></itadaki-import>`;
       case "new":
       case "edit": return html`<itadaki-edit .api=${this.api} .t=${t} lang=${lang} .languages=${languages} .recipeId=${v.id}></itadaki-edit>`;
       case "draft": return html`<itadaki-draft .api=${this.api} .t=${t} lang=${lang} .languages=${languages} ?ai=${ai} .instructions=${instructions} .draftId=${v.id}></itadaki-draft>`;

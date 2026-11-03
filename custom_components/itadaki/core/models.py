@@ -120,6 +120,18 @@ class RecipeSummary:
 
 
 @dataclass
+class RecipeCard(RecipeSummary):
+    """A recipe as the list shows it."""
+
+    prep_minutes: int | None = None
+    cook_minutes: int | None = None
+    total_minutes: int | None = None
+    # The translation group's tags, and every language the group has.
+    tags: list[str] = field(default_factory=list)
+    languages: list[str] = field(default_factory=list)
+
+
+@dataclass
 class Localized:
     name: str
     plural: str | None = None
