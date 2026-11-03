@@ -1,0 +1,162 @@
+{
+  "languages": ["en", "ja"],
+  "tags": [
+    {"id": "japanese", "kind": "recipe", "localized": {"en": {"name": "Japanese"}, "ja": {"name": "和食"}}},
+    {"id": "main", "kind": "recipe", "localized": {"en": {"name": "Main"}, "ja": {"name": "主菜"}}},
+    {"id": "side", "kind": "recipe", "localized": {"en": {"name": "Side"}, "ja": {"name": "副菜"}}},
+    {"id": "soup", "kind": "recipe", "localized": {"en": {"name": "Soup"}, "ja": {"name": "汁物"}}},
+    {"id": "quick", "kind": "recipe", "localized": {"en": {"name": "Quick"}, "ja": {"name": "時短"}}},
+    {"id": "vegetable", "kind": "ingredient", "localized": {"en": {"name": "Vegetable"}, "ja": {"name": "野菜"}}},
+    {"id": "meat", "kind": "ingredient", "localized": {"en": {"name": "Meat"}, "ja": {"name": "肉"}}},
+    {"id": "soy", "kind": "ingredient", "localized": {"en": {"name": "Soy"}, "ja": {"name": "大豆"}}}
+  ],
+  "ingredients": [
+    {"id": "ground_chicken", "tags": ["meat"], "localized": {"en": {"name": "ground chicken"}, "ja": {"name": "鶏ひき肉"}}},
+    {"id": "green_onion", "tags": ["vegetable"], "localized": {"en": {"name": "green onion", "plural": "green onions"}, "ja": {"name": "長ねぎ"}}},
+    {"id": "ginger", "tags": ["vegetable"], "localized": {"en": {"name": "grated ginger"}, "ja": {"name": "おろし生姜"}}},
+    {"id": "egg", "localized": {"en": {"name": "egg", "plural": "eggs"}, "ja": {"name": "卵"}}},
+    {"id": "potato_starch", "localized": {"en": {"name": "potato starch"}, "ja": {"name": "片栗粉"}}},
+    {"id": "salt", "localized": {"en": {"name": "salt"}, "ja": {"name": "塩"}}},
+    {"id": "soy_sauce", "tags": ["soy"], "localized": {"en": {"name": "soy sauce"}, "ja": {"name": "醤油"}}},
+    {"id": "mirin", "localized": {"en": {"name": "mirin"}, "ja": {"name": "みりん"}}},
+    {"id": "sake", "localized": {"en": {"name": "sake"}, "ja": {"name": "酒"}}},
+    {"id": "sugar", "localized": {"en": {"name": "sugar"}, "ja": {"name": "砂糖"}}},
+    {"id": "oil", "localized": {"en": {"name": "neutral oil"}, "ja": {"name": "サラダ油"}}},
+    {"id": "dashi", "localized": {"en": {"name": "dashi"}, "ja": {"name": "だし汁"}}},
+    {"id": "miso", "tags": ["soy"], "localized": {"en": {"name": "miso"}, "ja": {"name": "味噌"}}},
+    {"id": "tofu", "tags": ["soy"], "localized": {"en": {"name": "silken tofu"}, "ja": {"name": "絹ごし豆腐"}}},
+    {"id": "wakame", "tags": ["vegetable"], "localized": {"en": {"name": "dried wakame"}, "ja": {"name": "乾燥わかめ"}}},
+    {"id": "spinach", "tags": ["vegetable"], "localized": {"en": {"name": "spinach"}, "ja": {"name": "ほうれん草"}}},
+    {"id": "sesame", "localized": {"en": {"name": "toasted sesame seeds"}, "ja": {"name": "いりごま"}}},
+    {"id": "water", "localized": {"en": {"name": "water"}, "ja": {"name": "水"}}}
+  ],
+  "recipes": [
+    {
+      "key": "tsukune",
+      "image": "tsukune.jpg",
+      "recipe": {
+        "language": "en",
+        "title": "Tsukune",
+        "description": "Juicy chicken meatballs glazed in a sweet soy sauce, the classic of every yakitori bar. Shape them on skewers or cook them as patties in a pan.",
+        "servings": 4,
+        "prep_minutes": 15,
+        "cook_minutes": 15,
+        "tags": ["japanese", "main"],
+        "ingredients": [
+          {"ingredient_id": "ground_chicken", "quantity": 500, "unit_id": "g"},
+          {"ingredient_id": "green_onion", "quantity": 1, "note": "finely chopped"},
+          {"ingredient_id": "egg", "quantity": 1},
+          {"ingredient_id": "ginger", "quantity": 1, "unit_id": "tsp"},
+          {"ingredient_id": "potato_starch", "quantity": 1, "unit_id": "tbsp"},
+          {"ingredient_id": "salt", "unit_id": "pinch"},
+          {"ingredient_id": "oil", "quantity": 1, "unit_id": "tbsp"},
+          {"ingredient_id": "soy_sauce", "quantity": 3, "unit_id": "tbsp", "section": "Glaze"},
+          {"ingredient_id": "mirin", "quantity": 3, "unit_id": "tbsp", "section": "Glaze"},
+          {"ingredient_id": "sake", "quantity": 2, "unit_id": "tbsp", "section": "Glaze"},
+          {"ingredient_id": "sugar", "quantity": 1, "unit_id": "tbsp", "section": "Glaze"}
+        ],
+        "steps": [
+          {"text": "Put the chicken, green onion, egg, ginger, potato starch and salt in a bowl.", "section": "Meatballs"},
+          {"text": "Knead by hand for about two minutes, until the mixture turns sticky and pale.", "section": "Meatballs"},
+          {"text": "With wet hands, shape twelve small oval patties.", "section": "Meatballs"},
+          {"text": "Stir the soy sauce, mirin, sake and sugar together until the sugar dissolves.", "section": "Glaze"},
+          {"text": "Heat the oil in a frying pan over medium heat and brown the patties for three minutes on each side.", "section": "Cooking"},
+          {"text": "Cover and cook for four more minutes on low heat, until cooked through.", "section": "Cooking"},
+          {"text": "Pour in the glaze and turn the patties until it thickens and coats them.", "section": "Cooking"}
+        ],
+        "notes": "Serve with an egg yolk for dipping."
+      }
+    },
+    {
+      "key": "miso",
+      "image": "miso-soup.jpg",
+      "recipe": {
+        "language": "en",
+        "title": "Miso soup",
+        "description": "A five-minute everyday soup with tofu and wakame.",
+        "servings": 2,
+        "total_minutes": 10,
+        "tags": ["japanese", "soup", "quick"],
+        "ingredients": [
+          {"ingredient_id": "dashi", "quantity": 400, "unit_id": "ml"},
+          {"ingredient_id": "miso", "quantity": 2, "unit_id": "tbsp"},
+          {"ingredient_id": "tofu", "quantity": 150, "unit_id": "g", "note": "cut into cubes"},
+          {"ingredient_id": "wakame", "quantity": 1, "unit_id": "tsp"},
+          {"ingredient_id": "green_onion", "quantity": 0.5, "note": "thinly sliced"}
+        ],
+        "steps": [
+          {"text": "Bring the dashi to a simmer and add the tofu and wakame."},
+          {"text": "Turn off the heat and dissolve the miso in a ladle of the soup, then stir it back in."},
+          {"text": "Serve at once, topped with the green onion."}
+        ]
+      },
+      "translations": [
+        {
+          "language": "ja",
+          "title": "味噌汁",
+          "description": "豆腐とわかめの、5分でできる毎日の味噌汁。",
+          "servings": 2,
+          "total_minutes": 10,
+          "ingredients": [
+            {"ingredient_id": "dashi", "quantity": 400, "unit_id": "ml"},
+            {"ingredient_id": "miso", "quantity": 2, "unit_id": "tbsp"},
+            {"ingredient_id": "tofu", "quantity": 150, "unit_id": "g", "note": "さいの目切り"},
+            {"ingredient_id": "wakame", "quantity": 1, "unit_id": "tsp"},
+            {"ingredient_id": "green_onion", "quantity": 0.5, "note": "小口切り"}
+          ],
+          "steps": [
+            {"text": "だし汁を温め、豆腐とわかめを入れる。"},
+            {"text": "火を止め、お玉に取った汁で味噌を溶いて戻し入れる。"},
+            {"text": "器に盛り、長ねぎをのせてすぐにいただく。"}
+          ]
+        }
+      ]
+    },
+    {
+      "key": "ajitama",
+      "image": "ajitama.jpg",
+      "recipe": {
+        "language": "en",
+        "title": "Marinated soft-boiled eggs",
+        "description": "Jammy eggs soaked overnight in soy sauce and mirin, for ramen or a lunch box.",
+        "servings": 4,
+        "cook_minutes": 7,
+        "tags": ["japanese", "side"],
+        "ingredients": [
+          {"ingredient_id": "egg", "quantity": 4},
+          {"ingredient_id": "soy_sauce", "quantity": 4, "unit_id": "tbsp"},
+          {"ingredient_id": "mirin", "quantity": 4, "unit_id": "tbsp"},
+          {"ingredient_id": "water", "quantity": 4, "unit_id": "tbsp"}
+        ],
+        "steps": [
+          {"text": "Lower the cold eggs into boiling water and cook for six and a half minutes."},
+          {"text": "Cool them in ice water, then peel."},
+          {"text": "Mix the soy sauce, mirin and water in a bag, add the eggs and chill overnight."}
+        ]
+      }
+    },
+    {
+      "key": "goma_ae",
+      "image": "goma-ae.jpg",
+      "recipe": {
+        "language": "en",
+        "title": "Spinach with sesame dressing",
+        "description": "Blanched spinach tossed in a sweet, nutty sesame sauce.",
+        "servings": 2,
+        "total_minutes": 10,
+        "tags": ["japanese", "side", "quick"],
+        "ingredients": [
+          {"ingredient_id": "spinach", "quantity": 200, "unit_id": "g"},
+          {"ingredient_id": "sesame", "quantity": 2, "unit_id": "tbsp"},
+          {"ingredient_id": "soy_sauce", "quantity": 1, "unit_id": "tbsp"},
+          {"ingredient_id": "sugar", "quantity": 1, "unit_id": "tsp"}
+        ],
+        "steps": [
+          {"text": "Blanch the spinach for one minute, cool it in cold water and squeeze it dry."},
+          {"text": "Grind the sesame seeds, then mix in the soy sauce and sugar."},
+          {"text": "Cut the spinach into short lengths and toss it with the dressing."}
+        ]
+      }
+    }
+  ]
+}

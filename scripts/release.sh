@@ -1,5 +1,5 @@
 #!/bin/sh
-# Releases a version: tests, runs hassfest, checks the committed panel, bumps the manifest, then
+# Releases a version: tests, runs hassfest, checks the committed panel and screenshots, bumps the manifest, then
 # commits, tags and pushes. CI validates the tag and publishes the GitHub release.
 set -e
 cd "$(dirname "$0")/.."
@@ -13,6 +13,8 @@ scripts/test.sh
 scripts/hassfest.sh
 scripts/build-panel.sh
 git diff --quiet custom_components/itadaki/frontend || fail "the committed panel was stale; commit the rebuilt one first"
+scripts/screenshots.sh
+[ -z "$(git status --porcelain repo/images)" ] || fail "the screenshots changed; commit the new ones first"
 NOTES=$(scripts/release-notes.sh)
 [ -n "$NOTES" ] || fail "nothing to release"
 printf 'v%s\n%s\n\nRelease? [y/N] ' "$VERSION" "$NOTES"

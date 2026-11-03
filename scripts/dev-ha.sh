@@ -6,7 +6,7 @@
 #   token  print a fresh access token for API calls
 #   reset  remove it and its config
 set -e
-HA_VERSION=2026.10.4
+. "$(dirname "$0")/ha-version.sh"
 NAME=itadaki-ha
 URL=http://127.0.0.1:8123
 CLIENT="$URL/"

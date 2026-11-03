@@ -3,7 +3,7 @@
 # integration's dependencies installed under HA's own version pins so clashes show up
 # here. dev/ai.env, when present, provides the live AI credentials.
 set -e
-HA_VERSION=2026.10.4
+. "$(dirname "$0")/ha-version.sh"
 cd "$(dirname "$0")/.."
 ENV_FILE=""
 [ -f dev/ai.env ] && ENV_FILE="--env-file dev/ai.env"
