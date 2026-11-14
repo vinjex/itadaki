@@ -136,6 +136,16 @@ class ItadakiRecipe extends LitElement {
     }
   }
 
+  // The original changed in a way this translation does not need to follow.
+  async _keepTranslation() {
+    try {
+      await this.api.call("mark_translation_synced", { recipe_id: this.recipeId });
+      await this._load();
+    } catch (err) {
+      this._error = this.t.error(err);
+    }
+  }
+
   async _delete() {
     if (!confirm(this.t("confirmDelete"))) return;
     try {
@@ -278,6 +288,7 @@ class ItadakiRecipe extends LitElement {
               ? html`<button class="btn quiet" ?disabled=${this._busy}
                   @click=${() => (this._task = { action: "translate", recipeId: parent.id, language: recipe.language, again: true })}>${t("retranslate")}</button>`
               : nothing}
+            <button class="btn quiet" ?disabled=${this._busy} title=${t("keepTranslationHint")} @click=${this._keepTranslation}>${t("keepTranslation")}</button>
           </div>`
         : nothing}
 

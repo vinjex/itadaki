@@ -610,6 +610,8 @@ var D = o`
 		variant: "Variant",
 		stale: "The original changed since this translation was made.",
 		retranslate: "Re-translate",
+		keepTranslation: "Keep as is",
+		keepTranslationHint: "This translation is still right: stop flagging it until the original changes again.",
 		translateTo: "Translate to {lang}",
 		adapt: "Adapt",
 		adaptHint: "What should change? e.g. make it vegetarian, simplify, use metric",
@@ -806,6 +808,8 @@ var D = o`
 		variant: "アレンジ",
 		stale: "この翻訳の作成後に元のレシピが変更されました。",
 		retranslate: "再翻訳",
+		keepTranslation: "このままにする",
+		keepTranslationHint: "この翻訳は正しいままです。元のレシピが再び変更されるまで表示しません。",
 		translateTo: "{lang}に翻訳",
 		adapt: "アレンジ",
 		adaptHint: "どう変えますか？ 例：ベジタリアン向けに、手順を簡単に",
@@ -1609,17 +1613,24 @@ var yt = class extends E {
 		noteRequired: { type: Boolean },
 		variant: { type: Boolean },
 		cancellable: { type: Boolean },
-		disabled: { type: Boolean }
+		disabled: { type: Boolean },
+		_note: { state: !0 }
 	};
 	static styles = [D, o`
       :host { display: block; }
       .standing { white-space: pre-wrap; font-size: 0.9rem; }
       .foot { margin-top: 12px; justify-content: space-between; }
     `];
+	updated(e) {
+		if (!e.has("heading")) return;
+		let t = this.renderRoot.querySelector("#note");
+		t.value = this._note = "", this.scrollIntoView({
+			block: "nearest",
+			behavior: "smooth"
+		}), this.noteRequired && t.focus({ preventScroll: !0 });
+	}
 	_run() {
-		let e = this.renderRoot.querySelector("#note").value.trim();
-		if (this.noteRequired && !e) return;
-		let t = !!this.renderRoot.querySelector("#variant")?.checked;
+		let e = this._note?.trim() ?? "", t = !!this.renderRoot.querySelector("#variant")?.checked;
 		this.dispatchEvent(new CustomEvent("run", { detail: {
 			note: e,
 			asVariant: t
@@ -1634,12 +1645,13 @@ var yt = class extends E {
         <label>${e("standing")}</label>
         <div class="standing ${this.standing ? "" : "muted"}">${this.standing || e("standingNone")}</div>
         <label for="note">${this.noteRequired ? e("instruction") : e("note")}</label>
-        <textarea id="note" rows="2" placeholder=${this.noteRequired ? e("adaptHint") : e("noteHint")}></textarea>
+        <textarea id="note" rows="2" placeholder=${this.noteRequired ? e("adaptHint") : e("noteHint")}
+          @input=${(e) => this._note = e.target.value}></textarea>
         <div class="row foot">
           ${this.variant ? w`<label class="row" style="margin:0"><input type="checkbox" id="variant" /> ${e("asVariant")}</label>` : w`<span></span>`}
           <div class="row">
             ${this.cancellable ? w`<button class="btn quiet" ?disabled=${this.disabled} @click=${() => this.dispatchEvent(new CustomEvent("cancel"))}>${e("cancel")}</button>` : T}
-            <button class="btn" ?disabled=${this.disabled} @click=${this._run}>${e("run")}</button>
+            <button class="btn" ?disabled=${this.disabled || this.noteRequired && !this._note?.trim()} @click=${this._run}>${e("run")}</button>
           </div>
         </div>
       </div>
@@ -1869,6 +1881,13 @@ var wt = class extends E {
 			this._busy = !1;
 		}
 	}
+	async _keepTranslation() {
+		try {
+			await this.api.call("mark_translation_synced", { recipe_id: this.recipeId }), await this._load();
+		} catch (e) {
+			this._error = this.t.error(e);
+		}
+	}
 	async _delete() {
 		if (confirm(this.t("confirmDelete"))) {
 			try {
@@ -2017,6 +2036,7 @@ var wt = class extends E {
 			language: t.language,
 			again: !0
 		}}>${e("retranslate")}</button>` : T}
+            <button class="btn quiet" ?disabled=${this._busy} title=${e("keepTranslationHint")} @click=${this._keepTranslation}>${e("keepTranslation")}</button>
           </div>` : T}
 
       ${this._task ? this._taskCard() : T}
