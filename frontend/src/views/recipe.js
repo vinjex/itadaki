@@ -236,7 +236,7 @@ class ItadakiRecipe extends LitElement {
       if (task.action === "tag") return this._ai("suggest_tags", { recipe_id: this.recipeId, ...noted });
       this._ai("translate", { recipe_id: task.recipeId, language: task.language, ...noted });
     };
-    const heading = { adapt: t("adaptAi"), tag: t("tagAi"), translate: t("translateTo", { lang: t.langName(task.language) }) }[task.action];
+    const heading = task.action === "translate" ? t("translateTo", { lang: t.langName(task.language) }) : t(`${task.action}Ai`);
     return html`<itadaki-ai-run class="adapt" .t=${t} cancellable ?variant=${adapt} ?noteRequired=${adapt}
       heading=${heading} .standing=${this.instructions[task.action]} ?disabled=${this._busy}
       @run=${run} @cancel=${() => (this._task = undefined)}>

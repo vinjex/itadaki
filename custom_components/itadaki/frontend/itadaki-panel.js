@@ -1970,11 +1970,7 @@ var wt = class extends E {
 	_taskCard() {
 		let e = this.t, t = this._task, n = t.action === "adapt";
 		return w`<itadaki-ai-run class="adapt" .t=${e} cancellable ?variant=${n} ?noteRequired=${n}
-      heading=${{
-			adapt: e("adaptAi"),
-			tag: e("tagAi"),
-			translate: e("translateTo", { lang: e.langName(t.language) })
-		}[t.action]} .standing=${this.instructions[t.action]} ?disabled=${this._busy}
+      heading=${t.action === "translate" ? e("translateTo", { lang: e.langName(t.language) }) : e(`${t.action}Ai`)} .standing=${this.instructions[t.action]} ?disabled=${this._busy}
       @run=${(e) => {
 			let { note: r, asVariant: i } = e.detail, a = r ? { note: r } : {};
 			if (n) return this._ai("adapt", {
