@@ -60,7 +60,10 @@ class Recipe:
     title: str
     id: str = ""
     description: str = ""
-    servings: float | None = None
+    # How much the recipe makes: people served when there is no unit, else an amount
+    # in that unit (200 g of cake mix).
+    yield_quantity: float | None = None
+    yield_unit_id: str | None = None
     prep_minutes: int | None = None
     cook_minutes: int | None = None
     total_minutes: int | None = None

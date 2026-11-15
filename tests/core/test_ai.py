@@ -99,7 +99,7 @@ def test_extract_uses_page_text(book):
     from test_page import ARTICLE
 
     answer = {
-        "language": "en", "title": "Grandma's oyakodon", "description": "", "servings": 2,
+        "language": "en", "title": "Grandma's oyakodon", "description": "", "yield_quantity": 2, "yield_unit": None,
         "prep_minutes": None, "cook_minutes": 9.6, "total_minutes": None,
         "ingredients": [line("egg", "eggs", quantity=2)], "steps": [{"text": "Simmer.", "section": None}],
         "notes": "", "tags": [],
@@ -175,7 +175,7 @@ def test_translation_count_mismatch_is_retried(book, carbonara):
 @pytest.mark.parametrize("as_variant", [False, True])
 def test_adapt_updates_in_place_or_creates_variant(book, carbonara, as_variant):
     answer = {
-        "language": "en", "title": "Bacon carbonara", "description": "", "servings": None,
+        "language": "en", "title": "Bacon carbonara", "description": "", "yield_quantity": None, "yield_unit": None,
         "prep_minutes": None, "cook_minutes": None, "total_minutes": None,
         "ingredients": [line("bacon", quantity=200, unit="g")],
         "steps": [{"text": "Cook the pasta.", "section": None}], "notes": "", "tags": [],
@@ -202,7 +202,7 @@ def test_adapt_draft_finishes_raw_lines_and_keeps_where_it_lands(book, guanciale
         usage=Usage(1, 1),
     )
     answer = {
-        "language": "en", "title": "Bacon carbonara", "description": "", "servings": None,
+        "language": "en", "title": "Bacon carbonara", "description": "", "yield_quantity": None, "yield_unit": None,
         "prep_minutes": None, "cook_minutes": None, "total_minutes": None,
         "ingredients": [line("pecorino", quantity=50, unit="g"), line("bacon", quantity=200, unit="g")],
         "steps": [{"text": "Cook the pasta.", "section": None}], "notes": "", "tags": [],

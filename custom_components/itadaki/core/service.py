@@ -29,10 +29,11 @@ from .models import (
     Unit,
 )
 from .storage import Store
-from .render import LineParts, line_parts, render_line
+from .render import LineParts, line_parts, measure_parts, render_line
 from .tags import recipe_tag_set, retagged
 from .tree import anchor_of, is_stale, pick_per_group, translation_group, validate_child
-from .units import DEFAULT_UNITS, scale_lines
+from .shopping import ShoppingItem, shopping_items
+from .units import DEFAULT_UNITS, scaled
 
 # Set by the service, never by callers: identity, tree position and bookkeeping.
 _MANAGED_FIELDS = frozenset(
@@ -58,6 +59,13 @@ def _parse_recipe(data: dict[str, Any]) -> Recipe:
     if not recipe.title.strip():
         raise InvalidRequestError("a recipe needs a title", key="title_required")
     return replace(recipe, tags=list(dict.fromkeys(recipe.tags)))
+
+
+def _uses(recipe: Recipe, kind: CatalogKind) -> set[str]:
+    """The ingredient or unit ids a recipe refers to; its units include the yield's."""
+    if kind is CatalogKind.INGREDIENT:
+        return {line.ingredient_id for line in recipe.ingredients}
+    return {u for u in (recipe.yield_unit_id, *(line.unit_id for line in recipe.ingredients)) if u}
 
 
 def _content(recipe: Recipe) -> Recipe:
@@ -151,11 +159,22 @@ class RecipeBook:
         units = {u.id: u for u in self._store.list_units()}
         return [render(line, language, ingredients, units) for line in lines]
 
-    def scaled(self, recipe: Recipe, servings: float) -> Recipe:
-        if not recipe.servings:
-            raise InvalidRequestError("this recipe has no servings to scale from")
-        factor = servings / recipe.servings
-        return replace(recipe, servings=servings, ingredients=scale_lines(recipe.ingredients, factor))
+    def yield_parts(self, recipe: Recipe) -> LineParts | None:
+        """The yield as display text when it is an amount; without a unit it counts
+        people, which the panel words in its own language."""
+        if recipe.yield_unit_id is None:
+            return None
+        units = {u.id: u for u in self._store.list_units()}
+        measure, unit = measure_parts(recipe.yield_quantity, recipe.yield_unit_id, recipe.language, units)
+        return LineParts("", measure, unit=unit)
+
+    def shopping_items(self, recipe_id: str, factor: float = 1) -> list[ShoppingItem]:
+        """The recipe's ingredients, scaled by `factor`, as shopping list items named in
+        the library languages."""
+        recipe = scaled(self.get_recipe(recipe_id), factor)
+        ingredients = {i.id: i for i in self._store.list_ingredients()}
+        units = {u.id: u for u in self._store.list_units()}
+        return shopping_items(recipe, self.get_settings().languages, ingredients, units)
 
     def create_recipe(
         self,
@@ -211,7 +230,7 @@ class RecipeBook:
         merged = _parse_recipe({**current.to_dict(), **changes})
         if current.parent_id and "language" in changes:
             validate_child(self.get_recipe(current.parent_id), current.relation, merged.language)
-        if changes.keys() & {"ingredients", "tags"}:
+        if changes.keys() & {"ingredients", "yield_unit_id", "tags"}:
             self._ensure_references(merged)
         if _content(merged) != _content(current):
             self._put_recipe(replace(merged, revision=current.revision + 1, updated_at=self._now()))
@@ -442,7 +461,7 @@ class RecipeBook:
         )
 
     def delete_ingredient(self, ingredient_id: str) -> None:
-        self._ensure_unused("ingredient_id", ingredient_id)
+        self._ensure_unused(CatalogKind.INGREDIENT, ingredient_id)
         self._store.delete_ingredient(ingredient_id)
 
     def list_units(self) -> list[Unit]:
@@ -455,7 +474,7 @@ class RecipeBook:
         )
 
     def delete_unit(self, unit_id: str) -> None:
-        self._ensure_unused("unit_id", unit_id)
+        self._ensure_unused(CatalogKind.UNIT, unit_id)
         self._store.delete_unit(unit_id)
 
     def merge_ingredient(self, source_id: str, target_id: str) -> Ingredient:
@@ -485,8 +504,8 @@ class RecipeBook:
             for tag_id in ingredient.tags:
                 ingredient_tags.setdefault(tag_id, []).append({"id": ingredient.id, "localized": ingredient.to_dict()["localized"]})
         return {
-            "ingredients": self._users("ingredient_id"),
-            "units": self._users("unit_id"),
+            "ingredients": self._users(CatalogKind.INGREDIENT),
+            "units": self._users(CatalogKind.UNIT),
             "recipe_tags": recipe_tags,
             "ingredient_tags": ingredient_tags,
         }
@@ -692,8 +711,7 @@ class RecipeBook:
         ingredient_ids = {i.id for i in self._store.list_ingredients()} | pending_ingredient_ids
         unit_ids = {u.id for u in self._store.list_units()}
         missing = sorted(
-            {line.ingredient_id for line in recipe.ingredients} - ingredient_ids
-            | {line.unit_id for line in recipe.ingredients if line.unit_id} - unit_ids
+            _uses(recipe, CatalogKind.INGREDIENT) - ingredient_ids | _uses(recipe, CatalogKind.UNIT) - unit_ids
         )
         if missing:
             raise InvalidRequestError(f"unknown ingredients or units: {', '.join(missing)}", key="entries_missing")
@@ -705,27 +723,25 @@ class RecipeBook:
         ordered.append(recipe_id)
         return ordered
 
-    def _users(self, line_field: str) -> dict[str, list[dict[str, Any]]]:
+    def _users(self, kind: CatalogKind) -> dict[str, list[dict[str, Any]]]:
         users: dict[str, list[dict[str, Any]]] = {}
         for recipe in self._store.list_recipes():
-            for entry_id in dict.fromkeys(getattr(line, line_field) for line in recipe.ingredients):
-                if entry_id:
-                    users.setdefault(entry_id, []).append(RecipeSummary.of(recipe).to_dict())
+            for entry_id in _uses(recipe, kind):
+                users.setdefault(entry_id, []).append(RecipeSummary.of(recipe).to_dict())
         return users
 
-    def _ensure_unused(self, line_field: str, entry_id: str) -> None:
-        users = self._users(line_field).get(entry_id)
+    def _ensure_unused(self, kind: CatalogKind, entry_id: str) -> None:
+        users = self._users(kind).get(entry_id)
         if users:
             titles = ", ".join(u["title"] for u in users)
             raise InUseError(f"{entry_id} is used by: {titles}", key="used_by_recipes", titles=titles)
         # A draft that names the entry would break on review or save without it.
-        kind = CatalogKind(line_field.removesuffix("_id"))
         drafts = [
             e.title
             for e in self._store.full_drafts()
             if e.draft
             and (
-                any(getattr(line, line_field) == entry_id for line in e.draft.recipe.ingredients)
+                entry_id in _uses(e.draft.recipe, kind)
                 or any(n.kind is kind and n.id == entry_id for n in e.draft.added_names)
             )
         ]
@@ -753,15 +769,17 @@ class RecipeBook:
                 raise NotFoundError(f"{kind} {entry_id} not found")
         line_field = f"{kind}_id"
 
-        def repoint(lines: list[IngredientLine]) -> list[IngredientLine]:
-            return [
+        def repoint(recipe: Recipe) -> Recipe:
+            lines = [
                 replace(line, **{line_field: target_id}) if getattr(line, line_field) == source_id else line
-                for line in lines
+                for line in recipe.ingredients
             ]
+            yield_unit = target_id if kind is CatalogKind.UNIT and recipe.yield_unit_id == source_id else recipe.yield_unit_id
+            return replace(recipe, ingredients=lines, yield_unit_id=yield_unit)
 
         for recipe in self._store.list_recipes():
-            if any(getattr(line, line_field) == source_id for line in recipe.ingredients):
-                self._store.put_recipe(replace(recipe, ingredients=repoint(recipe.ingredients)))
+            if source_id in _uses(recipe, kind):
+                self._store.put_recipe(repoint(recipe))
         for entry in self._store.full_drafts():
             if entry.draft is None:
                 continue
@@ -769,7 +787,7 @@ class RecipeBook:
             names = [
                 replace(n, id=target_id) if n.kind is kind and n.id == source_id else n for n in draft.added_names
             ]
-            recipe = replace(draft.recipe, ingredients=repoint(draft.recipe.ingredients))
+            recipe = repoint(draft.recipe)
             if recipe != draft.recipe or names != draft.added_names:
                     self._store.put_draft(replace(entry, draft=replace(draft, recipe=recipe, added_names=names)))
         merged = replace(target, localized=absorb_names(target.localized, source.localized))

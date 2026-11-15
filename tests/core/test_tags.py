@@ -249,3 +249,19 @@ def test_list_cards_carry_group_tags_languages_and_times(book, carbonara, ja):
     assert (cards[ja.id].tags, cards[ja.id].languages) == (["quick"], ["en", "ja"])
     assert cards[carbonara.id].cook_minutes == 15
     assert cards[salad.id].languages == ["en"]
+
+
+def test_upgrade_turns_servings_into_a_yield(tmp_path):
+    import sqlite3
+
+    from core import Store
+    from core.storage import _MIGRATIONS, _SCHEMA
+
+    path = tmp_path / "old.db"
+    db = sqlite3.connect(path)
+    db.executescript(_SCHEMA + "".join(_MIGRATIONS[v] for v in range(2, 7)) + "PRAGMA user_version = 6;")
+    db.execute("INSERT INTO recipes VALUES ('r', NULL, 'en', 'Soup', 'now', ?)", (json.dumps({"language": "en", "title": "Soup", "servings": 4}),))
+    db.commit()
+    db.close()
+    recipe = Store(path).get_recipe("r")
+    assert (recipe.yield_quantity, recipe.yield_unit_id) == (4, None)

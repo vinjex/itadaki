@@ -1,6 +1,10 @@
 import json
 
+import pytest
+
+from core.catalog import term_index
 from core.importer import draft_from_html
+from core.units import DEFAULT_UNITS
 
 
 def _page(recipe: dict, lang: str = "en") -> str:
@@ -29,7 +33,7 @@ def test_reads_schema_org_recipe():
     draft = draft_from_html(html, "https://example.com/oyakodon")
     recipe = draft.recipe
     assert recipe.title == "Oyakodon"
-    assert recipe.servings == 2 and recipe.total_minutes == 25
+    assert (recipe.yield_quantity, recipe.yield_unit_id) == (2, None) and recipe.total_minutes == 25
     assert recipe.ingredients == []
     assert [line.text for line in draft.raw_lines] == ["2 eggs", "150 g chicken thigh"]
     assert [s.text for s in recipe.steps] == ["Simmer the chicken.", "Add the eggs."]
@@ -57,3 +61,15 @@ def test_recipe_data_without_ingredients_or_steps_counts_as_none():
       <img itemprop="image" src="https://example.jp/okara.jpg"></div>
       <ul><li>おから 100g</li></ul></body></html>"""
     assert draft_from_html(html, "https://example.jp/okara") is None
+
+
+@pytest.mark.parametrize(
+    "text, expected",
+    [("200 g", (200, "g")), ("2人分", (2, None)), ("12 cookies", (12, None)), ("200 grams", (200, "g"))],
+)
+def test_yield_links_its_unit_when_the_word_names_one(text, expected):
+    page = _page({"@context": "https://schema.org", "@type": "Recipe", "name": "Mix", "recipeYield": text,
+                  "recipeIngredient": ["flour"], "recipeInstructions": ["Mix."]})
+    units = term_index((u.id, u.localized) for u in DEFAULT_UNITS)
+    recipe = draft_from_html(page, "https://e.x/mix", unit_terms=units).recipe
+    assert (recipe.yield_quantity, recipe.yield_unit_id) == expected

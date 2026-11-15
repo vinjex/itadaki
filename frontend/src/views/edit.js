@@ -26,7 +26,7 @@ class ItadakiEdit extends LitElement {
 
   _blank() {
     const language = this.languages.includes(this.lang) ? this.lang : this.languages[0];
-    return { language, title: "", description: "", servings: null, prep_minutes: null, cook_minutes: null, total_minutes: null, ingredients: [], steps: [], notes: "", tags: [], image_url: null, source_url: null };
+    return { language, title: "", description: "", yield_quantity: null, yield_unit_id: null, prep_minutes: null, cook_minutes: null, total_minutes: null, ingredients: [], steps: [], notes: "", tags: [], image_url: null, source_url: null };
   }
 
   async _load() {

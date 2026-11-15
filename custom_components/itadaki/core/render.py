@@ -24,24 +24,36 @@ class LineParts:
     name: str
     measure: str = ""
     note: str = ""
+    # The unit word alone, shown beside an amount being typed in.
+    unit: str = ""
 
     def to_dict(self) -> dict[str, str]:
         return asdict(self)
 
 
+def _is_plural(quantity: float | None) -> bool:
+    return quantity is not None and quantity != 1
+
+
+def measure_parts(
+    quantity: float | None, unit_id: str | None, language: str, units: dict[str, Unit]
+) -> tuple[str, str]:
+    """The amount with its unit, in the language's order, and the unit word alone."""
+    amount = "" if quantity is None else _number(quantity)
+    unit = display_name(units[unit_id].localized, language, _is_plural(quantity)) if unit_id else ""
+    if language == "ja":
+        return (unit + amount if unit_id in _JA_UNITS_BEFORE_NUMBER else amount + unit), unit
+    return " ".join(p for p in (amount, unit) if p), unit
+
+
 def line_parts(
     line: IngredientLine, language: str, ingredients: dict[str, Ingredient], units: dict[str, Unit]
 ) -> LineParts:
-    plural = line.quantity is not None and line.quantity != 1
-    amount = "" if line.quantity is None else _number(line.quantity)
-    unit = display_name(units[line.unit_id].localized, language, plural) if line.unit_id else ""
     # "2 tbsp soy sauce" but "3 eggs": with a unit, the unit carries the plural.
-    name = display_name(ingredients[line.ingredient_id].localized, language, plural and not line.unit_id)
-    if language == "ja":
-        measure = unit + amount if line.unit_id in _JA_UNITS_BEFORE_NUMBER else amount + unit
-    else:
-        measure = " ".join(p for p in (amount, unit) if p)
-    return LineParts(name, measure, line.note or "")
+    plural = _is_plural(line.quantity) and not line.unit_id
+    name = display_name(ingredients[line.ingredient_id].localized, language, plural)
+    measure, unit = measure_parts(line.quantity, line.unit_id, language, units)
+    return LineParts(name, measure, line.note or "", unit)
 
 
 def render_line(

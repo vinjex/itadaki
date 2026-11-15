@@ -1,6 +1,6 @@
 import pytest
 
-from core import ConversionError, IngredientLine, scale_lines
+from core import ConversionError, IngredientLine, Recipe, scaled
 from core.units import DEFAULT_UNITS, convert
 
 UNITS = {u.id: u for u in DEFAULT_UNITS}
@@ -17,8 +17,9 @@ def test_incompatible_units_raise(source, target):
         convert(1, UNITS[source], UNITS[target])
 
 
-def test_scaling_leaves_unquantified_lines_alone():
-    lines = [IngredientLine("egg", quantity=2), IngredientLine("salt")]
-    scaled = scale_lines(lines, 1.5)
-    assert scaled[0].quantity == 3
-    assert scaled[1].quantity is None
+def test_scaling_moves_yield_and_amounts_and_leaves_unquantified_lines_alone():
+    recipe = Recipe("en", "Mix", yield_quantity=200, yield_unit_id="g",
+                    ingredients=[IngredientLine("egg", quantity=2), IngredientLine("salt")])
+    bigger = scaled(recipe, 1.5)
+    assert (bigger.yield_quantity, bigger.yield_unit_id) == (300, "g")
+    assert [line.quantity for line in bigger.ingredients] == [3, None]

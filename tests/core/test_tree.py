@@ -68,7 +68,17 @@ def test_list_shows_each_dish_once_in_the_preferred_language(book, carbonara):
     assert {r.id for r in book.list_recipes(prefer_language="en")} == {carbonara.id, bacon.id, oyako.id}
 
 
-def test_scaling_to_servings(book, carbonara):
-    book.update_recipe(carbonara.id, {"servings": 2})
-    scaled = book.scaled(book.get_recipe(carbonara.id), 4)
-    assert scaled.ingredients[0].quantity == 400
+def test_yield_unit_counts_as_a_used_unit(book, carbonara):
+    book.update_recipe(carbonara.id, {"ingredients": [], "yield_quantity": 200, "yield_unit_id": "g"})
+    assert book.catalog_usage()["units"]["g"][0]["id"] == carbonara.id
+    with pytest.raises(InUseError):
+        book.delete_unit("g")
+    book.upsert_unit({"id": "gram2", "localized": {"en": {"name": "gram2"}}})
+    book.merge_unit("g", "gram2")
+    assert book.get_recipe(carbonara.id).yield_unit_id == "gram2"
+    assert book.yield_parts(book.get_recipe(carbonara.id)).measure == "200 gram2"
+
+
+def test_unknown_yield_unit_is_refused(book, carbonara):
+    with pytest.raises(InvalidRequestError):
+        book.update_recipe(carbonara.id, {"yield_unit_id": "bowl"})

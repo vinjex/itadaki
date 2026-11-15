@@ -35,21 +35,21 @@
     },
     "get_recipe": {
       "name": "レシピを取得",
-      "description": "レシピの全内容、表示用の材料行、親レシピ、翻訳が古くなっているか、他言語の翻訳、アレンジを返します。",
+      "description": "レシピの全内容、表示用の材料行と出来上がり量、親レシピ、翻訳が古くなっているか、他言語の翻訳、アレンジを返します。",
       "fields": {
         "recipe_id": {
           "name": "レシピID",
           "description": "レシピのID（list_recipes で取得）。"
         },
-        "servings": {
-          "name": "人数",
-          "description": "材料の分量をこの人数分に換算します。"
+        "factor": {
+          "name": "倍率",
+          "description": "レシピをこの倍率で表示します。出来上がり量とすべての分量に掛けます（1.5 で1.5倍）。保存されたレシピは変わりません。"
         }
       }
     },
     "create_recipe": {
       "name": "レシピを作成",
-      "description": "レシピを作成します。項目：language（必須）、title（必須）、description、servings、prep_minutes、cook_minutes、total_minutes、ingredients、steps（各項目に text、section）、notes、tags（list_tags のレシピタグID。レシピとその翻訳で共有され、どれかに設定するとすべてに反映されます）、image_url、source_url。材料行の項目：ingredient_id（必須、材料リストから）、quantity、unit_id（単位リストから）、note、section。未登録の材料は先に upsert_ingredient で作成してください。",
+      "description": "レシピを作成します。項目：language（必須）、title（必須）、description、yield_quantity、yield_unit_id（200 g のように量で出来上がる場合は単位ID。yield_quantity が人数の場合は空）、prep_minutes、cook_minutes、total_minutes、ingredients、steps（各項目に text、section）、notes、tags（list_tags のレシピタグID。レシピとその翻訳で共有され、どれかに設定するとすべてに反映されます）、image_url、source_url。材料行の項目：ingredient_id（必須、材料リストから）、quantity、unit_id（単位リストから）、note、section。未登録の材料は先に upsert_ingredient で作成してください。",
       "fields": {
         "recipe": {
           "name": "レシピ",
@@ -516,6 +516,53 @@
         "draft": {
           "name": "下書き",
           "description": "recipe と、任意の updates_id、parent_id、relation、new_ingredients、added_names を持つオブジェクト。"
+        }
+      }
+    },
+    "shopping_items": {
+      "name": "買い物リストの項目",
+      "description": "レシピの材料を買い物リストの項目として返します。材料と単位ごとに1項目で、両方が同じ行は合算し、個数は切り上げます。各項目は name（ライブラリのすべての言語での材料名をスラッシュでつないだもの）、quantity（表示用の分量）、lines（対応する材料行の位置）を持ちます。",
+      "fields": {
+        "recipe_id": {
+          "name": "レシピID",
+          "description": "レシピのID（list_recipes で取得）。"
+        },
+        "factor": {
+          "name": "倍率",
+          "description": "先に分量を get_recipe と同じように換算します。"
+        }
+      }
+    },
+    "get_shopping_settings": {
+      "name": "買い物リストの設定を取得",
+      "description": "材料を追加する既定のToDoリスト（list）と、すべてのToDoリスト（lists、それぞれ entity_id と name）を返します。",
+      "fields": {}
+    },
+    "update_shopping_settings": {
+      "name": "買い物リストの設定を更新",
+      "description": "管理者のみ。材料を追加する既定のToDoリストを設定します。",
+      "fields": {
+        "list": {
+          "name": "ToDoリスト",
+          "description": "ToDoリストのエンティティID。"
+        }
+      }
+    },
+    "add_to_shopping_list": {
+      "name": "買い物リストに追加",
+      "description": "ToDoリストに項目を順に追加します。各項目は名前の後に括弧で分量を付けて書かれます。",
+      "fields": {
+        "list": {
+          "name": "ToDoリスト",
+          "description": "ToDoリストのエンティティID。"
+        },
+        "items": {
+          "name": "項目",
+          "description": "name と任意の quantity（文字列）を持つオブジェクトのリスト。shopping_items が返す形式。"
+        },
+        "description": {
+          "name": "説明",
+          "description": "説明を保存できるリストでは、各項目に付けます。例：レシピ名。"
         }
       }
     }

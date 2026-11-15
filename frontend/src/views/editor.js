@@ -56,12 +56,16 @@ class ItadakiEditor extends LitElement {
     css`
       :host { display: grid; gap: 16px; }
       .grid2 { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+      .grid2 .wide { grid-column: span 2; }
+      .yield { display: flex; gap: 6px; }
+      .yield input { width: 0; flex: 1 1 60px; }
+      .yield select { width: 0; flex: 1 1 80px; }
       .line { display: grid; gap: 8px; align-items: center; margin-bottom: 10px;
         grid-template-columns: minmax(160px, 2fr) 80px minmax(90px, 1fr) minmax(120px, 2fr) auto; }
       .line.head { color: var(--it-muted); font-size: 0.75rem; margin-bottom: 4px; }
       .raw { grid-column: 1 / -1; font-size: 0.85rem; }
       @media (max-width: 800px) {
-        .line { grid-template-columns: 1fr 1fr; padding-bottom: 10px; border-bottom: 1px solid var(--it-divider); }
+        .line { grid-template-columns: 1fr 1fr; padding-bottom: 10px; border-bottom: var(--it-row-rule); }
         .line.head { display: none; }
       }
       .step { display: grid; gap: 8px; grid-template-columns: 1fr auto; margin-bottom: 10px; align-items: start; }
@@ -342,7 +346,17 @@ class ItadakiEditor extends LitElement {
         <label>${t("description")}</label>
         <textarea rows="2" .value=${r.description || ""} @input=${(e) => this._set("description", e.target.value)}></textarea>
         <div class="grid2">
-          ${field("servings", t("servings"), "number")}
+          <div class="wide">
+            <label>${t("yield")}</label>
+            <div class="yield">
+              <input type="number" aria-label=${t("yieldAmount")} .value=${r.yield_quantity ?? ""}
+                @input=${(e) => this._set("yield_quantity", num(e.target.value))} />
+              <select @change=${(e) => this._set("yield_unit_id", e.target.value || null)}>
+                <option value="" ?selected=${!r.yield_unit_id}>${t("people")}</option>
+                ${units.map((u) => html`<option value=${u.id} ?selected=${u.id === r.yield_unit_id}>${nameOf(u, lang)}</option>`)}
+              </select>
+            </div>
+          </div>
           ${field("prep_minutes", t("prepMinutes"), "number")}
           ${field("cook_minutes", t("cookMinutes"), "number")}
           ${field("total_minutes", t("totalMinutes"), "number")}

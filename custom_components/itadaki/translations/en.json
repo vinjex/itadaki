@@ -35,21 +35,21 @@
     },
     "get_recipe": {
       "name": "Get recipe",
-      "description": "Full recipe, its ingredient lines as display text, its parent, whether it is a stale translation, its translations in other languages and its variants.",
+      "description": "Full recipe, its ingredient lines and its yield as display text, its parent, whether it is a stale translation, its translations in other languages and its variants.",
       "fields": {
         "recipe_id": {
           "name": "Recipe ID",
           "description": "ID of the recipe, from list_recipes."
         },
-        "servings": {
-          "name": "Servings",
-          "description": "Scale ingredient quantities to this many servings."
+        "factor": {
+          "name": "Factor",
+          "description": "Shows the recipe this many times over: the yield and every quantity are multiplied. 1.5 makes half as much again. The saved recipe does not change."
         }
       }
     },
     "create_recipe": {
       "name": "Create recipe",
-      "description": "Creates a recipe. Fields: language (required), title (required), description, servings, prep_minutes, cook_minutes, total_minutes, ingredients, steps (each with text, section), notes, tags (recipe tag ids from list_tags; shared by a recipe and its translations, so setting them on one sets them on all), image_url, source_url. Each ingredient line has ingredient_id (required, from the ingredient list), quantity, unit_id (from the unit list), note, section. Create missing ingredients first with upsert_ingredient.",
+      "description": "Creates a recipe. Fields: language (required), title (required), description, yield_quantity, yield_unit_id (a unit id when the recipe makes an amount, such as 200 g; empty when yield_quantity is the number of people served), prep_minutes, cook_minutes, total_minutes, ingredients, steps (each with text, section), notes, tags (recipe tag ids from list_tags; shared by a recipe and its translations, so setting them on one sets them on all), image_url, source_url. Each ingredient line has ingredient_id (required, from the ingredient list), quantity, unit_id (from the unit list), note, section. Create missing ingredients first with upsert_ingredient.",
       "fields": {
         "recipe": {
           "name": "Recipe",
@@ -516,6 +516,53 @@
         "draft": {
           "name": "Draft",
           "description": "Object with recipe, and optionally updates_id, parent_id, relation, new_ingredients, added_names."
+        }
+      }
+    },
+    "shopping_items": {
+      "name": "Shopping items",
+      "description": "A recipe's ingredients as shopping list items: one per ingredient and unit, lines sharing both summed, counted amounts rounded up. Each has name (the ingredient in every library language, joined with a slash), quantity (display text) and lines (the ingredient line positions it covers).",
+      "fields": {
+        "recipe_id": {
+          "name": "Recipe ID",
+          "description": "ID of the recipe, from list_recipes."
+        },
+        "factor": {
+          "name": "Factor",
+          "description": "Scales the amounts first, as in get_recipe."
+        }
+      }
+    },
+    "get_shopping_settings": {
+      "name": "Get shopping list settings",
+      "description": "The to-do list ingredients go to by default (list), and every to-do list (lists, each with entity_id and name).",
+      "fields": {}
+    },
+    "update_shopping_settings": {
+      "name": "Update shopping list settings",
+      "description": "Admins only. Sets the to-do list ingredients go to by default.",
+      "fields": {
+        "list": {
+          "name": "To-do list",
+          "description": "Entity ID of a to-do list."
+        }
+      }
+    },
+    "add_to_shopping_list": {
+      "name": "Add to shopping list",
+      "description": "Adds items to a to-do list, in order, each written as its name followed by the quantity in brackets.",
+      "fields": {
+        "list": {
+          "name": "To-do list",
+          "description": "Entity ID of a to-do list."
+        },
+        "items": {
+          "name": "Items",
+          "description": "List of objects with name and an optional quantity text, as returned by shopping_items."
+        },
+        "description": {
+          "name": "Description",
+          "description": "Added to every item, for lists that store one; for example the recipe title."
         }
       }
     }

@@ -71,7 +71,8 @@ _RECIPE_SCHEMA = _obj(
         "language": _TEXT,
         "title": _TEXT,
         "description": _TEXT,
-        "servings": _NULLABLE_NUMBER,
+        "yield_quantity": _NULLABLE_NUMBER,
+        "yield_unit": _NULLABLE_TEXT,
         "prep_minutes": _NULLABLE_NUMBER,
         "cook_minutes": _NULLABLE_NUMBER,
         "total_minutes": _NULLABLE_NUMBER,
@@ -122,12 +123,12 @@ class _LineResolver:
         return IngredientLine(
             ingredient_id=self._ingredient(raw),
             quantity=round_quantity(raw.get("quantity")),
-            unit_id=self._unit(raw.get("unit")),
+            unit_id=self.unit(raw.get("unit")),
             note=raw.get("note") or None,
             section=raw.get("section") or None,
         )
 
-    def _unit(self, value: str | None) -> str | None:
+    def unit(self, value: str | None) -> str | None:
         if not value:
             return None
         if value in self._unit_ids:
@@ -220,7 +221,8 @@ class Assistant:
         ingredient lines are raw; structure_draft finishes it. None when the page has
         no embedded recipe, which needs extract instead. Words the page tags it with
         become its tags when they name one; the rest stay suggestions for review."""
-        draft = draft_from_html(html, url, fallback_language)
+        unit_terms = term_index((u.id, u.localized) for u in self._book.list_units())
+        draft = draft_from_html(html, url, fallback_language, unit_terms)
         if draft is None:
             return None
         language = draft.recipe.language
@@ -458,7 +460,9 @@ class Assistant:
         system = (
             "You turn recipes into structured JSON for a recipe app. Keep the recipe's "
             "language unless the user instructions say otherwise. Steps are one entry per "
-            "step, without numbering. Times are in minutes.\n\n"
+            "step, without numbering. Times are in minutes. `yield_quantity` is how many "
+            "people it serves, with `yield_unit` null, or the amount it makes, with `yield_unit` "
+            "a unit id (200 g of cake mix: 200 and g).\n\n"
             + _ingredient_rules(self._unit_table(units, None))
         )
 
@@ -466,7 +470,8 @@ class Assistant:
             language = language_code(answer["language"])
             resolver = _LineResolver(ingredients, units, language)
             lines = [resolver.line(raw) for raw in answer["ingredients"]]
-            recipe = Recipe.from_dict({**answer, "language": language, "ingredients": []})
+            yield_unit_id = resolver.unit(answer.get("yield_unit"))
+            recipe = Recipe.from_dict({**answer, "language": language, "ingredients": [], "yield_unit_id": yield_unit_id})
             minutes = {k: round(v) if v is not None else None for k, v in answer.items() if k.endswith("_minutes")}
             return replace(recipe, ingredients=lines, **minutes), list(resolver.new.values())
 
@@ -538,7 +543,8 @@ class Assistant:
             "language": recipe.language,
             "title": recipe.title,
             "description": recipe.description,
-            "servings": recipe.servings,
+            "yield_quantity": recipe.yield_quantity,
+            "yield_unit": recipe.yield_unit_id,
             "prep_minutes": recipe.prep_minutes,
             "cook_minutes": recipe.cook_minutes,
             "total_minutes": recipe.total_minutes,
@@ -572,14 +578,13 @@ class Assistant:
         keyed kind:id, with their name in the recipe's language as the source."""
         ingredients = {i.id: i for i in self._book.list_ingredients()}
         units = {u.id: u for u in self._book.list_units()}
+        entries = [(CatalogKind.INGREDIENT, ingredients[line.ingredient_id]) for line in recipe.ingredients]
+        unit_ids = [recipe.yield_unit_id, *(line.unit_id for line in recipe.ingredients)]
+        entries += [(CatalogKind.UNIT, units[u]) for u in unit_ids if u]
         missing: dict[str, str] = {}
-        for line in recipe.ingredients:
-            entries = [(CatalogKind.INGREDIENT, ingredients[line.ingredient_id])]
-            if line.unit_id:
-                entries.append((CatalogKind.UNIT, units[line.unit_id]))
-            for kind, entry in entries:
-                if language not in entry.localized:
-                    missing[f"{kind}:{entry.id}"] = display_name(entry.localized, recipe.language)
+        for kind, entry in entries:
+            if language not in entry.localized:
+                missing[f"{kind}:{entry.id}"] = display_name(entry.localized, recipe.language)
         tags = {t.id: t for t in self._book.list_tags(TagKind.RECIPE)}
         for tag_id in recipe.tags:
             if language not in tags[tag_id].localized:

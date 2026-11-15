@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import replace
 
 from .errors import ConversionError
-from .models import Dimension, IngredientLine, Localized, System, Unit
+from .models import Dimension, Localized, Recipe, System, Unit
 
 
 METRIC, US, IMPERIAL, JAPANESE = System.METRIC, System.US, System.IMPERIAL, System.JAPANESE
@@ -68,5 +68,11 @@ def convert(quantity: float, source: Unit, target: Unit) -> float:
     return quantity * source.factor / target.factor
 
 
-def scale_lines(lines: list[IngredientLine], factor: float) -> list[IngredientLine]:
-    return [replace(line, quantity=None if line.quantity is None else line.quantity * factor) for line in lines]
+def _times(value: float | None, factor: float) -> float | None:
+    return None if value is None else value * factor
+
+
+def scaled(recipe: Recipe, factor: float) -> Recipe:
+    """The recipe making `factor` times as much: the yield and every amount follow."""
+    lines = [replace(line, quantity=_times(line.quantity, factor)) for line in recipe.ingredients]
+    return replace(recipe, yield_quantity=_times(recipe.yield_quantity, factor), ingredients=lines)

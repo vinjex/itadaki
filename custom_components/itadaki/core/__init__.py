@@ -35,7 +35,7 @@ from .models import (
 )
 from .service import RecipeBook
 from .storage import Store
-from .units import convert, scale_lines
+from .units import convert, scaled
 
 __all__ = [
     "AI_ACTIONS",
@@ -70,5 +70,5 @@ __all__ = [
     "Unit",
     "Usage",
     "convert",
-    "scale_lines",
+    "scaled",
 ]

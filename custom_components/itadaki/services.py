@@ -12,13 +12,14 @@ import probatio
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_API_KEY
-from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse, SupportsResponse, callback
+from homeassistant.core import Context, HomeAssistant, ServiceCall, ServiceResponse, SupportsResponse, callback
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError, Unauthorized
 
 from .ai_config import build_assistant, changed, public
 from .const import CONF_BASE_URL, CONF_EXTRA_BODY, CONF_MODEL, CONF_MODELS, CONF_STRUCTURED_OUTPUT, DOMAIN
-from .core import AI_ACTIONS, Draft, InvalidRequestError, ItadakiError, NoRecipeDataError, RawLine, Recipe
+from .core import AI_ACTIONS, Draft, InvalidRequestError, ItadakiError, NoRecipeDataError, RawLine, Recipe, scaled
 from .core.llm import AiError
+from .shopping import add_to_shopping_list, get_shopping_settings, update_shopping_settings
 
 if TYPE_CHECKING:
     from . import Itadaki
@@ -32,6 +33,8 @@ _DRAFT_ID = probatio.Required("draft_id")
 _EDITED = probatio.Optional("draft")
 _SOURCE = probatio.Required("source_id")
 _TARGET = probatio.Required("target_id")
+# How many times the recipe to show: the amounts scale, the stored recipe does not.
+_FACTOR = probatio.All(probatio.Coerce(float), probatio.Range(min=0, min_included=False))
 
 
 def _request(d: dict[str, Any], *keys: str) -> dict[str, Any]:
@@ -133,9 +136,14 @@ def _save_draft(it: Itadaki, d: dict[str, Any]) -> dict[str, Any]:
 def _get_recipe(it: Itadaki, d: dict[str, Any]) -> dict[str, Any]:
     recipe = it.book.get_recipe(d["recipe_id"])
     related = it.book.related(recipe.id)
-    if d.get("servings"):
-        recipe = it.book.scaled(recipe, d["servings"])
-    return {"recipe": recipe.to_dict(), "lines": _split(it, recipe), **related}
+    recipe = scaled(recipe, d["factor"])
+    yield_parts = it.book.yield_parts(recipe)
+    return {
+        "recipe": recipe.to_dict(),
+        "lines": _split(it, recipe),
+        "yield": yield_parts.to_dict() if yield_parts else None,
+        **related,
+    }
 
 
 def _split(it: Itadaki, recipe: Recipe, extra_ingredients=()) -> list[dict[str, str]]:
@@ -180,7 +188,7 @@ ACTIONS: dict[str, tuple[probatio.Schema, Handler, SupportsResponse]] = {
         SupportsResponse.ONLY,
     ),
     "get_recipe": (
-        probatio.Schema({_ID: str, probatio.Optional("servings"): probatio.Coerce(float)}),
+        probatio.Schema({_ID: str, probatio.Optional("factor", default=1): _FACTOR}),
         _get_recipe,
         SupportsResponse.ONLY,
     ),
@@ -353,21 +361,26 @@ ACTIONS: dict[str, tuple[probatio.Schema, Handler, SupportsResponse]] = {
         _deleted(lambda it, draft_id: it.book.discard_draft(draft_id), "draft_id"),
         SupportsResponse.OPTIONAL,
     ),
+    "shopping_items": (
+        probatio.Schema({_ID: str, probatio.Optional("factor", default=1): _FACTOR}),
+        lambda it, d: {"items": [i.to_dict() for i in it.book.shopping_items(d["recipe_id"], d["factor"])]},
+        SupportsResponse.ONLY,
+    ),
 }
 
 
-async def _get_ai_settings(hass: HomeAssistant, entry: ConfigEntry, d: dict[str, Any]) -> dict[str, Any]:
+async def _get_ai_settings(hass: HomeAssistant, entry: ConfigEntry, d: dict[str, Any], context: Context) -> dict[str, Any]:
     return public(dict(entry.data))
 
 
-async def _update_ai_settings(hass: HomeAssistant, entry: ConfigEntry, d: dict[str, Any]) -> dict[str, Any]:
+async def _update_ai_settings(hass: HomeAssistant, entry: ConfigEntry, d: dict[str, Any], context: Context) -> dict[str, Any]:
     data = changed(dict(entry.data), d)
     entry.runtime_data.assistant = await hass.async_add_executor_job(build_assistant, entry.runtime_data.book, data)
     hass.config_entries.async_update_entry(entry, data=data)
     return public(data)
 
 
-# Provider settings live in the config entry, so these run on the event loop.
+# These use Home Assistant itself (the config entry, to-do lists), so they run on the event loop.
 ENTRY_ACTIONS: dict[str, tuple[probatio.Schema, Callable[..., Awaitable[dict[str, Any]]], SupportsResponse]] = {
     "get_ai_settings": (probatio.Schema({}), _get_ai_settings, SupportsResponse.ONLY),
     "update_ai_settings": (
@@ -384,6 +397,21 @@ ENTRY_ACTIONS: dict[str, tuple[probatio.Schema, Callable[..., Awaitable[dict[str
         _update_ai_settings,
         SupportsResponse.OPTIONAL,
     ),
+    "get_shopping_settings": (probatio.Schema({}), get_shopping_settings, SupportsResponse.ONLY),
+    "update_shopping_settings": (
+        probatio.Schema({probatio.Required("list"): str}), update_shopping_settings, SupportsResponse.OPTIONAL
+    ),
+    "add_to_shopping_list": (
+        probatio.Schema(
+            {
+                probatio.Required("list"): str,
+                probatio.Required("items"): [{probatio.Required("name"): str, probatio.Optional("quantity", default=""): str}],
+                probatio.Optional("description"): str,
+            }
+        ),
+        add_to_shopping_list,
+        SupportsResponse.OPTIONAL,
+    ),
 }
 
 # Library management: refused to non-admin users. Recipes, and the new ingredients
@@ -392,6 +420,7 @@ ADMIN_ACTIONS = frozenset(
     {
         "update_settings",
         "update_ai_settings",
+        "update_shopping_settings",
         "upsert_ingredient",
         "delete_ingredient",
         "merge_ingredient",
@@ -409,15 +438,15 @@ ADMIN_ACTIONS = frozenset(
 def async_setup_services(hass: HomeAssistant) -> None:
     for name, (schema, handler, mode) in ACTIONS.items():
         # Core calls block (SQLite, HTTP to the AI provider), so they run off the event loop.
-        run = lambda entry, data, handler=handler: hass.async_add_executor_job(handler, entry.runtime_data, data)  # noqa: E731
+        run = lambda entry, data, context, handler=handler: hass.async_add_executor_job(handler, entry.runtime_data, data)  # noqa: E731
         hass.services.async_register(DOMAIN, name, _make_service(hass, name, run), schema=schema, supports_response=mode)
     for name, (schema, handler, mode) in ENTRY_ACTIONS.items():
-        run = lambda entry, data, handler=handler: handler(hass, entry, data)  # noqa: E731
+        run = lambda entry, data, context, handler=handler: handler(hass, entry, data, context)  # noqa: E731
         hass.services.async_register(DOMAIN, name, _make_service(hass, name, run), schema=schema, supports_response=mode)
 
 
 def _make_service(
-    hass: HomeAssistant, name: str, run: Callable[[ConfigEntry, dict[str, Any]], Awaitable[dict[str, Any]]]
+    hass: HomeAssistant, name: str, run: Callable[[ConfigEntry, dict[str, Any], Context], Awaitable[dict[str, Any]]]
 ) -> Callable[[ServiceCall], Any]:
     async def service(call: ServiceCall) -> ServiceResponse:
         entries = hass.config_entries.async_loaded_entries(DOMAIN)
@@ -429,7 +458,7 @@ def _make_service(
             if user is None or not user.is_admin:
                 raise Unauthorized(context=call.context)
         try:
-            return await run(entries[0], dict(call.data))
+            return await run(entries[0], dict(call.data), call.context)
         except AiError as err:
             raise HomeAssistantError(str(err)) from err
         except ItadakiError as err:

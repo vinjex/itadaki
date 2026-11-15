@@ -34,7 +34,7 @@ def show(label, draft, started):
     recipe = draft.recipe
     ai = Assistant(book, chat, settings)
     print(f"== {label}: {time.time() - started:.1f}s, tokens {draft.usage.prompt_tokens} in / {draft.usage.completion_tokens} out")
-    print(f"   [{recipe.language}] {recipe.title} | serves {recipe.servings} | {recipe.total_minutes} min")
+    print(f"   [{recipe.language}] {recipe.title} | makes {recipe.yield_quantity} {recipe.yield_unit_id or "people"} | {recipe.total_minutes} min")
     if draft.new_ingredients:
         print("   new ingredients: " + "; ".join(
             f"{i.id} " + "/".join(f"{l}:{v.name}" for l, v in i.localized.items()) for i in draft.new_ingredients))

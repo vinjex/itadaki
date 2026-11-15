@@ -10,7 +10,7 @@ from typing import Any
 
 from .models import Draft, DraftEntry, DraftStatus, Ingredient, Recipe, Settings, Tag, Unit
 
-SCHEMA_VERSION = 6
+SCHEMA_VERSION = 7
 
 # The full document lives in `body`; the other columns are copies kept only so
 # listing and tree lookups can use indexes without parsing JSON.
@@ -65,6 +65,13 @@ _MIGRATIONS = {
     CREATE TABLE tags (id TEXT PRIMARY KEY, body TEXT NOT NULL);
     UPDATE recipes SET body = json_set(body, '$.tags', json('[]'));
     UPDATE drafts SET body = json_set(body, '$.recipe.tags', json('[]')) WHERE body IS NOT NULL;
+    """,
+
+    # Servings became a yield: a quantity with an optional unit.
+    7: """
+    UPDATE recipes SET body = json_remove(json_set(body, '$.yield_quantity', json_extract(body, '$.servings')), '$.servings');
+    UPDATE drafts SET body = json_remove(json_set(body, '$.recipe.yield_quantity', json_extract(body, '$.recipe.servings')), '$.recipe.servings')
+        WHERE body IS NOT NULL;
     """,
 }
 
