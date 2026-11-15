@@ -1,6 +1,8 @@
 import { LitElement, html, css, nothing } from "lit";
 import { shared } from "../styles.js";
 import "./ai-run.js";
+import "./amount.js";
+import "./shopping.js";
 import "./body.js";
 import "./busy.js";
 import "./menu.js";
@@ -8,6 +10,7 @@ import "./page.js";
 import { fab, headerButton, icon } from "../icons.js";
 import { totalMinutes } from "../recipes.js";
 import { describeRequest } from "../drafts.js";
+import { cleanFactor, storedFactor, storeFactor } from "../scale.js";
 
 import { navigate } from "../router.js";
 import { loadCatalog, nameOf } from "../catalog.js";
@@ -22,7 +25,10 @@ class ItadakiRecipe extends LitElement {
     instructions: { attribute: false },
     recipeId: {},
     _data: { state: true },
-    _servings: { state: true },
+    // How many times the recipe is shown: a preview, never saved to the recipe.
+    _factor: { state: true },
+    _shopping: { state: true },
+    _notice: { state: true },
     _busy: { state: true },
     _error: { state: true },
     _tags: { state: true },
@@ -41,8 +47,9 @@ class ItadakiRecipe extends LitElement {
       @media (max-width: 600px) { .hero { flex-direction: column; } .hero img { width: 100%; height: 200px; } }
       h1 { margin: 0 0 8px; font-size: 1.6rem; }
       .meta { margin: 8px 0; }
-      .stepper { display: inline-flex; align-items: center; gap: 8px; }
-      .stepper button { width: 32px; height: 32px; padding: 0; }
+      .cart { padding: 8px; }
+      .cart.on { background: var(--it-accent); color: var(--it-on-accent); }
+      .scale svg { width: 14px; height: 14px; fill: currentColor; }
       .adapt { margin-bottom: 16px; }
       .variants { margin-top: 16px; }
       .drafts { margin-bottom: 16px; }
@@ -87,7 +94,9 @@ class ItadakiRecipe extends LitElement {
   updated(changed) {
     if (changed.has("_cooking")) this._keepAwake(Boolean(this._cooking));
     if (changed.has("recipeId")) {
-      this._servings = undefined;
+      this._factor = storedFactor(this.recipeId);
+      this._shopping = false;
+      this._notice = undefined;
       this._task = undefined;
       this._cooking = false;
       this._load();
@@ -106,7 +115,7 @@ class ItadakiRecipe extends LitElement {
   async _load() {
     try {
       const [data, tags] = await Promise.all([
-        this.api.call("get_recipe", { recipe_id: this.recipeId, ...(this._servings ? { servings: this._servings } : {}) }),
+        this.api.call("get_recipe", { recipe_id: this.recipeId, factor: this._factor }),
         this._tags ?? loadCatalog(this.api, "recipe_tags"),
       ]);
       this._data = data;
@@ -117,10 +126,34 @@ class ItadakiRecipe extends LitElement {
     }
   }
 
-  _scale(delta) {
-    const current = this._servings || this._data.recipe.servings;
-    this._servings = Math.max(1, current + delta);
+  // Every way of scaling (the yield, any ingredient's amount) ends here as a ratio
+  // to what is shown now, so they all move the one factor.
+  _scale(ratio) {
+    this._setFactor(cleanFactor(this._factor * ratio));
+  }
+
+  _setFactor(factor) {
+    this._factor = factor;
+    storeFactor(this.recipeId, factor);
     this._load();
+  }
+
+  _scaleChip() {
+    if (this._factor === 1) return nothing;
+    const label = this.t("resetScale");
+    return html`<button class="chip active scale" title=${label} aria-label=${label} @click=${() => this._setFactor(1)}>
+      ${this.t("scaled", { n: Math.round(this._factor * 100) / 100 })} ${icon("close")}</button>`;
+  }
+
+  _yield() {
+    const t = this.t;
+    const { recipe, yield: parts } = this._data;
+    const shown = recipe.yield_quantity;
+    if (!shown) return nothing;
+    const n = Math.round(shown * 100) / 100;
+    const to = (value) => this._scale(value / shown);
+    return html`<itadaki-amount .value=${shown} text=${parts ? t("makes", { measure: parts.measure }) : t("serves", { n })}
+      unit=${parts ? parts.unit : t("people")} label=${t("yield")} @amount=${(e) => to(e.detail.value)}></itadaki-amount>`;
   }
 
   async _ai(action, data) {
@@ -181,10 +214,12 @@ class ItadakiRecipe extends LitElement {
     return html`<div class="cooking">
       <header>
         <h1>${recipe.title}</h1>
+        ${this._scaleChip()}
         <button class="icon" aria-label=${this.t("closeCooking")} title=${this.t("closeCooking")}
           @click=${() => (this._cooking = false)}>${icon("close")}</button>
       </header>
-      <div class="body"><itadaki-body cooking .recipe=${recipe} .lines=${lines} .t=${this.t}></itadaki-body></div>
+      <div class="body"><itadaki-body cooking scalable .recipe=${recipe} .lines=${lines} .t=${this.t}
+        @scale=${(e) => this._scale(e.detail.ratio)}></itadaki-body></div>
     </div>`;
   }
 
@@ -201,7 +236,8 @@ class ItadakiRecipe extends LitElement {
       ...versions.map((v) => ({
         label: t.langName(v.language),
         active: v.id === recipe.id,
-        run: () => v.id !== recipe.id && navigate(this, { view: "recipe", id: v.id, replace: true }),
+        // The same dish in another language keeps the scale it is shown at.
+        run: () => v.id !== recipe.id && (storeFactor(v.id, this._factor), navigate(this, { view: "recipe", id: v.id, replace: true })),
       })),
       ...(missing.length ? ["-"] : []),
       ...missing.map((l) => ({
@@ -264,13 +300,8 @@ class ItadakiRecipe extends LitElement {
                   ${t("variant")}: ${parent.title}</button>`
               : nothing}
             ${minutes ? html`<span class="chip">${t("minutes", { n: minutes })}</span>` : nothing}
-            ${recipe.servings
-              ? html`<span class="stepper">
-                  <button class="btn quiet" @click=${() => this._scale(-1)}>−</button>
-                  <span>${recipe.servings} ${t("servings")}</span>
-                  <button class="btn quiet" @click=${() => this._scale(1)}>+</button>
-                </span>`
-              : nothing}
+            ${this._yield()}
+            ${this._scaleChip()}
           </div>
           ${recipe.tags.length
             ? html`<div class="row meta">${recipe.tags.map((id) => {
@@ -307,7 +338,17 @@ class ItadakiRecipe extends LitElement {
       ${this._busy ? html`<itadaki-busy .text=${t("working")}></itadaki-busy>` : nothing}
       ${this._error ? html`<div class="error">${this._error}</div>` : nothing}
 
-      <itadaki-body .recipe=${recipe} .lines=${lines} .t=${t}></itadaki-body>
+      <itadaki-body scalable .recipe=${recipe} .lines=${lines} .t=${t} @scale=${(e) => this._scale(e.detail.ratio)}>
+        <button slot="ingredients-action" class="icon cart ${this._shopping ? "on" : ""}" aria-label=${t("toShoppingList")}
+          title=${t("toShoppingList")} aria-pressed=${this._shopping ? "true" : "false"}
+          @click=${() => ((this._shopping = !this._shopping), (this._notice = undefined))}>${icon("cart")}</button>
+        ${this._notice ? html`<div slot="ingredients-note" class="muted">${this._notice}</div>` : nothing}
+        ${this._shopping
+          ? html`<itadaki-shopping slot="ingredients" .api=${this.api} .t=${t} recipeId=${recipe.id} .factor=${this._factor}
+              subject=${recipe.title} @cancel=${() => (this._shopping = false)}
+              @added=${(e) => ((this._shopping = false), (this._notice = e.detail.message))}></itadaki-shopping>`
+          : nothing}
+      </itadaki-body>
 
       ${variants.length
         ? html`<div class="card variants">
