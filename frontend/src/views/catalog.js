@@ -37,7 +37,7 @@ class ItadakiCatalog extends LitElement {
       th { text-align: left; font-weight: 600; font-size: 0.8rem; color: var(--it-muted); white-space: nowrap; }
       th, td { padding: 10px 12px; vertical-align: top; }
       th:first-child, td:first-child { padding-left: 20px; }
-      tbody tr { border-top: 1px solid var(--it-divider); }
+      tbody tr { border-top: var(--it-row-rule); }
       tr.entry { cursor: pointer; }
       tr.entry:hover, tr.entry.open { background: var(--it-soft); }
       tr.form { border-top: none; }

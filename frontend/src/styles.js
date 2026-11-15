@@ -11,6 +11,8 @@ export const shared = css`
     --it-accent: var(--primary-color, #ff8a3d);
     --it-on-accent: var(--text-primary-color, #fff);
     --it-divider: var(--divider-color, rgba(0, 0, 0, 0.12));
+    /* Between rows of a list: lighter than the solid rule under a card's heading. */
+    --it-row-rule: 1px dashed var(--it-divider);
     --it-soft: color-mix(in srgb, var(--it-accent) 12%, transparent);
     --it-warn: var(--warning-color, #f5a524);
     --it-error: var(--error-color, #e5484d);
@@ -26,6 +28,8 @@ export const shared = css`
     padding: 20px;
   }
   h2 { font-size: 1.05rem; font-weight: 600; margin: 0 0 12px; }
+  /* A card's heading is ruled off from its content. */
+  .card > h2:first-child, .card > .head { padding-bottom: 12px; border-bottom: 1px solid var(--it-divider); }
   .muted { color: var(--it-muted); }
   .chip {
     display: inline-flex; align-items: center; gap: 4px;

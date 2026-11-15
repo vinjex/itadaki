@@ -20,7 +20,7 @@ class ItadakiLanguages extends LitElement {
     shared,
     css`
       .card { max-width: 640px; margin: 0 auto; }
-      .lang { display: flex; align-items: center; gap: 12px; padding: 4px 0; border-bottom: 1px solid var(--it-divider); }
+      .lang { display: flex; align-items: center; gap: 12px; padding: 4px 0; border-bottom: var(--it-row-rule); }
       .lang .name { flex: 1; }
       .lang .icon { padding: 8px; }
       .add { margin-top: 16px; flex-wrap: nowrap; }
