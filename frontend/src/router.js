@@ -14,6 +14,7 @@ export function pathFor({ view, id }) {
     case "manage": return "/manage";
     case "languages": return "/manage/languages";
     case "ai": return "/manage/ai";
+    case "shopping": return "/manage/shopping";
     case "catalog": return `/manage/${id}`;
     default: return "";
   }
@@ -25,7 +26,7 @@ export function viewFor(path = "") {
   if (first === "draft" && id) return { view: "draft", id };
   if (first === "new") return { view: "new" };
   if (first === "add") return { view: "add" };
-  if (first === "manage" && (id === "languages" || id === "ai")) return { view: id };
+  if (first === "manage" && (id === "languages" || id === "ai" || id === "shopping")) return { view: id };
   if (first === "manage") return Object.hasOwn(CATALOGS, id ?? "") ? { view: "catalog", id } : { view: "manage" };
   return { view: "list" };
 }

@@ -48,7 +48,7 @@ def build_assistant(book: RecipeBook, data: dict[str, Any]) -> Assistant:
 
 def public(data: dict[str, Any]) -> dict[str, Any]:
     d = {**DEFAULTS, **data}
-    shown = {k: v for k, v in d.items() if k != CONF_API_KEY}
+    shown = {k: d[k] for k in DEFAULTS if k != CONF_API_KEY}
     return {"enabled": ai_settings(d) is not None, **shown, "api_key_set": bool(d[CONF_API_KEY])}
 
 
