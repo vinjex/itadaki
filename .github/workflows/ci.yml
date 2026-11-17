@@ -3,20 +3,33 @@ name: CI
 on:
   push:
     tags: ["v*"]
+  pull_request:
 
 jobs:
   validate:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
       - uses: home-assistant/actions/hassfest@master
       - uses: hacs/action@main
         with:
           category: integration
           ignore: brands
       - run: scripts/test.sh
+      # Dependency update PRs cannot rebuild the panel themselves, so it is rebuilt here.
       - name: Committed panel matches its source
-        run: scripts/build-panel.sh && git diff --exit-code custom_components/itadaki/frontend
+        run: |
+          scripts/build-panel.sh
+          git diff --quiet custom_components/itadaki/frontend && exit 0
+          case "$GITHUB_HEAD_REF" in renovate/*) ;; *) git diff --stat; exit 1 ;; esac
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -qm "Internal: Rebuild the panel" custom_components/itadaki/frontend
+          git push
 
   release:
     needs: validate

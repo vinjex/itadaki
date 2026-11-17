@@ -4,7 +4,7 @@
 set -e
 cd "$(dirname "$0")/.."
 podman run --rm -v "$PWD/frontend":/app:z -v "$PWD/custom_components/itadaki/frontend":/custom_components/itadaki/frontend:z \
-  -w /app docker.io/library/node:22-alpine sh -c 'npm ci --no-audit --no-fund --loglevel=error && npm run build'
+  -w /app docker.io/library/node:22-slim sh -c 'npm ci --no-audit --no-fund --loglevel=error && npm run build'
 # The panel's URL carries the bundle's modification time, read when HA starts, so the
 # dev HA must restart for browsers to fetch the new bundle instead of a cached one.
 if podman container exists itadaki-ha 2>/dev/null; then
