@@ -16,7 +16,7 @@
   "issue_tracker": "https://github.com/vinjex/itadaki/issues",
   "requirements": [
     "openai>=3.10.0",
-    "recipe-scrapers==15.13.0",
+    "recipe-scrapers==15.14.0",
     "trafilatura==2.1.0"
   ],
   "single_config_entry": true,
