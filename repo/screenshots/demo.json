@@ -1,36 +1,173 @@
 {
   "languages": ["en", "ja"],
+  "units": [
+    {"id": "loaf", "dimension": "count", "factor": 1, "localized": {"en": {"name": "loaf", "plural": "loaves"}, "ja": {"name": "本"}}}
+  ],
   "tags": [
     {"id": "japanese", "kind": "recipe", "localized": {"en": {"name": "Japanese"}, "ja": {"name": "和食"}}},
+    {"id": "italian", "kind": "recipe", "localized": {"en": {"name": "Italian"}, "ja": {"name": "イタリアン"}}},
+    {"id": "indian", "kind": "recipe", "localized": {"en": {"name": "Indian"}, "ja": {"name": "インド料理"}}},
+    {"id": "thai", "kind": "recipe", "localized": {"en": {"name": "Thai"}, "ja": {"name": "タイ料理"}}},
+    {"id": "mexican", "kind": "recipe", "localized": {"en": {"name": "Mexican"}, "ja": {"name": "メキシコ料理"}}},
+    {"id": "french", "kind": "recipe", "localized": {"en": {"name": "French"}, "ja": {"name": "フランス料理"}}},
+    {"id": "greek", "kind": "recipe", "localized": {"en": {"name": "Greek"}, "ja": {"name": "ギリシャ料理"}}},
+    {"id": "middle_eastern", "kind": "recipe", "localized": {"en": {"name": "Middle Eastern"}, "ja": {"name": "中東料理"}}},
     {"id": "main", "kind": "recipe", "localized": {"en": {"name": "Main"}, "ja": {"name": "主菜"}}},
     {"id": "side", "kind": "recipe", "localized": {"en": {"name": "Side"}, "ja": {"name": "副菜"}}},
     {"id": "soup", "kind": "recipe", "localized": {"en": {"name": "Soup"}, "ja": {"name": "汁物"}}},
+    {"id": "breakfast", "kind": "recipe", "localized": {"en": {"name": "Breakfast"}, "ja": {"name": "朝食"}}},
+    {"id": "dessert", "kind": "recipe", "localized": {"en": {"name": "Dessert"}, "ja": {"name": "デザート"}}},
+    {"id": "baking", "kind": "recipe", "localized": {"en": {"name": "Baking"}, "ja": {"name": "焼き菓子"}}},
+    {"id": "vegetarian", "kind": "recipe", "localized": {"en": {"name": "Vegetarian"}, "ja": {"name": "ベジタリアン"}}},
     {"id": "quick", "kind": "recipe", "localized": {"en": {"name": "Quick"}, "ja": {"name": "時短"}}},
     {"id": "vegetable", "kind": "ingredient", "localized": {"en": {"name": "Vegetable"}, "ja": {"name": "野菜"}}},
     {"id": "meat", "kind": "ingredient", "localized": {"en": {"name": "Meat"}, "ja": {"name": "肉"}}},
-    {"id": "soy", "kind": "ingredient", "localized": {"en": {"name": "Soy"}, "ja": {"name": "大豆"}}}
+    {"id": "soy", "kind": "ingredient", "localized": {"en": {"name": "Soy"}, "ja": {"name": "大豆"}}},
+    {"id": "dairy", "kind": "ingredient", "localized": {"en": {"name": "Dairy"}, "ja": {"name": "乳製品"}}},
+    {"id": "spice", "kind": "ingredient", "localized": {"en": {"name": "Spice"}, "ja": {"name": "スパイス"}}}
   ],
   "ingredients": [
     {"id": "ground_chicken", "tags": ["meat"], "localized": {"en": {"name": "ground chicken"}, "ja": {"name": "鶏ひき肉"}}},
+    {"id": "pork_loin", "tags": ["meat"], "localized": {"en": {"name": "pork loin"}, "ja": {"name": "豚ロース肉"}}},
+    {"id": "chicken_thigh", "tags": ["meat"], "localized": {"en": {"name": "chicken thigh", "plural": "chicken thighs"}, "ja": {"name": "鶏もも肉"}}},
     {"id": "green_onion", "tags": ["vegetable"], "localized": {"en": {"name": "green onion", "plural": "green onions"}, "ja": {"name": "長ねぎ"}}},
+    {"id": "onion", "tags": ["vegetable"], "localized": {"en": {"name": "onion", "plural": "onions"}, "ja": {"name": "玉ねぎ"}}},
+    {"id": "red_onion", "tags": ["vegetable"], "localized": {"en": {"name": "red onion", "plural": "red onions"}, "ja": {"name": "紫玉ねぎ"}}},
+    {"id": "garlic", "tags": ["vegetable"], "localized": {"en": {"name": "garlic"}, "ja": {"name": "にんにく"}}},
     {"id": "ginger", "tags": ["vegetable"], "localized": {"en": {"name": "grated ginger"}, "ja": {"name": "おろし生姜"}}},
+    {"id": "tomato", "tags": ["vegetable"], "localized": {"en": {"name": "tomato", "plural": "tomatoes"}, "ja": {"name": "トマト"}}},
+    {"id": "canned_tomatoes", "tags": ["vegetable"], "localized": {"en": {"name": "canned chopped tomatoes"}, "ja": {"name": "カットトマト缶"}}},
+    {"id": "bell_pepper", "tags": ["vegetable"], "localized": {"en": {"name": "bell pepper", "plural": "bell peppers"}, "ja": {"name": "パプリカ"}}},
+    {"id": "chili", "tags": ["vegetable", "spice"], "localized": {"en": {"name": "green chili", "plural": "green chilies"}, "ja": {"name": "青唐辛子"}}},
+    {"id": "red_chili", "tags": ["vegetable", "spice"], "localized": {"en": {"name": "red chili", "plural": "red chilies"}, "ja": {"name": "赤唐辛子"}}},
+    {"id": "mushroom", "tags": ["vegetable"], "localized": {"en": {"name": "mushroom", "plural": "mushrooms"}, "ja": {"name": "マッシュルーム"}}},
+    {"id": "green_beans", "tags": ["vegetable"], "localized": {"en": {"name": "green beans"}, "ja": {"name": "いんげん"}}},
+    {"id": "eggplant", "tags": ["vegetable"], "localized": {"en": {"name": "eggplant", "plural": "eggplants"}, "ja": {"name": "なす"}}},
+    {"id": "zucchini", "tags": ["vegetable"], "localized": {"en": {"name": "zucchini", "plural": "zucchini"}, "ja": {"name": "ズッキーニ"}}},
+    {"id": "cucumber", "tags": ["vegetable"], "localized": {"en": {"name": "cucumber", "plural": "cucumbers"}, "ja": {"name": "きゅうり"}}},
+    {"id": "avocado", "tags": ["vegetable"], "localized": {"en": {"name": "avocado", "plural": "avocados"}, "ja": {"name": "アボカド"}}},
+    {"id": "spinach", "tags": ["vegetable"], "localized": {"en": {"name": "spinach"}, "ja": {"name": "ほうれん草"}}},
+    {"id": "wakame", "tags": ["vegetable"], "localized": {"en": {"name": "dried wakame"}, "ja": {"name": "乾燥わかめ"}}},
+    {"id": "mitsuba", "tags": ["vegetable"], "localized": {"en": {"name": "mitsuba"}, "ja": {"name": "三つ葉"}}},
+    {"id": "cilantro", "tags": ["vegetable"], "localized": {"en": {"name": "cilantro"}, "ja": {"name": "パクチー"}}},
+    {"id": "parsley", "tags": ["vegetable"], "localized": {"en": {"name": "parsley"}, "ja": {"name": "パセリ"}}},
+    {"id": "thai_basil", "tags": ["vegetable"], "localized": {"en": {"name": "Thai basil"}, "ja": {"name": "タイバジル"}}},
+    {"id": "banana", "localized": {"en": {"name": "banana", "plural": "bananas"}, "ja": {"name": "バナナ"}}},
+    {"id": "lime", "localized": {"en": {"name": "lime", "plural": "limes"}, "ja": {"name": "ライム"}}},
+    {"id": "olives", "localized": {"en": {"name": "Kalamata olive", "plural": "Kalamata olives"}, "ja": {"name": "カラマタオリーブ"}}},
+    {"id": "walnuts", "localized": {"en": {"name": "walnuts"}, "ja": {"name": "くるみ"}}},
     {"id": "egg", "localized": {"en": {"name": "egg", "plural": "eggs"}, "ja": {"name": "卵"}}},
+    {"id": "tofu", "tags": ["soy"], "localized": {"en": {"name": "silken tofu"}, "ja": {"name": "絹ごし豆腐"}}},
+    {"id": "firm_tofu", "tags": ["soy"], "localized": {"en": {"name": "firm tofu"}, "ja": {"name": "木綿豆腐"}}},
+    {"id": "butter", "tags": ["dairy"], "localized": {"en": {"name": "butter"}, "ja": {"name": "バター"}}},
+    {"id": "cream", "tags": ["dairy"], "localized": {"en": {"name": "heavy cream"}, "ja": {"name": "生クリーム"}}},
+    {"id": "pecorino", "tags": ["dairy"], "localized": {"en": {"name": "pecorino romano"}, "ja": {"name": "ペコリーノ・ロマーノ"}}},
+    {"id": "feta", "tags": ["dairy"], "localized": {"en": {"name": "feta"}, "ja": {"name": "フェタチーズ"}}},
+    {"id": "spaghetti", "localized": {"en": {"name": "spaghetti"}, "ja": {"name": "スパゲッティ"}}},
+    {"id": "rice", "localized": {"en": {"name": "cooked rice"}, "ja": {"name": "ご飯"}}},
+    {"id": "red_lentils", "localized": {"en": {"name": "red lentils"}, "ja": {"name": "赤レンズ豆"}}},
+    {"id": "flour", "localized": {"en": {"name": "all-purpose flour"}, "ja": {"name": "薄力粉"}}},
+    {"id": "baking_soda", "localized": {"en": {"name": "baking soda"}, "ja": {"name": "重曹"}}},
+    {"id": "panko", "localized": {"en": {"name": "panko"}, "ja": {"name": "パン粉"}}},
     {"id": "potato_starch", "localized": {"en": {"name": "potato starch"}, "ja": {"name": "片栗粉"}}},
+    {"id": "dark_chocolate", "localized": {"en": {"name": "dark chocolate"}, "ja": {"name": "ビターチョコレート"}}},
+    {"id": "coconut_milk", "localized": {"en": {"name": "coconut milk"}, "ja": {"name": "ココナッツミルク"}}},
+    {"id": "green_curry_paste", "tags": ["spice"], "localized": {"en": {"name": "green curry paste"}, "ja": {"name": "グリーンカレーペースト"}}},
+    {"id": "black_pepper", "tags": ["spice"], "localized": {"en": {"name": "black pepper"}, "ja": {"name": "黒こしょう"}}},
+    {"id": "cumin_seeds", "tags": ["spice"], "localized": {"en": {"name": "cumin seeds"}, "ja": {"name": "クミンシード"}}},
+    {"id": "cumin", "tags": ["spice"], "localized": {"en": {"name": "ground cumin"}, "ja": {"name": "クミンパウダー"}}},
+    {"id": "turmeric", "tags": ["spice"], "localized": {"en": {"name": "ground turmeric"}, "ja": {"name": "ターメリック"}}},
+    {"id": "garam_masala", "tags": ["spice"], "localized": {"en": {"name": "garam masala"}, "ja": {"name": "ガラムマサラ"}}},
+    {"id": "paprika", "tags": ["spice"], "localized": {"en": {"name": "sweet paprika"}, "ja": {"name": "パプリカパウダー"}}},
+    {"id": "thyme", "tags": ["spice"], "localized": {"en": {"name": "dried thyme"}, "ja": {"name": "乾燥タイム"}}},
+    {"id": "oregano", "tags": ["spice"], "localized": {"en": {"name": "dried oregano"}, "ja": {"name": "乾燥オレガノ"}}},
     {"id": "salt", "localized": {"en": {"name": "salt"}, "ja": {"name": "塩"}}},
+    {"id": "sugar", "localized": {"en": {"name": "sugar"}, "ja": {"name": "砂糖"}}},
+    {"id": "brown_sugar", "localized": {"en": {"name": "brown sugar"}, "ja": {"name": "きび砂糖"}}},
     {"id": "soy_sauce", "tags": ["soy"], "localized": {"en": {"name": "soy sauce"}, "ja": {"name": "醤油"}}},
+    {"id": "miso", "tags": ["soy"], "localized": {"en": {"name": "miso"}, "ja": {"name": "味噌"}}},
     {"id": "mirin", "localized": {"en": {"name": "mirin"}, "ja": {"name": "みりん"}}},
     {"id": "sake", "localized": {"en": {"name": "sake"}, "ja": {"name": "酒"}}},
-    {"id": "sugar", "localized": {"en": {"name": "sugar"}, "ja": {"name": "砂糖"}}},
-    {"id": "oil", "localized": {"en": {"name": "neutral oil"}, "ja": {"name": "サラダ油"}}},
     {"id": "dashi", "localized": {"en": {"name": "dashi"}, "ja": {"name": "だし汁"}}},
-    {"id": "miso", "tags": ["soy"], "localized": {"en": {"name": "miso"}, "ja": {"name": "味噌"}}},
-    {"id": "tofu", "tags": ["soy"], "localized": {"en": {"name": "silken tofu"}, "ja": {"name": "絹ごし豆腐"}}},
-    {"id": "wakame", "tags": ["vegetable"], "localized": {"en": {"name": "dried wakame"}, "ja": {"name": "乾燥わかめ"}}},
-    {"id": "spinach", "tags": ["vegetable"], "localized": {"en": {"name": "spinach"}, "ja": {"name": "ほうれん草"}}},
-    {"id": "sesame", "localized": {"en": {"name": "toasted sesame seeds"}, "ja": {"name": "いりごま"}}},
+    {"id": "fish_sauce", "localized": {"en": {"name": "fish sauce"}, "ja": {"name": "ナンプラー"}}},
+    {"id": "red_wine_vinegar", "localized": {"en": {"name": "red wine vinegar"}, "ja": {"name": "赤ワインビネガー"}}},
+    {"id": "oil", "localized": {"en": {"name": "neutral oil"}, "ja": {"name": "サラダ油"}}},
+    {"id": "olive_oil", "localized": {"en": {"name": "olive oil"}, "ja": {"name": "オリーブオイル"}}},
     {"id": "water", "localized": {"en": {"name": "water"}, "ja": {"name": "水"}}}
   ],
   "recipes": [
+    {
+      "key": "shakshuka",
+      "image": "shakshuka.jpg",
+      "recipe": {
+        "language": "en",
+        "title": "Shakshuka",
+        "description": "Eggs gently poached in a spiced tomato and pepper sauce, served straight from the pan.",
+        "yield_quantity": 2,
+        "prep_minutes": 10,
+        "cook_minutes": 25,
+        "tags": ["middle_eastern", "breakfast", "vegetarian"],
+        "ingredients": [
+          {"ingredient_id": "olive_oil", "quantity": 2, "unit_id": "tbsp"},
+          {"ingredient_id": "onion", "quantity": 1, "note": "sliced"},
+          {"ingredient_id": "bell_pepper", "quantity": 1, "note": "sliced"},
+          {"ingredient_id": "garlic", "quantity": 2, "unit_id": "clove", "note": "chopped"},
+          {"ingredient_id": "cumin", "quantity": 1, "unit_id": "tsp"},
+          {"ingredient_id": "paprika", "quantity": 1, "unit_id": "tsp"},
+          {"ingredient_id": "canned_tomatoes", "quantity": 400, "unit_id": "g"},
+          {"ingredient_id": "salt", "unit_id": "pinch"},
+          {"ingredient_id": "egg", "quantity": 4},
+          {"ingredient_id": "feta", "quantity": 50, "unit_id": "g", "note": "crumbled"},
+          {"ingredient_id": "parsley", "note": "chopped"}
+        ],
+        "steps": [
+          {"text": "Heat the oil in a wide frying pan and cook the onion and pepper for eight minutes, until soft."},
+          {"text": "Add the garlic, cumin and paprika and stir for a minute."},
+          {"text": "Add the tomatoes and salt and simmer for ten minutes, until thick."},
+          {"text": "Make four hollows, crack an egg into each, cover and cook for six minutes, until the whites set."},
+          {"text": "Top with the feta and parsley and serve from the pan, with bread."}
+        ]
+      },
+      "translations": [
+        {
+          "language": "ja",
+          "title": "シャクシュカ",
+          "description": "スパイスを効かせたトマトとパプリカのソースで卵を煮込む、中東の朝ごはん。フライパンごと食卓へ。",
+          "yield_quantity": 2,
+          "prep_minutes": 10,
+          "cook_minutes": 25,
+          "ingredients": [
+            {"ingredient_id": "olive_oil", "quantity": 2, "unit_id": "tbsp"},
+            {"ingredient_id": "onion", "quantity": 1, "note": "薄切り"},
+            {"ingredient_id": "bell_pepper", "quantity": 1, "note": "細切り"},
+            {"ingredient_id": "garlic", "quantity": 2, "unit_id": "clove", "note": "みじん切り"},
+            {"ingredient_id": "cumin", "quantity": 1, "unit_id": "tsp"},
+            {"ingredient_id": "paprika", "quantity": 1, "unit_id": "tsp"},
+            {"ingredient_id": "canned_tomatoes", "quantity": 400, "unit_id": "g"},
+            {"ingredient_id": "salt", "unit_id": "pinch"},
+            {"ingredient_id": "egg", "quantity": 4},
+            {"ingredient_id": "feta", "quantity": 50, "unit_id": "g", "note": "崩す"},
+            {"ingredient_id": "parsley", "note": "刻む"}
+          ],
+          "steps": [
+            {"text": "広めのフライパンに油を熱し、玉ねぎとパプリカをしんなりするまで8分ほど炒める。"},
+            {"text": "にんにく、クミン、パプリカパウダーを加えて1分炒める。"},
+            {"text": "トマト缶と塩を加え、とろみがつくまで10分煮る。"},
+            {"text": "くぼみを4か所作って卵を割り入れ、ふたをして白身が固まるまで6分煮る。"},
+            {"text": "フェタチーズとパセリを散らし、パンを添えてフライパンごと出す。"}
+          ]
+        }
+      ],
+      "update": {
+        "steps": [
+          {"text": "Heat the oil in a wide frying pan and cook the onion and pepper for eight minutes, until soft."},
+          {"text": "Add the garlic, cumin and paprika and stir for a minute."},
+          {"text": "Add the tomatoes and salt and simmer for ten minutes, until thick."},
+          {"text": "Make four hollows, crack an egg into each, cover and cook for five to eight minutes, until the whites set but the yolks are still runny."},
+          {"text": "Top with the feta and parsley and serve from the pan, with bread."}
+        ]
+      }
+    },
     {
       "key": "tsukune",
       "image": "tsukune.jpg",
@@ -65,6 +202,229 @@
           {"text": "Pour in the glaze and turn the patties until it thickens and coats them.", "section": "Cooking"}
         ],
         "notes": "Serve with an egg yolk for dipping."
+      },
+      "translations": [
+        {
+          "language": "ja",
+          "title": "つくね",
+          "description": "甘辛いたれをからめた、ジューシーな鶏つくね。焼き鳥屋の定番を、串に刺しても、フライパンで焼いても。",
+          "yield_quantity": 4,
+          "prep_minutes": 15,
+          "cook_minutes": 15,
+          "ingredients": [
+            {"ingredient_id": "ground_chicken", "quantity": 500, "unit_id": "g"},
+            {"ingredient_id": "green_onion", "quantity": 1, "note": "みじん切り"},
+            {"ingredient_id": "egg", "quantity": 1},
+            {"ingredient_id": "ginger", "quantity": 1, "unit_id": "tsp"},
+            {"ingredient_id": "potato_starch", "quantity": 1, "unit_id": "tbsp"},
+            {"ingredient_id": "salt", "unit_id": "pinch"},
+            {"ingredient_id": "oil", "quantity": 1, "unit_id": "tbsp"},
+            {"ingredient_id": "soy_sauce", "quantity": 3, "unit_id": "tbsp", "section": "たれ"},
+            {"ingredient_id": "mirin", "quantity": 3, "unit_id": "tbsp", "section": "たれ"},
+            {"ingredient_id": "sake", "quantity": 2, "unit_id": "tbsp", "section": "たれ"},
+            {"ingredient_id": "sugar", "quantity": 1, "unit_id": "tbsp", "section": "たれ"}
+          ],
+          "steps": [
+            {"text": "ボウルに鶏ひき肉、長ねぎ、卵、生姜、片栗粉、塩を入れる。", "section": "肉だね"},
+            {"text": "粘りが出て白っぽくなるまで、2分ほど手でこねる。", "section": "肉だね"},
+            {"text": "手を水でぬらし、小判形に12個まとめる。", "section": "肉だね"},
+            {"text": "醤油、みりん、酒、砂糖を、砂糖が溶けるまで混ぜる。", "section": "たれ"},
+            {"text": "フライパンに油を中火で熱し、両面を3分ずつ焼く。", "section": "焼く"},
+            {"text": "ふたをして弱火で4分、中まで火を通す。", "section": "焼く"},
+            {"text": "たれを加え、とろみがついてからむまで返しながら煮詰める。", "section": "焼く"}
+          ],
+          "notes": "卵黄を添えて、つけながらどうぞ。"
+        }
+      ]
+    },
+    {
+      "key": "cacio_e_pepe",
+      "image": "cacio-e-pepe.jpg",
+      "recipe": {
+        "language": "en",
+        "title": "Cacio e pepe",
+        "description": "Roman spaghetti with nothing but pecorino, black pepper and the pasta's own starchy water.",
+        "yield_quantity": 2,
+        "total_minutes": 20,
+        "tags": ["italian", "main", "quick", "vegetarian"],
+        "ingredients": [
+          {"ingredient_id": "spaghetti", "quantity": 200, "unit_id": "g"},
+          {"ingredient_id": "pecorino", "quantity": 80, "unit_id": "g", "note": "finely grated"},
+          {"ingredient_id": "black_pepper", "quantity": 2, "unit_id": "tsp", "note": "freshly ground"},
+          {"ingredient_id": "salt", "note": "for the pasta water"}
+        ],
+        "steps": [
+          {"text": "Cook the spaghetti in lightly salted water until just short of al dente, and keep a mug of the cooking water."},
+          {"text": "Toast the pepper in a dry frying pan for a minute, then add a ladle of the pasta water."},
+          {"text": "Mix the pecorino with a few spoons of warm, not hot, pasta water into a smooth paste."},
+          {"text": "Move the spaghetti into the pan and toss it in the peppery water for a minute."},
+          {"text": "Off the heat, add the cheese paste and toss quickly, loosening with more pasta water until creamy."}
+        ],
+        "notes": "If the sauce turns lumpy, the pan was too hot: let it cool for a moment before adding the cheese."
+      }
+    },
+    {
+      "key": "guacamole",
+      "image": "guacamole.jpg",
+      "recipe": {
+        "language": "en",
+        "title": "Guacamole",
+        "description": "Chunky avocado dip with lime, chili and cilantro.",
+        "yield_quantity": 4,
+        "total_minutes": 10,
+        "tags": ["mexican", "side", "quick", "vegetarian"],
+        "ingredients": [
+          {"ingredient_id": "avocado", "quantity": 3},
+          {"ingredient_id": "lime", "quantity": 1, "note": "juiced"},
+          {"ingredient_id": "salt", "quantity": 0.5, "unit_id": "tsp"},
+          {"ingredient_id": "red_onion", "quantity": 0.25, "note": "finely chopped"},
+          {"ingredient_id": "tomato", "quantity": 1, "note": "seeded and diced"},
+          {"ingredient_id": "chili", "quantity": 1, "note": "minced"},
+          {"ingredient_id": "cilantro", "note": "a handful, chopped"}
+        ],
+        "steps": [
+          {"text": "Halve the avocados, scoop them into a bowl and mash coarsely with a fork."},
+          {"text": "Stir in the lime juice and salt at once, so the avocado stays green."},
+          {"text": "Fold in the onion, tomato, chili and cilantro, then taste and adjust the lime and salt."}
+        ]
+      }
+    },
+    {
+      "key": "katsudon",
+      "image": "katsudon.jpg",
+      "recipe": {
+        "language": "ja",
+        "title": "カツ丼",
+        "description": "揚げたてのとんかつを玉ねぎと甘辛いだしで煮て、卵でとじてご飯にのせる。",
+        "yield_quantity": 2,
+        "prep_minutes": 15,
+        "cook_minutes": 20,
+        "tags": ["japanese", "main"],
+        "ingredients": [
+          {"ingredient_id": "pork_loin", "quantity": 2, "note": "とんかつ用"},
+          {"ingredient_id": "salt", "unit_id": "pinch"},
+          {"ingredient_id": "flour", "quantity": 2, "unit_id": "tbsp", "section": "衣"},
+          {"ingredient_id": "egg", "quantity": 1, "section": "衣"},
+          {"ingredient_id": "panko", "quantity": 40, "unit_id": "g", "section": "衣"},
+          {"ingredient_id": "oil", "note": "揚げ油、適量", "section": "衣"},
+          {"ingredient_id": "dashi", "quantity": 150, "unit_id": "ml", "section": "煮汁"},
+          {"ingredient_id": "soy_sauce", "quantity": 2, "unit_id": "tbsp", "section": "煮汁"},
+          {"ingredient_id": "mirin", "quantity": 2, "unit_id": "tbsp", "section": "煮汁"},
+          {"ingredient_id": "sugar", "quantity": 1, "unit_id": "tsp", "section": "煮汁"},
+          {"ingredient_id": "onion", "quantity": 0.5, "note": "薄切り", "section": "仕上げ"},
+          {"ingredient_id": "egg", "quantity": 3, "note": "溶きほぐす", "section": "仕上げ"},
+          {"ingredient_id": "rice", "quantity": 400, "unit_id": "g", "section": "仕上げ"},
+          {"ingredient_id": "mitsuba", "note": "飾り用", "section": "仕上げ"}
+        ],
+        "steps": [
+          {"text": "豚肉の筋を数か所切り、両面に塩をふる。", "section": "揚げる"},
+          {"text": "小麦粉、溶き卵、パン粉の順に衣をつける。", "section": "揚げる"},
+          {"text": "170℃の油で両面を3分ずつ、きつね色になるまで揚げる。油を切り、食べやすく切る。", "section": "揚げる"},
+          {"text": "小さめのフライパンに煮汁と玉ねぎを入れ、玉ねぎがしんなりするまで3分煮る。", "section": "とじる"},
+          {"text": "カツをのせて溶き卵を回し入れ、ふたをして半熟になるまで1分煮る。", "section": "とじる"},
+          {"text": "ご飯にのせ、三つ葉を散らす。", "section": "とじる"}
+        ],
+        "notes": "前の日のとんかつで作ってもおいしい。"
+      },
+      "translations": [
+        {
+          "language": "en",
+          "title": "Katsudon",
+          "description": "A freshly fried pork cutlet simmered with onion in sweet soy dashi, set with egg and served over rice.",
+          "yield_quantity": 2,
+          "prep_minutes": 15,
+          "cook_minutes": 20,
+          "ingredients": [
+            {"ingredient_id": "pork_loin", "quantity": 2, "note": "cutlets"},
+            {"ingredient_id": "salt", "unit_id": "pinch"},
+            {"ingredient_id": "flour", "quantity": 2, "unit_id": "tbsp", "section": "Coating"},
+            {"ingredient_id": "egg", "quantity": 1, "section": "Coating"},
+            {"ingredient_id": "panko", "quantity": 40, "unit_id": "g", "section": "Coating"},
+            {"ingredient_id": "oil", "note": "for frying", "section": "Coating"},
+            {"ingredient_id": "dashi", "quantity": 150, "unit_id": "ml", "section": "Simmering sauce"},
+            {"ingredient_id": "soy_sauce", "quantity": 2, "unit_id": "tbsp", "section": "Simmering sauce"},
+            {"ingredient_id": "mirin", "quantity": 2, "unit_id": "tbsp", "section": "Simmering sauce"},
+            {"ingredient_id": "sugar", "quantity": 1, "unit_id": "tsp", "section": "Simmering sauce"},
+            {"ingredient_id": "onion", "quantity": 0.5, "note": "thinly sliced", "section": "To finish"},
+            {"ingredient_id": "egg", "quantity": 3, "note": "lightly beaten", "section": "To finish"},
+            {"ingredient_id": "rice", "quantity": 400, "unit_id": "g", "section": "To finish"},
+            {"ingredient_id": "mitsuba", "note": "to garnish", "section": "To finish"}
+          ],
+          "steps": [
+            {"text": "Cut through the fat on the pork in a few places and salt both sides.", "section": "Frying"},
+            {"text": "Coat in flour, then beaten egg, then panko.", "section": "Frying"},
+            {"text": "Fry at 170 °C for three minutes on each side, until golden. Drain and slice.", "section": "Frying"},
+            {"text": "Simmer the sauce and onion in a small frying pan for three minutes, until the onion softens.", "section": "Finishing"},
+            {"text": "Lay the cutlet on top, pour the egg around it, cover and cook for one minute, until just set.", "section": "Finishing"},
+            {"text": "Slide it onto the rice and scatter the mitsuba on top.", "section": "Finishing"}
+          ],
+          "notes": "Leftover tonkatsu from the day before works just as well."
+        }
+      ]
+    },
+    {
+      "key": "dal",
+      "image": "dal.jpg",
+      "recipe": {
+        "language": "en",
+        "title": "Red lentil dal",
+        "description": "Creamy lentils finished with a sizzling tadka of cumin, garlic and tomato.",
+        "yield_quantity": 4,
+        "prep_minutes": 10,
+        "cook_minutes": 35,
+        "tags": ["indian", "main", "vegetarian"],
+        "ingredients": [
+          {"ingredient_id": "red_lentils", "quantity": 250, "unit_id": "g", "note": "rinsed"},
+          {"ingredient_id": "water", "quantity": 1, "unit_id": "l"},
+          {"ingredient_id": "turmeric", "quantity": 1, "unit_id": "tsp"},
+          {"ingredient_id": "salt", "quantity": 1, "unit_id": "tsp"},
+          {"ingredient_id": "butter", "quantity": 2, "unit_id": "tbsp", "section": "Tadka"},
+          {"ingredient_id": "cumin_seeds", "quantity": 1, "unit_id": "tsp", "section": "Tadka"},
+          {"ingredient_id": "onion", "quantity": 1, "note": "finely chopped", "section": "Tadka"},
+          {"ingredient_id": "garlic", "quantity": 3, "unit_id": "clove", "note": "sliced", "section": "Tadka"},
+          {"ingredient_id": "ginger", "quantity": 1, "unit_id": "tsp", "section": "Tadka"},
+          {"ingredient_id": "chili", "quantity": 1, "note": "slit lengthwise", "section": "Tadka"},
+          {"ingredient_id": "tomato", "quantity": 2, "note": "chopped", "section": "Tadka"},
+          {"ingredient_id": "garam_masala", "quantity": 0.5, "unit_id": "tsp", "section": "Tadka"},
+          {"ingredient_id": "cilantro", "note": "to serve", "section": "Tadka"}
+        ],
+        "steps": [
+          {"text": "Put the lentils, water and turmeric in a pot, bring to a boil and skim off the foam.", "section": "Lentils"},
+          {"text": "Simmer half covered for 25 minutes, stirring now and then, until the lentils fall apart. Season with the salt.", "section": "Lentils"},
+          {"text": "Melt the butter in a frying pan and fry the cumin seeds until they crackle.", "section": "Tadka"},
+          {"text": "Add the onion and cook for eight minutes, until golden.", "section": "Tadka"},
+          {"text": "Add the garlic, ginger and chili for a minute, then the tomatoes until they soften.", "section": "Tadka"},
+          {"text": "Stir in the garam masala and pour everything into the lentils.", "section": "Tadka"},
+          {"text": "Simmer for two more minutes and serve topped with cilantro.", "section": "Tadka"}
+        ]
+      }
+    },
+    {
+      "key": "greek_salad",
+      "image": "greek-salad.jpg",
+      "recipe": {
+        "language": "en",
+        "title": "Greek salad",
+        "description": "Ripe tomatoes, cucumber and olives under a whole slab of feta.",
+        "yield_quantity": 2,
+        "total_minutes": 10,
+        "tags": ["greek", "side", "quick", "vegetarian"],
+        "ingredients": [
+          {"ingredient_id": "tomato", "quantity": 3, "note": "cut into wedges"},
+          {"ingredient_id": "cucumber", "quantity": 1, "note": "thickly sliced"},
+          {"ingredient_id": "red_onion", "quantity": 0.5, "note": "thinly sliced"},
+          {"ingredient_id": "olives", "quantity": 12},
+          {"ingredient_id": "feta", "quantity": 150, "unit_id": "g", "note": "in one piece"},
+          {"ingredient_id": "oregano", "quantity": 1, "unit_id": "tsp"},
+          {"ingredient_id": "olive_oil", "quantity": 3, "unit_id": "tbsp"},
+          {"ingredient_id": "red_wine_vinegar", "quantity": 1, "unit_id": "tbsp"},
+          {"ingredient_id": "salt", "unit_id": "pinch"}
+        ],
+        "steps": [
+          {"text": "Put the tomatoes, cucumber, onion and olives in a wide bowl and season with salt."},
+          {"text": "Whisk the oil and vinegar and pour it over."},
+          {"text": "Lay the feta on top in one piece, sprinkle with oregano and drizzle with a little more oil."}
+        ]
       }
     },
     {
@@ -76,7 +436,7 @@
         "description": "A five-minute everyday soup with tofu and wakame.",
         "yield_quantity": 2,
         "total_minutes": 10,
-        "tags": ["japanese", "soup", "quick"],
+        "tags": ["japanese", "soup", "quick", "vegetarian"],
         "ingredients": [
           {"ingredient_id": "dashi", "quantity": 400, "unit_id": "ml"},
           {"ingredient_id": "miso", "quantity": 2, "unit_id": "tbsp"},
@@ -113,6 +473,138 @@
       ]
     },
     {
+      "key": "banana_bread",
+      "image": "banana-bread.jpg",
+      "recipe": {
+        "language": "en",
+        "title": "Banana bread",
+        "description": "A moist, lightly sweet loaf that turns overripe bananas into breakfast.",
+        "yield_quantity": 1,
+        "yield_unit_id": "loaf",
+        "prep_minutes": 15,
+        "cook_minutes": 60,
+        "tags": ["baking", "breakfast", "dessert", "vegetarian"],
+        "ingredients": [
+          {"ingredient_id": "banana", "quantity": 3, "note": "very ripe"},
+          {"ingredient_id": "butter", "quantity": 80, "unit_id": "g", "note": "melted"},
+          {"ingredient_id": "brown_sugar", "quantity": 120, "unit_id": "g"},
+          {"ingredient_id": "egg", "quantity": 1},
+          {"ingredient_id": "flour", "quantity": 190, "unit_id": "g"},
+          {"ingredient_id": "baking_soda", "quantity": 1, "unit_id": "tsp"},
+          {"ingredient_id": "salt", "unit_id": "pinch"},
+          {"ingredient_id": "walnuts", "quantity": 60, "unit_id": "g", "note": "chopped"}
+        ],
+        "steps": [
+          {"text": "Heat the oven to 175 °C and line a loaf pan with baking paper."},
+          {"text": "Mash the bananas, then stir in the melted butter, sugar and egg."},
+          {"text": "Sift in the flour, baking soda and salt, and fold until just combined."},
+          {"text": "Fold in the walnuts and scrape the batter into the pan."},
+          {"text": "Bake for 55 to 65 minutes, until a skewer comes out clean, then cool in the pan for ten minutes."}
+        ],
+        "notes": "The darker the bananas, the sweeter the bread."
+      }
+    },
+    {
+      "key": "green_curry",
+      "image": "green-curry.jpg",
+      "recipe": {
+        "language": "en",
+        "title": "Thai green curry",
+        "description": "Chicken, mushrooms and green beans in a fragrant coconut sauce, finished with Thai basil.",
+        "yield_quantity": 4,
+        "prep_minutes": 15,
+        "cook_minutes": 20,
+        "tags": ["thai", "main"],
+        "ingredients": [
+          {"ingredient_id": "chicken_thigh", "quantity": 400, "unit_id": "g", "note": "sliced"},
+          {"ingredient_id": "green_curry_paste", "quantity": 3, "unit_id": "tbsp"},
+          {"ingredient_id": "coconut_milk", "quantity": 400, "unit_id": "ml"},
+          {"ingredient_id": "oil", "quantity": 1, "unit_id": "tbsp"},
+          {"ingredient_id": "mushroom", "quantity": 200, "unit_id": "g", "note": "halved"},
+          {"ingredient_id": "green_beans", "quantity": 150, "unit_id": "g", "note": "cut in half"},
+            {"ingredient_id": "red_chili", "quantity": 1, "note": "sliced"},
+          {"ingredient_id": "fish_sauce", "quantity": 1, "unit_id": "tbsp"},
+          {"ingredient_id": "sugar", "quantity": 1, "unit_id": "tsp"},
+          {"ingredient_id": "thai_basil", "note": "a handful of leaves"},
+          {"ingredient_id": "rice", "quantity": 600, "unit_id": "g", "note": "to serve"}
+        ],
+        "steps": [
+          {"text": "Heat the oil in a pot and fry the curry paste for a minute, until fragrant."},
+          {"text": "Add a third of the coconut milk and simmer until the oil separates."},
+          {"text": "Add the chicken and cook for three minutes, then the rest of the coconut milk and the mushrooms."},
+          {"text": "Simmer for eight minutes, adding the green beans for the last four."},
+          {"text": "Season with the fish sauce and sugar, stir in the basil, top with the chili and serve with rice."}
+        ]
+      },
+      "variants": [
+        {
+          "language": "en",
+          "title": "Green curry with tofu",
+          "description": "The same fragrant coconut curry, with firm tofu instead of chicken and soy sauce instead of fish sauce.",
+          "yield_quantity": 4,
+          "prep_minutes": 15,
+          "cook_minutes": 15,
+          "tags": ["thai", "main", "vegetarian"],
+          "ingredients": [
+            {"ingredient_id": "firm_tofu", "quantity": 400, "unit_id": "g", "note": "cut into cubes"},
+            {"ingredient_id": "green_curry_paste", "quantity": 3, "unit_id": "tbsp"},
+            {"ingredient_id": "coconut_milk", "quantity": 400, "unit_id": "ml"},
+            {"ingredient_id": "oil", "quantity": 1, "unit_id": "tbsp"},
+            {"ingredient_id": "mushroom", "quantity": 200, "unit_id": "g", "note": "halved"},
+            {"ingredient_id": "green_beans", "quantity": 150, "unit_id": "g", "note": "cut in half"},
+            {"ingredient_id": "red_chili", "quantity": 1, "note": "sliced"},
+            {"ingredient_id": "soy_sauce", "quantity": 1, "unit_id": "tbsp"},
+            {"ingredient_id": "sugar", "quantity": 1, "unit_id": "tsp"},
+            {"ingredient_id": "thai_basil", "note": "a handful of leaves"},
+            {"ingredient_id": "rice", "quantity": 600, "unit_id": "g", "note": "to serve"}
+          ],
+          "steps": [
+            {"text": "Heat the oil in a pot and fry the curry paste for a minute, until fragrant."},
+            {"text": "Add a third of the coconut milk and simmer until the oil separates."},
+            {"text": "Add the rest of the coconut milk and the mushrooms and simmer for five minutes."},
+            {"text": "Add the tofu and green beans and simmer for four more minutes."},
+            {"text": "Season with the soy sauce and sugar, stir in the basil, top with the chili and serve with rice."}
+          ]
+        }
+      ]
+    },
+    {
+      "key": "ratatouille",
+      "image": "ratatouille.jpg",
+      "recipe": {
+        "language": "en",
+        "title": "Ratatouille",
+        "description": "Summer vegetables from Provence, each browned on its own, then slowly stewed together.",
+        "yield_quantity": 4,
+        "prep_minutes": 25,
+        "cook_minutes": 50,
+        "tags": ["french", "main", "vegetarian"],
+        "ingredients": [
+          {"ingredient_id": "eggplant", "quantity": 1},
+          {"ingredient_id": "zucchini", "quantity": 2},
+          {"ingredient_id": "bell_pepper", "quantity": 2},
+          {"ingredient_id": "onion", "quantity": 1},
+          {"ingredient_id": "garlic", "quantity": 3, "unit_id": "clove"},
+          {"ingredient_id": "tomato", "quantity": 4},
+          {"ingredient_id": "olive_oil", "quantity": 4, "unit_id": "tbsp"},
+          {"ingredient_id": "thyme", "quantity": 1, "unit_id": "tsp"},
+          {"ingredient_id": "salt", "quantity": 1, "unit_id": "tsp"},
+          {"ingredient_id": "black_pepper", "unit_id": "pinch"},
+          {"ingredient_id": "parsley", "note": "to serve"}
+        ],
+        "steps": [
+          {"text": "Cut the eggplant, zucchini and peppers into 2 cm pieces. Slice the onion and chop the garlic and tomatoes.", "section": "Prep"},
+          {"text": "Brown the eggplant in a tablespoon of oil for six minutes and set it aside.", "section": "Cooking"},
+          {"text": "Do the same with the zucchini, then the peppers, each with a little oil.", "section": "Cooking"},
+          {"text": "Cook the onion in the remaining oil for eight minutes, then add the garlic for a minute.", "section": "Cooking"},
+          {"text": "Add the tomatoes, thyme, salt and pepper and simmer for ten minutes.", "section": "Cooking"},
+          {"text": "Return all the vegetables, cover and simmer gently for 20 minutes.", "section": "Cooking"},
+          {"text": "Rest for ten minutes and sprinkle with parsley. It is even better the next day.", "section": "Serving"}
+        ],
+        "notes": "Cooking each vegetable on its own keeps them from turning to mush."
+      }
+    },
+    {
       "key": "ajitama",
       "image": "ajitama.jpg",
       "recipe": {
@@ -121,7 +613,7 @@
         "description": "Jammy eggs soaked overnight in soy sauce and mirin, for ramen or a lunch box.",
         "yield_quantity": 4,
         "cook_minutes": 7,
-        "tags": ["japanese", "side"],
+        "tags": ["japanese", "side", "vegetarian"],
         "ingredients": [
           {"ingredient_id": "egg", "quantity": 4},
           {"ingredient_id": "soy_sauce", "quantity": 4, "unit_id": "tbsp"},
@@ -136,27 +628,107 @@
       }
     },
     {
-      "key": "goma_ae",
-      "image": "goma-ae.jpg",
+      "key": "mousse",
+      "image": "chocolate-mousse.jpg",
       "recipe": {
         "language": "en",
-        "title": "Spinach with sesame dressing",
-        "description": "Blanched spinach tossed in a sweet, nutty sesame sauce.",
-        "yield_quantity": 2,
-        "total_minutes": 10,
-        "tags": ["japanese", "side", "quick"],
+        "title": "Chocolate mousse",
+        "description": "Airy dark chocolate mousse, made the night before.",
+        "yield_quantity": 4,
+        "prep_minutes": 20,
+        "total_minutes": 260,
+        "tags": ["french", "dessert"],
         "ingredients": [
-          {"ingredient_id": "spinach", "quantity": 200, "unit_id": "g"},
-          {"ingredient_id": "sesame", "quantity": 2, "unit_id": "tbsp"},
-          {"ingredient_id": "soy_sauce", "quantity": 1, "unit_id": "tbsp"},
-          {"ingredient_id": "sugar", "quantity": 1, "unit_id": "tsp"}
+          {"ingredient_id": "dark_chocolate", "quantity": 150, "unit_id": "g"},
+          {"ingredient_id": "butter", "quantity": 20, "unit_id": "g"},
+          {"ingredient_id": "egg", "quantity": 4, "note": "separated"},
+          {"ingredient_id": "sugar", "quantity": 2, "unit_id": "tbsp"},
+          {"ingredient_id": "cream", "quantity": 100, "unit_id": "ml"},
+          {"ingredient_id": "salt", "unit_id": "pinch"}
         ],
         "steps": [
-          {"text": "Blanch the spinach for one minute, cool it in cold water and squeeze it dry."},
-          {"text": "Grind the sesame seeds, then mix in the soy sauce and sugar."},
-          {"text": "Cut the spinach into short lengths and toss it with the dressing."}
+          {"text": "Melt the chocolate and butter over barely simmering water, then let it cool a little."},
+          {"text": "Stir in the yolks one at a time."},
+          {"text": "Whip the cream to soft peaks."},
+          {"text": "Whisk the whites with the salt to soft peaks, then add the sugar and whisk until glossy."},
+          {"text": "Fold the cream into the chocolate, then the whites in two batches, as gently as you can."},
+          {"text": "Spoon into glasses and chill for at least four hours."}
         ]
       }
     }
-  ]
+  ],
+  "adapt": {
+    "recipe": "dal",
+    "instruction": "Make it mild enough for kids and add some spinach.",
+    "answer": {
+      "language": "en",
+      "title": "Mild red lentil dal with spinach",
+      "description": "Creamy lentils with spinach, finished with a gentle tadka of cumin, garlic and tomato.",
+      "yield_quantity": 4,
+      "yield_unit": null,
+      "prep_minutes": 10,
+      "cook_minutes": 35,
+      "total_minutes": null,
+      "ingredients": [
+        {"name": "red lentils", "quantity": 250, "unit": "g", "note": "rinsed", "section": null},
+        {"name": "water", "quantity": 1, "unit": "l", "note": null, "section": null},
+        {"name": "salt", "quantity": 1, "unit": "tsp", "note": null, "section": null},
+        {"name": "butter", "quantity": 2, "unit": "tbsp", "note": null, "section": "Tadka"},
+        {"name": "cumin seeds", "quantity": 1, "unit": "tsp", "note": null, "section": "Tadka"},
+        {"name": "ground turmeric", "quantity": 1, "unit": "tsp", "note": null, "section": "Tadka"},
+        {"name": "onion", "quantity": 1, "unit": null, "note": "finely chopped", "section": "Tadka"},
+        {"name": "garlic", "quantity": 2, "unit": "clove", "note": "sliced", "section": "Tadka"},
+        {"name": "grated ginger", "quantity": 1, "unit": "tsp", "note": null, "section": "Tadka"},
+        {"name": "tomato", "quantity": 2, "unit": null, "note": "chopped", "section": "Tadka"},
+        {"name": "spinach", "quantity": 100, "unit": "g", "note": "roughly chopped", "section": "Tadka"},
+        {"name": "garam masala", "quantity": 0.5, "unit": "tsp", "note": null, "section": "Tadka"},
+        {"name": "cilantro", "quantity": null, "unit": null, "note": "to serve", "section": "Tadka"}
+      ],
+      "steps": [
+        {"text": "Put the lentils and water in a pot, bring to a boil and skim off the foam.", "section": "Lentils"},
+        {"text": "Simmer half covered for 25 minutes, stirring now and then, until the lentils fall apart. Season with the salt.", "section": "Lentils"},
+        {"text": "Melt the butter in a frying pan and fry the cumin seeds and turmeric until the seeds crackle.", "section": "Tadka"},
+        {"text": "Add the onion and cook for eight minutes, until golden.", "section": "Tadka"},
+        {"text": "Add the garlic and ginger for a minute, then the tomatoes until they soften.", "section": "Tadka"},
+        {"text": "Stir in the spinach until it wilts.", "section": "Tadka"},
+        {"text": "Stir in the garam masala and pour everything into the lentils.", "section": "Tadka"},
+        {"text": "Simmer for two more minutes and serve topped with cilantro.", "section": "Tadka"}
+      ],
+      "notes": ""
+    }
+  },
+  "import": {
+    "image": "lemon-cake.jpg",
+    "recipe": {
+      "@context": "https://schema.org",
+      "@type": "Recipe",
+      "name": "Glazed lemon loaf",
+      "description": "A tender olive oil loaf under a sharp lemon glaze.",
+      "recipeYield": "Serves 8",
+      "prepTime": "PT15M",
+      "cookTime": "PT45M",
+      "recipeCategory": "Dessert",
+      "recipeCuisine": "Italian",
+      "keywords": "cake, baking, lemon",
+      "recipeIngredient": [
+        "3 eggs",
+        "200 g sugar",
+        "1 lemon, zested and juiced",
+        "120 ml olive oil",
+        "150 ml milk",
+        "250 g all-purpose flour",
+        "2 tsp baking powder",
+        "1 pinch salt",
+        "100 g powdered sugar, for the glaze"
+      ],
+      "recipeInstructions": [
+        {"@type": "HowToStep", "text": "Heat the oven to 180 °C and line a loaf pan with baking paper."},
+        {"@type": "HowToStep", "text": "Whisk the eggs and sugar for three minutes, until pale and thick."},
+        {"@type": "HowToStep", "text": "Whisk in the lemon zest and juice, the olive oil and the milk."},
+        {"@type": "HowToStep", "text": "Fold in the flour, baking powder and salt until smooth."},
+        {"@type": "HowToStep", "text": "Bake for 40 to 45 minutes, until golden and springy, then let it cool completely."},
+        {"@type": "HowToStep", "text": "Stir the powdered sugar with a tablespoon of lemon juice and pour it over the cake."}
+      ]
+    }
+  }
 }

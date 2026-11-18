@@ -14,7 +14,7 @@ scripts/hassfest.sh
 scripts/build-panel.sh
 git diff --quiet custom_components/itadaki/frontend || fail "the committed panel was stale; commit the rebuilt one first"
 scripts/screenshots.sh
-[ -z "$(git status --porcelain repo/images)" ] || fail "the screenshots changed; commit the new ones first"
+[ -z "$(git status --porcelain docs/images)" ] || fail "the screenshots changed; commit the new ones first"
 NOTES=$(scripts/release-notes.sh)
 [ -n "$NOTES" ] || fail "nothing to release"
 printf 'v%s\n%s\n\nRelease? [y/N] ' "$VERSION" "$NOTES"

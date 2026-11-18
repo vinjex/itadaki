@@ -1,13 +1,10 @@
 # Itadaki
 
 A multilingual recipe app for Home Assistant. Keep recipes in any language, import them
-from recipe sites, and translate or adapt them with an optional AI provider.
+from recipe sites, scale them, send ingredients to your shopping list, and translate or
+adapt them with an optional AI provider.
 
-![Recipe list](repo/images/recipes.png)
-
-![A recipe](repo/images/recipe_example.png)
-
-![Editing a recipe](repo/images/recipe_form_example.png)
+![Recipe list](docs/images/recipes.png)
 
 ## Install
 
@@ -22,25 +19,17 @@ from recipe sites, and translate or adapt them with an optional AI provider.
 
 Itadaki then appears in the sidebar. Requires Home Assistant 2026.10 or newer.
 
-## Setup
+## Documentation
 
-Everything is configured from the app's Manage page (the cog, admins only):
-
-- **Languages**: the languages your ingredient and unit catalogs are named in, and the
-  ones offered for translation.
-- **AI** (optional): any OpenAI-compatible provider. Enter its API address, key and model.
-  Without AI, recipes are written by hand, and imports work for sites that embed recipe
-  data, with ingredient lines matched by hand.
-
-For Cloudflare Workers AI with a Gemma model, turn off its thinking mode under
-Advanced → extra request fields, or answers get slow and time out:
-
-```json
-{"chat_template_kwargs": {"enable_thinking": false}}
-```
-
-Recipes are stored in one SQLite file in Home Assistant's config folder, so Home Assistant
-backups include them.
+- [Getting started](docs/getting-started.md)
+- [Recipes](docs/recipes.md) and [finding them](docs/finding-recipes.md)
+- [Importing from the web](docs/import.md)
+- [AI](docs/ai.md), and [reviewing what it drafts](docs/review.md)
+- [Translations and variants](docs/translations.md)
+- [Ingredients, units and tags](docs/catalogs.md)
+- [Shopping list](docs/shopping-list.md)
+- [Photos and storage](docs/storage.md)
+- [Automations and MCP](docs/automation.md)
 
 ## License
 
