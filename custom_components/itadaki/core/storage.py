@@ -150,7 +150,7 @@ class Store:
             clauses.append("title LIKE ? ESCAPE '\\'")
             params.append("%" + re.sub(r"([\\%_])", r"\\\1", query) + "%")
         where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
-        return self._recipes(f"{where} ORDER BY updated_at DESC", tuple(params))
+        return self._recipes(f"{where} ORDER BY updated_at DESC, rowid DESC", tuple(params))
 
     def _recipes(self, tail: str, params: tuple[Any, ...]) -> list[Recipe]:
         with self._connect() as db:

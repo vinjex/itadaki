@@ -1,6 +1,6 @@
 import pytest
 
-from core import InvalidRequestError, ItadakiError, NotFoundError
+from core import InvalidRequestError, ItadakiError, NotFoundError, RecipeBook, Store
 
 
 def test_round_trips_through_storage(book, carbonara):
@@ -117,3 +117,11 @@ def test_search_takes_wildcards_literally(book, carbonara):
     book.create_recipe({"language": "en", "title": "100% beef burger"})
     assert [r.title for r in book.list_recipes(query="%")] == ["100% beef burger"]
     assert book.list_recipes(query="_") == []
+
+
+def test_list_keeps_write_order_within_the_same_second(tmp_path):
+    book = RecipeBook(Store(tmp_path / "itadaki.db"), ("en",), now=lambda: "2026-01-01T00:00:00+00:00")
+    first = book.create_recipe({"language": "en", "title": "First"})
+    book.create_recipe({"language": "en", "title": "Second"})
+    book.update_recipe(first.id, {"title": "First, edited"})
+    assert [r.title for r in book.list_recipes()] == ["First, edited", "Second"]
