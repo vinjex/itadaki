@@ -9,10 +9,14 @@ import "./tags.js";
 import "./fit-chips.js";
 import { describeRequest } from "../drafts.js";
 import { byName, loadCatalog, nameOf } from "../catalog.js";
+import { readStored, writeStored } from "../stored.js";
+import { GROUPINGS, groupRecipes } from "../groups.js";
+import "./menu.js";
 
-// The search outlives the screen, so opening a recipe and coming back keeps it.
-// Reloading the panel clears it.
-const remembered = { query: "", tags: [], searching: false };
+// The typed search outlives the screen, so opening a recipe and coming back keeps
+// it; reloading the panel clears it. Chosen tags and grouping are kept in the browser.
+const remembered = { query: "", searching: false };
+const SAVED = "itadaki.list";
 
 class ItadakiList extends LitElement {
   static properties = {
@@ -26,6 +30,7 @@ class ItadakiList extends LitElement {
     _query: { state: true },
     _tags: { state: true },
     _filter: { state: true },
+    _group: { state: true },
     _searching: { state: true },
     _error: { state: true },
   };
@@ -39,6 +44,7 @@ class ItadakiList extends LitElement {
       .recipe .name { font-weight: 600; font-size: 1.05rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
       .search { max-width: 560px; }
       .chosen { margin-bottom: 8px; }
+      .grid + .group { margin-top: 24px; }
       .inbox { margin-bottom: 24px; }
       .request { font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
       .photo { padding: 0 0 16px; overflow: hidden; }
@@ -68,7 +74,9 @@ class ItadakiList extends LitElement {
   connectedCallback() {
     super.connectedCallback();
     this._query = remembered.query;
-    this._filter = remembered.tags;
+    const saved = readStored(SAVED, {});
+    this._filter = Array.isArray(saved.tags) ? saved.tags : [];
+    this._group = GROUPINGS.includes(saved.group) ? saved.group : "none";
     this._searching = remembered.searching;
     this._load();
     this._loadTags();
@@ -90,15 +98,38 @@ class ItadakiList extends LitElement {
     try {
       const [recipe, ingredient] = await Promise.all([loadCatalog(this.api, "recipe_tags"), loadCatalog(this.api, "ingredient_tags")]);
       this._tags = [...recipe, ...ingredient].sort(byName(this.lang));
+      // A kept filter may name a tag deleted since; it would hide every recipe.
+      const known = this._filter.filter((id) => this._tags.some((x) => x.id === id));
+      if (known.length !== this._filter.length) this._setFilter(known);
     } catch (err) {
       this._error = this.t.error(err);
     }
   }
 
+  _save() {
+    writeStored(SAVED, { tags: this._filter, group: this._group });
+  }
+
   _setFilter(tags) {
-    this._filter = remembered.tags = tags;
+    this._filter = tags;
+    this._save();
     this._load();
   }
+
+  _setGroup(group) {
+    this._group = group;
+    this._save();
+  }
+
+  _groupLabel = (by, key) => {
+    const t = this.t;
+    if (key === null) return by === "tag" ? t("noTags") : t("noTime");
+    if (by === "tag") {
+      const tag = this._tags?.find((x) => x.id === key);
+      return tag && nameOf(tag, this.lang);
+    }
+    return by === "language" ? t.langName(key) : t(`time_${key}`);
+  };
 
   async _load() {
     const tags = this._filter;
@@ -202,6 +233,8 @@ class ItadakiList extends LitElement {
       ${this._searching
         ? html`${this._tagBar("box")}${headerButton("close", t("closeSearch"), () => this._setSearching(false))}`
         : headerButton("search", t("search"), () => this._setSearching(true))}
+      <itadaki-menu slot="actions" icon="group" label=${t("groupBy")}
+        .items=${GROUPINGS.map((g) => ({ label: t(`group_${g}`), active: g === this._group, run: () => this._setGroup(g) }))}></itadaki-menu>
       ${this.admin
         ? headerButton("cog", t("manage"), () => navigate(this, { view: "manage" }))
         : nothing}
@@ -227,7 +260,10 @@ class ItadakiList extends LitElement {
         : nothing}
       ${this._recipes?.length === 0 && !this._query && !this._filtered ? html`<p class="muted">${t("empty")}</p>` : nothing}
       ${this._recipes?.length === 0 && (this._filtered || this._query) ? html`<p class="muted">${t("noMatches")}</p>` : nothing}
-      <div class="grid">${(this._recipes || []).map((r) => this._card(r))}</div>
+      ${groupRecipes(this._recipes || [], this._group, this._groupLabel).map(
+        (g) => html`${g.label ? html`<h2 class="group">${g.label}</h2>` : nothing}
+          <div class="grid">${g.recipes.map((r) => this._card(r))}</div>`,
+      )}
       <div class="fab-space"></div>
     </itadaki-page>
     ${fab("plus", t("add"), () => navigate(this, { view: "add" }))}`;

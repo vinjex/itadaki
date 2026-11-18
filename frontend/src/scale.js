@@ -1,3 +1,5 @@
+import { readStored, writeStored } from "./stored.js";
+
 // The scale a recipe is shown at, kept per recipe on this device so a refresh or a
 // locked screen mid-cooking does not lose it. Never sent anywhere but get_recipe.
 const key = (recipeId) => `itadaki.scale.${recipeId}`;
@@ -9,11 +11,10 @@ export const cleanFactor = (factor) => {
 };
 
 export function storedFactor(recipeId) {
-  const value = Number(localStorage.getItem(key(recipeId)));
+  const value = Number(readStored(key(recipeId), 1));
   return value > 0 ? value : 1;
 }
 
 export function storeFactor(recipeId, factor) {
-  if (factor === 1) localStorage.removeItem(key(recipeId));
-  else localStorage.setItem(key(recipeId), String(factor));
+  writeStored(key(recipeId), factor === 1 ? undefined : factor);
 }
