@@ -14,8 +14,9 @@ import "./views/manage.js";
 import "./views/languages.js";
 import "./views/ai.js";
 import "./views/shopping-settings.js";
+import "./views/storage.js";
 
-const MANAGE_VIEWS = new Set(["manage", "languages", "catalog", "ai", "shopping"]);
+const MANAGE_VIEWS = new Set(["manage", "languages", "catalog", "ai", "shopping", "storage"]);
 
 class ItadakiPanel extends LitElement {
   static properties = {
@@ -85,6 +86,7 @@ class ItadakiPanel extends LitElement {
       case "edit": return html`<itadaki-edit .api=${this.api} .t=${t} lang=${lang} .languages=${languages} .recipeId=${v.id}></itadaki-edit>`;
       case "draft": return html`<itadaki-draft .api=${this.api} .t=${t} lang=${lang} .languages=${languages} ?ai=${ai} .instructions=${instructions} .draftId=${v.id}></itadaki-draft>`;
       case "manage": return html`<itadaki-manage .t=${t}></itadaki-manage>`;
+      case "storage": return html`<itadaki-storage .api=${this.api} .t=${t} lang=${lang}></itadaki-storage>`;
       case "languages": return html`<itadaki-languages .api=${this.api} .t=${t} .languages=${languages}></itadaki-languages>`;
       case "ai": return html`<itadaki-ai .api=${this.api} .t=${t}></itadaki-ai>`;
       case "shopping": return html`<itadaki-shopping-settings .api=${this.api} .t=${t}></itadaki-shopping-settings>`;

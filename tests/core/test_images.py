@@ -118,6 +118,42 @@ def test_unreachable_photo_keeps_its_link(book, monkeypatch):
     assert book.keep_photo(draft) == draft
 
 
+def test_storing_linked_photos_fetches_each_once_and_keeps_revisions(book, carbonara, monkeypatch):
+    fetched = []
+
+    def fake(url):
+        fetched.append(url)
+        if "gone" in url:
+            raise InvalidRequestError("404")
+        return _picture((20, 20))
+
+    monkeypatch.setattr("core.service.download", fake)
+    book.update_recipe(carbonara.id, {"image_url": "https://example.com/c.jpg"})
+    ja = book.create_recipe(
+        {"language": "ja", "title": "カルボナーラ", "image_url": "https://example.com/c.jpg"}, carbonara.id, "translation"
+    )
+    book.create_recipe({"language": "en", "title": "Toast", "image_url": "https://example.com/gone.jpg"})
+    revision = book.get_recipe(carbonara.id).revision
+
+    assert book.store_linked_photos() == {"stored": 2, "failed": ["Toast"]}
+    assert sorted(fetched) == ["https://example.com/c.jpg", "https://example.com/gone.jpg"]
+    assert book.get_recipe(carbonara.id).revision == revision
+    assert stored_image_id(book.get_recipe(ja.id).image_url)
+    assert not book.related(ja.id)["stale"]
+
+
 def test_download_refuses_other_schemes():
     with pytest.raises(InvalidRequestError):
         images.download("file:///etc/passwd")
+
+
+def test_storage_usage_counts_photos_by_how_they_are_kept(book, carbonara):
+    url = book.add_image(PNG)
+    book.update_recipe(carbonara.id, {"image_url": url})
+    book.create_recipe({"language": "en", "title": "Toast", "image_url": "https://example.com/t.jpg"})
+    book.create_recipe({"language": "en", "title": "Tea"})
+    usage = book.storage_usage()
+    assert usage["recipe_photos"] == {"stored": 1, "linked": 1, "none": 1}
+    assert usage["images"] == {"count": 1, "bytes": len(PNG)}
+    assert usage["recipes"] == 3
+    assert usage["database_bytes"] > 0

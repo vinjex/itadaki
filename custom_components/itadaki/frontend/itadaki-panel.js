@@ -690,6 +690,20 @@ var D = o`
 		deletedN: "Deleted {n} recipes.",
 		startedN: "Started {n} AI drafts. They appear under Drafts when ready.",
 		skippedN: "Skipped {n}: already in that language.",
+		storage: "Storage",
+		library: "Library",
+		database: "Database on disk",
+		photos: "Photos",
+		thumbnails: "Thumbnails",
+		countBytes: "{n} · {size}",
+		recipePhotos: "Recipe photos",
+		photo_stored: "Stored here",
+		photo_linked: "Linked to another site",
+		photo_none: "No photo",
+		linkedPhotosHint: "Linked photos load slowly and disappear with their site. New imports already store theirs.",
+		storePhotos: "Store linked photos",
+		storedPhotosN: "Stored photos for {n} recipes.",
+		photosFailed: "Could not fetch: {titles}",
 		ingredientTag: "ingredient",
 		recipe_tags: "Recipe tags",
 		ingredient_tags: "Ingredient tags",
@@ -931,6 +945,20 @@ var D = o`
 		deletedN: "{n}件のレシピを削除しました。",
 		startedN: "AIの下書きを{n}件開始しました。できあがると「下書き」に表示されます。",
 		skippedN: "{n}件はすでにその言語があるためスキップしました。",
+		storage: "ストレージ",
+		library: "ライブラリ",
+		database: "ディスク上のデータベース",
+		photos: "写真",
+		thumbnails: "サムネイル",
+		countBytes: "{n}件 · {size}",
+		recipePhotos: "レシピの写真",
+		photo_stored: "ここに保存",
+		photo_linked: "他のサイトにリンク",
+		photo_none: "写真なし",
+		linkedPhotosHint: "リンクの写真は表示が遅く、元のサイトが消えると見られなくなります。新しく取り込んだレシピの写真はすでに保存されています。",
+		storePhotos: "リンクの写真を保存",
+		storedPhotosN: "{n}件のレシピの写真を保存しました。",
+		photosFailed: "取得できませんでした：{titles}",
 		ingredientTag: "材料",
 		recipe_tags: "レシピのタグ",
 		ingredient_tags: "材料のタグ",
@@ -1197,6 +1225,7 @@ function et({ view: e, id: t }) {
 		case "languages": return "/manage/languages";
 		case "ai": return "/manage/ai";
 		case "shopping": return "/manage/shopping";
+		case "storage": return "/manage/storage";
 		case "catalog": return `/manage/${t}`;
 		default: return "";
 	}
@@ -1212,7 +1241,7 @@ function tt(e = "") {
 	} : t === "draft" && n ? {
 		view: "draft",
 		id: n
-	} : t === "new" ? { view: "new" } : t === "add" ? { view: "add" } : t === "manage" && (n === "languages" || n === "ai" || n === "shopping") ? { view: n } : t === "manage" ? Object.hasOwn(Ke, n ?? "") ? {
+	} : t === "new" ? { view: "new" } : t === "add" ? { view: "add" } : t === "manage" && (n === "languages" || n === "ai" || n === "shopping" || n === "storage") ? { view: n } : t === "manage" ? Object.hasOwn(Ke, n ?? "") ? {
 		view: "catalog",
 		id: n
 	} : { view: "manage" } : { view: "list" };
@@ -1250,6 +1279,7 @@ var it = {
 	search: "M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z",
 	clock: "M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.95L16.25,16.18L11,13V7H12.5Z",
 	plus: "M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z",
+	database: "M12,3C7.58,3 4,4.79 4,7C4,9.21 7.58,11 12,11C16.42,11 20,9.21 20,7C20,4.79 16.42,3 12,3M4,9V12C4,14.21 7.58,16 12,16C16.42,16 20,14.21 20,12V9C20,11.21 16.42,13 12,13C7.58,13 4,11.21 4,9M4,14V17C4,19.21 7.58,21 12,21C16.42,21 20,19.21 20,17V14C20,16.21 16.42,18 12,18C7.58,18 4,16.21 4,14Z",
 	cart: "M17,18C15.89,18 15,18.89 15,20A2,2 0 0,0 17,22A2,2 0 0,0 19,20C19,18.89 18.1,18 17,18M1,2V4H3L6.6,11.59L5.24,14.04C5.09,14.32 5,14.65 5,15A2,2 0 0,0 7,17H19V15H7.42A0.25,0.25 0 0,1 7.17,14.75C7.17,14.7 7.18,14.66 7.2,14.63L8.1,13H15.55C16.3,13 16.96,12.58 17.3,11.97L20.88,5.5C20.95,5.34 21,5.17 21,5A1,1 0 0,0 20,4H5.21L4.27,2M7,18C5.89,18 5,18.89 5,20A2,2 0 0,0 7,22A2,2 0 0,0 9,20C9,18.89 8.1,18 7,18Z",
 	close: "M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"
 }, A = (e) => Se`<svg viewBox="0 0 24 24" aria-hidden="true"><path d=${it[e]} /></svg>`, at = (e, t, n, r = !1) => w`<button slot="actions" class="icon"
@@ -5075,6 +5105,11 @@ var Di = [
 			target: { view: "shopping" },
 			key: "shoppingList",
 			icon: "cart"
+		},
+		{
+			target: { view: "storage" },
+			key: "storage",
+			icon: "database"
 		}
 	]
 ], Oi = class extends E {
@@ -5360,14 +5395,111 @@ var Ni = class extends E {
 	}
 };
 customElements.define("itadaki-shopping-settings", Ni);
+// src/views/storage.js
+var Pi = [
+	"recipes",
+	"drafts",
+	"ingredients",
+	"units",
+	"tags"
+], Fi = [
+	"stored",
+	"linked",
+	"none"
+], Ii = class extends E {
+	static properties = {
+		api: { attribute: !1 },
+		t: { attribute: !1 },
+		lang: {},
+		_usage: { state: !0 },
+		_busy: { state: !0 },
+		_result: { state: !0 },
+		_error: { state: !0 }
+	};
+	static styles = [D, o`
+      .card { max-width: 640px; margin: 0 auto 16px; }
+      .line { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-bottom: var(--it-row-rule); }
+      .line:last-of-type { border-bottom: none; }
+      .value { font-variant-numeric: tabular-nums; white-space: nowrap; }
+      .actions { margin-top: 12px; }
+      .hint { margin-top: 8px; font-size: 0.9rem; }
+    `];
+	connectedCallback() {
+		super.connectedCallback(), this._load();
+	}
+	async _load() {
+		try {
+			this._usage = await this.api.call("storage_usage");
+		} catch (e) {
+			this._error = this.t.error(e);
+		}
+	}
+	async _storePhotos() {
+		let e = this.t;
+		this._busy = !0, this._result = this._error = void 0;
+		try {
+			let { stored: t, failed: n } = await this.api.call("store_linked_photos");
+			this._result = [e("storedPhotosN", { n: t }), n.length ? e("photosFailed", { titles: n.join(", ") }) : ""], await this._load();
+		} catch (t) {
+			this._error = e.error(t);
+		} finally {
+			this._busy = !1;
+		}
+	}
+	_size(e) {
+		let [t, n] = e >= 1e6 ? [e / 1e6, "megabyte"] : [e / 1e3, "kilobyte"];
+		return new Intl.NumberFormat(this.lang, {
+			style: "unit",
+			unit: n,
+			maximumFractionDigits: 1
+		}).format(t);
+	}
+	_line(e, t) {
+		return w`<div class="line"><span>${e}</span><span class="value muted">${t}</span></div>`;
+	}
+	render() {
+		let e = this.t, t = this._usage;
+		return w`<itadaki-page .t=${e} header=${e("storage")}>
+      ${this._error ? w`<div class="card error">${this._error}</div>` : T}
+      ${t ? this._content(t) : this._error ? T : w`<itadaki-busy></itadaki-busy>`}
+    </itadaki-page>`;
+	}
+	_content(e) {
+		let t = this.t, n = (e) => t("countBytes", {
+			n: e.count,
+			size: this._size(e.bytes)
+		}), r = e.recipe_photos.linked;
+		return w`
+      <div class="card">
+        <h2>${t("library")}</h2>
+        ${this._line(t("database"), this._size(e.database_bytes))}
+        ${Pi.map((n) => this._line(t(n), e[n]))}
+        ${this._line(t("photos"), n(e.images))}
+        ${this._line(t("thumbnails"), n(e.thumbnails))}
+      </div>
+      <div class="card">
+        <h2>${t("recipePhotos")}</h2>
+        ${Fi.map((n) => this._line(t(`photo_${n}`), e.recipe_photos[n]))}
+        <div class="muted hint">${t("linkedPhotosHint")}</div>
+        <div class="row actions">
+          <button class="btn quiet" ?disabled=${this._busy || !r} @click=${this._storePhotos}>${t("storePhotos")}</button>
+        </div>
+        ${this._busy ? w`<itadaki-busy></itadaki-busy>` : T}
+        ${this._result ? this._result.filter(Boolean).map((e) => w`<p>${e}</p>`) : T}
+      </div>
+    `;
+	}
+};
+customElements.define("itadaki-storage", Ii);
 // src/main.js
-var Pi = /* @__PURE__ */ new Set([
+var Li = /* @__PURE__ */ new Set([
 	"manage",
 	"languages",
 	"catalog",
 	"ai",
-	"shopping"
-]), Fi = class extends E {
+	"shopping",
+	"storage"
+]), Ri = class extends E {
 	static properties = {
 		hass: { attribute: !1 },
 		narrow: { type: Boolean },
@@ -5411,13 +5543,14 @@ var Pi = /* @__PURE__ */ new Set([
 	}
 	_screen(e, t, n) {
 		let { languages: r, instructions: i, ai: a } = this._settings, o = !!this.hass.user?.is_admin;
-		switch (!o && Pi.has(e.view) && (e = { view: "list" }), e.view) {
+		switch (!o && Li.has(e.view) && (e = { view: "list" }), e.view) {
 			case "recipe": return w`<itadaki-recipe .api=${this.api} .t=${t} lang=${n} .languages=${r} ?ai=${a} .instructions=${i} .recipeId=${e.id}></itadaki-recipe>`;
 			case "add": return w`<itadaki-import .api=${this.api} .t=${t} ?ai=${a} .instructions=${i}></itadaki-import>`;
 			case "new":
 			case "edit": return w`<itadaki-edit .api=${this.api} .t=${t} lang=${n} .languages=${r} .recipeId=${e.id}></itadaki-edit>`;
 			case "draft": return w`<itadaki-draft .api=${this.api} .t=${t} lang=${n} .languages=${r} ?ai=${a} .instructions=${i} .draftId=${e.id}></itadaki-draft>`;
 			case "manage": return w`<itadaki-manage .t=${t}></itadaki-manage>`;
+			case "storage": return w`<itadaki-storage .api=${this.api} .t=${t} lang=${n}></itadaki-storage>`;
 			case "languages": return w`<itadaki-languages .api=${this.api} .t=${t} .languages=${r}></itadaki-languages>`;
 			case "ai": return w`<itadaki-ai .api=${this.api} .t=${t}></itadaki-ai>`;
 			case "shopping": return w`<itadaki-shopping-settings .api=${this.api} .t=${t}></itadaki-shopping-settings>`;
@@ -5427,4 +5560,4 @@ var Pi = /* @__PURE__ */ new Set([
 		}
 	}
 };
-customElements.define("itadaki-panel", Fi);
+customElements.define("itadaki-panel", Ri);

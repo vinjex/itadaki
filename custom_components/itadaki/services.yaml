@@ -63,6 +63,8 @@ tag_recipes:
     remove:
       selector:
         object:
+storage_usage:
+store_linked_photos:
 mark_translation_synced:
   fields:
     recipe_id: *recipe_id

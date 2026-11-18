@@ -111,6 +111,14 @@
         }
       }
     },
+    "storage_usage": {
+      "name": "Storage usage",
+      "description": "What the library holds: rows per kind, photo and thumbnail counts and bytes, the database size on disk, and how many recipes have a stored photo, a linked one, or none."
+    },
+    "store_linked_photos": {
+      "name": "Store linked photos",
+      "description": "Downloads every photo recipes only link to, shrinks it and stores it, so it loads fast and survives the source site. Returns how many recipes changed and the titles of those whose photo could not be fetched."
+    },
     "mark_translation_synced": {
       "name": "Mark translation up to date",
       "description": "Clears the stale flag of a translation without re-translating it.",

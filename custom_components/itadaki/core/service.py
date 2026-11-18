@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from collections.abc import Callable, Sequence
 from dataclasses import fields, replace
 from datetime import UTC, datetime, timedelta
@@ -414,6 +415,15 @@ class RecipeBook:
             raise NotFoundError(f"image {image_id} not found")
         return image
 
+    def storage_usage(self) -> dict[str, Any]:
+        """What the library holds and its size, plus how recipe photos are kept:
+        stored here, linked to another site, or none."""
+        photos = {"stored": 0, "linked": 0, "none": 0}
+        for recipe in self._store.list_recipes():
+            kind = "none" if not recipe.image_url else "stored" if stored_image_id(recipe.image_url) else "linked"
+            photos[kind] += 1
+        return {**self._store.usage(), "recipe_photos": photos}
+
     def get_thumbnail(self, image_id: str) -> tuple[str, bytes]:
         """A small JPEG of the photo, made once and kept. The photo itself stands in
         when it is no larger, or when the image library cannot read it."""
@@ -443,6 +453,22 @@ class RecipeBook:
         """The draft with its linked photo stored, so the list loads it from here."""
         stored = self.stored_copy(draft.recipe.image_url)
         return replace(draft, recipe=replace(draft.recipe, image_url=stored)) if stored else draft
+
+    def store_linked_photos(self) -> dict[str, Any]:
+        """Stores every recipe's linked photo. Each address is fetched once, a few at a
+        time, and recipes keep their revision: a photo is nothing to translate. Returns
+        how many recipes changed, and the titles of those whose photo could not be fetched."""
+        linked = [r for r in self._store.list_recipes() if r.image_url and not stored_image_id(r.image_url)]
+        urls = list(dict.fromkeys(r.image_url for r in linked))
+        with ThreadPoolExecutor(max_workers=4) as pool:
+            stored = dict(zip(urls, pool.map(self.stored_copy, urls)))
+        failed = []
+        for recipe in linked:
+            if stored[recipe.image_url]:
+                self._put_recipe(replace(recipe, image_url=stored[recipe.image_url]))
+            else:
+                failed.append(recipe.title)
+        return {"stored": len(linked) - len(failed), "failed": failed}
 
     def prune_images(self, grace: timedelta = timedelta(days=1)) -> None:
         """Deletes photos no recipe shows any more. Recent ones are kept: they may

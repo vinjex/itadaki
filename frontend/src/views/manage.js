@@ -18,6 +18,7 @@ const PAGES = [
     { target: { view: "languages" }, key: "languages", icon: "translate" },
     { target: { view: "ai" }, key: "ai", icon: "adapt" },
     { target: { view: "shopping" }, key: "shoppingList", icon: "cart" },
+    { target: { view: "storage" }, key: "storage", icon: "database" },
   ],
 ];
 

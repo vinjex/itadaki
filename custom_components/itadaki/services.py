@@ -247,6 +247,8 @@ ACTIONS: dict[str, tuple[probatio.Schema, Handler, SupportsResponse]] = {
         lambda it, d: {"image_url": it.book.add_image(_parsed(lambda s: base64.b64decode(s, validate=True), d["data"], "image data"))},
         SupportsResponse.OPTIONAL,
     ),
+    "storage_usage": (probatio.Schema({}), lambda it, d: it.book.storage_usage(), SupportsResponse.ONLY),
+    "store_linked_photos": (probatio.Schema({}), lambda it, d: it.book.store_linked_photos(), SupportsResponse.OPTIONAL),
     "list_ingredients": (
         probatio.Schema({}),
         lambda it, d: {"ingredients": [i.to_dict() for i in it.book.list_ingredients()]},
@@ -437,6 +439,8 @@ ADMIN_ACTIONS = frozenset(
         "update_settings",
         "update_ai_settings",
         "update_shopping_settings",
+        "store_linked_photos",
+        "storage_usage",
         "upsert_ingredient",
         "delete_ingredient",
         "merge_ingredient",

@@ -270,6 +270,20 @@ class Store:
             row = db.execute("SELECT mime, data FROM images WHERE id = ?", (image_id,)).fetchone()
         return (row[0], row[1]) if row else None
 
+    def usage(self) -> dict[str, Any]:
+        """Rows per table, bytes of photos and thumbnails, and the database's size on
+        disk, its write-ahead log included."""
+        with self._connect() as db:
+            rows = {
+                table: db.execute(f"SELECT count(*) FROM {table}").fetchone()[0]
+                for table in ("recipes", "drafts", "ingredients", "units", "tags")
+            }
+            for table in ("images", "thumbnails"):
+                count, size = db.execute(f"SELECT count(*), coalesce(sum(length(data)), 0) FROM {table}").fetchone()
+                rows[table] = {"count": count, "bytes": size}
+        files = [Path(self._path), Path(self._path + "-wal")]
+        return {**rows, "database_bytes": sum(f.stat().st_size for f in files if f.exists())}
+
     def get_thumbnail(self, image_id: str) -> tuple[str, bytes] | None:
         with self._connect() as db:
             row = db.execute("SELECT mime, data FROM thumbnails WHERE id = ?", (image_id,)).fetchone()
