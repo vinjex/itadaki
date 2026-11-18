@@ -6,6 +6,7 @@ import { totalMinutes } from "../recipes.js";
 import "./page.js";
 import "./text.js";
 import "./tags.js";
+import "./fit-chips.js";
 import { describeRequest } from "../drafts.js";
 import { byName, loadCatalog, nameOf } from "../catalog.js";
 
@@ -35,27 +36,30 @@ class ItadakiList extends LitElement {
       .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
       .recipe { cursor: pointer; display: flex; flex-direction: column; gap: 8px; min-height: 96px; }
       .recipe:hover { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); }
-      .recipe .name { font-weight: 600; font-size: 1.05rem; }
+      .recipe .name { font-weight: 600; font-size: 1.05rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
       .search { max-width: 560px; }
       .chosen { margin-bottom: 8px; }
-      .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 0.8rem; color: var(--it-muted); }
-      .meta span { display: inline-flex; align-items: center; gap: 3px; min-width: 0; }
-      .meta svg { width: 15px; height: 15px; fill: currentColor; flex-shrink: 0; }
-      .meta .chip { padding: 2px 8px; font-size: 0.75rem; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; }
       .inbox { margin-bottom: 24px; }
       .request { font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
       .photo { padding: 0 0 16px; overflow: hidden; }
-      .photo > :not(img):not(.placeholder) { padding: 0 16px; }
-      .photo img, .photo .placeholder { width: 100%; height: 150px; object-fit: cover; display: block; margin-bottom: 4px; }
-      .photo .placeholder { background: linear-gradient(135deg, var(--it-soft), transparent); }
+      .photo > :not(.picture) { padding: 0 16px; }
+      .picture { position: relative; margin-bottom: 4px; }
+      .picture img, .picture .placeholder { width: 100%; height: 150px; object-fit: cover; display: block; }
+      .picture .placeholder { background: linear-gradient(135deg, var(--it-soft), transparent); }
+      /* Time, translations and variant sit on the photo, leaving the line under the title to tags. */
+      .badges { position: absolute; left: 8px; bottom: 8px; display: flex; gap: 4px; max-width: calc(100% - 16px); }
+      .badges span { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: 999px;
+        font-size: 0.75rem; white-space: nowrap; color: #fff; background: rgba(0, 0, 0, 0.55); backdrop-filter: blur(4px); }
+      .badges svg { width: 14px; height: 14px; fill: currentColor; }
       .chip.ready { background: var(--it-accent); color: var(--it-on-accent); }
       .chip.failed { background: color-mix(in srgb, var(--it-error) 18%, transparent); }
       @media (max-width: 600px) {
         .grid { gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
         .recipe:not(.photo) { padding: 12px; }
         .photo { padding-bottom: 12px; }
-        .photo > :not(img):not(.placeholder) { padding: 0 10px; }
-        .photo img, .photo .placeholder { height: 110px; }
+        .photo > :not(.picture) { padding: 0 10px; }
+        .picture img, .picture .placeholder { height: 110px; }
+        .badges { left: 6px; bottom: 6px; }
         .recipe .name { font-size: 0.95rem; }
       }
     `,
@@ -156,20 +160,35 @@ class ItadakiList extends LitElement {
       placeholder=${t("search")} @text=${(e) => this._search(e.detail.value)} @change=${(e) => this._setFilter(e.detail.value)}></itadaki-tags>`;
   }
 
-  // A language icon when the dish has translations (their names show on hover), the
-  // time, and the first tag with a count of the others.
-  _meta(r) {
+  // The photo with the time, a language icon when the dish has translations (their
+  // names show on hover) and the variant mark laid over it.
+  _picture(r) {
     const t = this.t;
     const minutes = totalMinutes(r);
-    const tag = r.tags.length ? this._tags?.find((x) => x.id === r.tags[0]) : undefined;
-    return html`<div class="meta">
-      ${r.languages.length > 1
-        ? html`<span title=${r.languages.map((l) => t.langName(l)).join(", ")}>${icon("translate")}</span>`
-        : nothing}
-      ${minutes ? html`<span>${icon("clock")}${t("minutes", { n: minutes })}</span>` : nothing}
-      ${r.relation === "variant" ? html`<span class="chip">${t("variant")}</span>` : nothing}
-      ${tag ? html`<span class="chip">${nameOf(tag, this.lang)}</span>` : nothing}
-      ${r.tags.length > 1 ? html`<span>+${r.tags.length - 1}</span>` : nothing}
+    return html`<div class="picture">
+      ${r.image_url
+        ? html`<img src=${r.image_url} alt="" loading="lazy" referrerpolicy="no-referrer" />`
+        : html`<div class="placeholder"></div>`}
+      <div class="badges">
+        ${minutes ? html`<span>${icon("clock")}${t("minutes", { n: minutes })}</span>` : nothing}
+        ${r.languages.length > 1
+          ? html`<span title=${r.languages.map((l) => t.langName(l)).join(", ")}>${icon("translate")}</span>`
+          : nothing}
+        ${r.relation === "variant" ? html`<span>${t("variant")}</span>` : nothing}
+      </div>
+    </div>`;
+  }
+
+  _tagNames(r) {
+    const byId = new Map((this._tags || []).map((x) => [x.id, x]));
+    return r.tags.filter((id) => byId.has(id)).map((id) => nameOf(byId.get(id), this.lang));
+  }
+
+  _card(r) {
+    return html`<div class="card recipe photo" @click=${() => this._open(r.id)}>
+      ${this._picture(r)}
+      <div class="name" title=${r.title}>${r.title}</div>
+      <itadaki-fit-chips .labels=${this._tagNames(r)}></itadaki-fit-chips>
     </div>`;
   }
 
@@ -208,19 +227,7 @@ class ItadakiList extends LitElement {
         : nothing}
       ${this._recipes?.length === 0 && !this._query && !this._filtered ? html`<p class="muted">${t("empty")}</p>` : nothing}
       ${this._recipes?.length === 0 && (this._filtered || this._query) ? html`<p class="muted">${t("noMatches")}</p>` : nothing}
-      <div class="grid">
-        ${(this._recipes || []).map(
-          (r) => html`
-            <div class="card recipe photo" @click=${() => this._open(r.id)}>
-              ${r.image_url
-                ? html`<img src=${r.image_url} alt="" loading="lazy" referrerpolicy="no-referrer" />`
-                : html`<div class="placeholder"></div>`}
-              <div class="name">${r.title}</div>
-              ${this._meta(r)}
-            </div>
-          `,
-        )}
-      </div>
+      <div class="grid">${(this._recipes || []).map((r) => this._card(r))}</div>
       <div class="fab-space"></div>
     </itadaki-page>
     ${fab("plus", t("add"), () => navigate(this, { view: "add" }))}`;
