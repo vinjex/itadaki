@@ -132,6 +132,8 @@ class RecipeCard(RecipeSummary):
     # The translation group's tags, and every language the group has.
     tags: list[str] = field(default_factory=list)
     languages: list[str] = field(default_factory=list)
+    # A small version of a stored photo, for the list; None for a linked one.
+    thumbnail_url: str | None = None
 
 
 @dataclass

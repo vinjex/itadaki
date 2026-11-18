@@ -8,7 +8,7 @@ from typing import Any, TypeVar
 
 from .catalog import absorb_names, ensure_unique_terms, merge_localized, slug, unique_id
 from .errors import InUseError, InvalidRequestError, NotFoundError
-from .images import IMAGE_PATH, content_id, image_type, stored_image_id
+from .images import IMAGE_PATH, MAX_SIDE, THUMBNAIL_SIDE, as_jpeg, content_id, download, image_type, stored_image_id, thumbnail_url
 from .languages import clean_languages, language_code
 from .models import (
     AI_ACTIONS,
@@ -139,6 +139,7 @@ class RecipeBook:
                 total_minutes=r.total_minutes,
                 tags=anchors[r.id].tags,
                 languages=sorted(languages[anchors[r.id].id]),
+                thumbnail_url=thumbnail_url(r.image_url),
             )
             for r in recipes
         ]
@@ -386,6 +387,36 @@ class RecipeBook:
         if image is None:
             raise NotFoundError(f"image {image_id} not found")
         return image
+
+    def get_thumbnail(self, image_id: str) -> tuple[str, bytes]:
+        """A small JPEG of the photo, made once and kept. The photo itself stands in
+        when it is no larger, or when the image library cannot read it."""
+        cached = self._store.get_thumbnail(image_id)
+        if cached:
+            return cached
+        mime, data = self.get_image(image_id)
+        try:
+            small = as_jpeg(data, THUMBNAIL_SIDE)
+        except InvalidRequestError:
+            return mime, data
+        best = ("image/jpeg", small) if len(small) < len(data) else (mime, data)
+        self._store.put_thumbnail(image_id, *best)
+        return best
+
+    def stored_copy(self, url: str | None) -> str | None:
+        """A linked photo downloaded, shrunk and stored; the stored photo's address, or
+        None when it is not a link or cannot be fetched (the link then stays)."""
+        if not url or stored_image_id(url):
+            return None
+        try:
+            return self.add_image(as_jpeg(download(url), MAX_SIDE))
+        except InvalidRequestError:
+            return None
+
+    def keep_photo(self, draft: Draft) -> Draft:
+        """The draft with its linked photo stored, so the list loads it from here."""
+        stored = self.stored_copy(draft.recipe.image_url)
+        return replace(draft, recipe=replace(draft.recipe, image_url=stored)) if stored else draft
 
     def prune_images(self, grace: timedelta = timedelta(days=1)) -> None:
         """Deletes photos no recipe shows any more. Recent ones are kept: they may

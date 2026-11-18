@@ -1,4 +1,5 @@
-"""Serves uploaded recipe photos at the address stored in their recipes."""
+"""Serves stored recipe photos at the address stored in their recipes, and their
+thumbnails with ?size=thumbnail."""
 
 from __future__ import annotations
 
@@ -24,7 +25,9 @@ class ImageView(HomeAssistantView):
         if not entries:
             raise web.HTTPNotFound
         try:
-            mime, data = await hass.async_add_executor_job(entries[0].runtime_data.book.get_image, image_id)
+            book = entries[0].runtime_data.book
+            read = book.get_thumbnail if request.query.get("size") == "thumbnail" else book.get_image
+            mime, data = await hass.async_add_executor_job(read, image_id)
         except NotFoundError:
             raise web.HTTPNotFound from None
         # Content-addressed, so a given address never changes.

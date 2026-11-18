@@ -198,7 +198,7 @@ class ItadakiList extends LitElement {
     const minutes = totalMinutes(r);
     return html`<div class="picture">
       ${r.image_url
-        ? html`<img src=${r.image_url} alt="" loading="lazy" referrerpolicy="no-referrer" />`
+        ? html`<img src=${r.thumbnail_url || r.image_url} alt="" loading="lazy" referrerpolicy="no-referrer" />`
         : html`<div class="placeholder"></div>`}
       <div class="badges">
         ${minutes ? html`<span>${icon("clock")}${t("minutes", { n: minutes })}</span>` : nothing}

@@ -11,7 +11,8 @@ podman run --rm $ENV_FILE -v "$PWD":/src:ro,z -w /src -e PYTHONDONTWRITEBYTECODE
   python:3.14-slim sh -c '
   python - <<PY
 import json, urllib.request
-reqs = json.load(open("custom_components/itadaki/manifest.json"))["requirements"]
+# Pillow comes with Home Assistant itself, so the manifest may not list it.
+reqs = json.load(open("custom_components/itadaki/manifest.json"))["requirements"] + ["Pillow"]
 open("/tmp/req.txt", "w").write("\n".join(reqs))
 url = f"https://raw.githubusercontent.com/home-assistant/core/$HA_VERSION/homeassistant/package_constraints.txt"
 open("/tmp/ha.txt", "wb").write(urllib.request.urlopen(url).read())

@@ -1778,7 +1778,7 @@ var Ct = {
 	_picture(e) {
 		let t = this.t, n = st(e);
 		return T`<div class="picture">
-      ${e.image_url ? T`<img src=${e.image_url} alt="" loading="lazy" referrerpolicy="no-referrer" />` : T`<div class="placeholder"></div>`}
+      ${e.image_url ? T`<img src=${e.thumbnail_url || e.image_url} alt="" loading="lazy" referrerpolicy="no-referrer" />` : T`<div class="placeholder"></div>`}
       <div class="badges">
         ${n ? T`<span>${j("clock")}${t("minutes", { n })}</span>` : E}
         ${e.languages.length > 1 ? T`<span title=${e.languages.map((e) => t.langName(e)).join(", ")}>${j("translate")}</span>` : E}

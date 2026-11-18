@@ -55,20 +55,21 @@ def _raw_line(value: Any) -> RawLine:
 
 
 def _import_url(it: Itadaki, d: dict[str, Any]) -> dict[str, Any]:
-    """Never runs AI: a page that embeds recipe data is a ready draft at once, its
-    ingredient lines left to structure_draft or to matching by hand in review."""
+    """Never runs AI: a page that embeds recipe data is a ready draft as soon as its
+    photo is stored, its ingredient lines left to structure_draft or to matching by
+    hand in review."""
     url = d["url"]
     draft = it.assistant.read_page(it.assistant.fetch(url), url)
     if draft is None:
         raise NoRecipeDataError(f"{url} embeds no recipe data; extract_url imports it with AI")
-    work = lambda: draft  # noqa: E731
+    work = lambda: it.book.keep_photo(draft)  # noqa: E731
     return {"draft_id": it.jobs.start("import", draft.recipe.title, work, False, initial=draft, request={"url": url})}
 
 
 def _extract_url(it: Itadaki, d: dict[str, Any]) -> dict[str, Any]:
     it.assistant.require()
     url, note = d["url"], d.get("note")
-    work = lambda: it.assistant.extract(url, note)  # noqa: E731
+    work = lambda: it.book.keep_photo(it.assistant.extract(url, note))  # noqa: E731
     return {"draft_id": it.jobs.start("import", url, work, d["save"], request=_request(d, "url", "note"))}
 
 

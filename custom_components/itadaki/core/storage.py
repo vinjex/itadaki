@@ -10,7 +10,7 @@ from typing import Any
 
 from .models import Draft, DraftEntry, DraftStatus, Ingredient, Recipe, Settings, Tag, Unit
 
-SCHEMA_VERSION = 7
+SCHEMA_VERSION = 8
 
 # The full document lives in `body`; the other columns are copies kept only so
 # listing and tree lookups can use indexes without parsing JSON.
@@ -72,6 +72,10 @@ _MIGRATIONS = {
     UPDATE recipes SET body = json_remove(json_set(body, '$.yield_quantity', json_extract(body, '$.servings')), '$.servings');
     UPDATE drafts SET body = json_remove(json_set(body, '$.recipe.yield_quantity', json_extract(body, '$.recipe.servings')), '$.recipe.servings')
         WHERE body IS NOT NULL;
+    """,
+    # Small versions of stored photos for the recipe list, made on first request.
+    8: """
+    CREATE TABLE thumbnails (id TEXT PRIMARY KEY REFERENCES images(id) ON DELETE CASCADE, mime TEXT NOT NULL, data BLOB NOT NULL);
     """,
 }
 
@@ -265,6 +269,15 @@ class Store:
         with self._connect() as db:
             row = db.execute("SELECT mime, data FROM images WHERE id = ?", (image_id,)).fetchone()
         return (row[0], row[1]) if row else None
+
+    def get_thumbnail(self, image_id: str) -> tuple[str, bytes] | None:
+        with self._connect() as db:
+            row = db.execute("SELECT mime, data FROM thumbnails WHERE id = ?", (image_id,)).fetchone()
+        return (row[0], row[1]) if row else None
+
+    def put_thumbnail(self, image_id: str, mime: str, data: bytes) -> None:
+        with self._connect() as db:
+            db.execute("INSERT OR REPLACE INTO thumbnails VALUES (?, ?, ?)", (image_id, mime, data))
 
     def delete_images_except(self, keep: set[str], created_before: str) -> None:
         with self._connect() as db:
