@@ -41,8 +41,8 @@ class ItadakiRecipe extends LitElement {
     shared,
     css`
       .hero { display: flex; gap: 20px; align-items: flex-start; margin-bottom: 16px; }
-      .hero img { width: 180px; height: 135px; object-fit: cover; border-radius: var(--it-radius); flex-shrink: 0; }
-      @media (max-width: 600px) { .hero { flex-direction: column; } .hero img { width: 100%; height: 200px; } }
+      .hero img { width: 360px; max-width: 45%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--it-radius); flex-shrink: 0; }
+      @media (max-width: 600px) { .hero { flex-direction: column; } .hero img { width: 100%; max-width: none; height: auto; } }
       h1 { margin: 0 0 8px; font-size: 1.6rem; }
       .meta { margin: 8px 0; }
       .cart { padding: 8px; }
