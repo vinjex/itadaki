@@ -67,7 +67,7 @@ var e = globalThis, t = e.ShadowRoot && (e.ShadyCSS === void 0 || e.ShadyCSS.nat
 	hasChanged: v
 };
 Symbol.metadata ??= Symbol("metadata"), h.litPropertyMetadata ??= /* @__PURE__ */ new WeakMap();
-var ie = class extends HTMLElement {
+var y = class extends HTMLElement {
 	static addInitializer(e) {
 		this._$Ei(), (this.l ??= []).push(e);
 	}
@@ -251,88 +251,88 @@ var ie = class extends HTMLElement {
 	updated(e) {}
 	firstUpdated(e) {}
 };
-ie.elementStyles = [], ie.shadowRootOptions = { mode: "open" }, ie[_("elementProperties")] = /* @__PURE__ */ new Map(), ie[_("finalized")] = /* @__PURE__ */ new Map(), te?.({ ReactiveElement: ie }), (h.reactiveElementVersions ??= []).push("2.1.2");
+y.elementStyles = [], y.shadowRootOptions = { mode: "open" }, y[_("elementProperties")] = /* @__PURE__ */ new Map(), y[_("finalized")] = /* @__PURE__ */ new Map(), te?.({ ReactiveElement: y }), (h.reactiveElementVersions ??= []).push("2.1.2");
 // node_modules/lit-html/lit-html.js
-var ae = globalThis, y = (e) => e, b = ae.trustedTypes, oe = b ? b.createPolicy("lit-html", { createHTML: (e) => e }) : void 0, x = "$lit$", S = `lit$${Math.random().toFixed(9).slice(2)}$`, se = "?" + S, ce = `<${se}>`, C = document, le = () => C.createComment(""), ue = (e) => e === null || typeof e != "object" && typeof e != "function", de = Array.isArray, fe = (e) => de(e) || typeof e?.[Symbol.iterator] == "function", pe = "[ 	\n\f\r]", me = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, he = /-->/g, ge = />/g, _e = RegExp(`>|${pe}(?:([^\\s"'>=/]+)(${pe}*=${pe}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`, "g"), ve = /'/g, ye = /"/g, be = /^(?:script|style|textarea|title)$/i, xe = (e) => (t, ...n) => ({
+var ie = globalThis, b = (e) => e, x = ie.trustedTypes, ae = x ? x.createPolicy("lit-html", { createHTML: (e) => e }) : void 0, S = "$lit$", C = `lit$${Math.random().toFixed(9).slice(2)}$`, oe = "?" + C, se = `<${oe}>`, w = document, ce = () => w.createComment(""), le = (e) => e === null || typeof e != "object" && typeof e != "function", ue = Array.isArray, de = (e) => ue(e) || typeof e?.[Symbol.iterator] == "function", fe = "[ 	\n\f\r]", pe = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, me = /-->/g, he = />/g, ge = RegExp(`>|${fe}(?:([^\\s"'>=/]+)(${fe}*=${fe}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`, "g"), _e = /'/g, ve = /"/g, ye = /^(?:script|style|textarea|title)$/i, be = (e) => (t, ...n) => ({
 	_$litType$: e,
 	strings: t,
 	values: n
-}), w = xe(1), Se = xe(2), Ce = Symbol.for("lit-noChange"), T = Symbol.for("lit-nothing"), we = /* @__PURE__ */ new WeakMap(), Te = C.createTreeWalker(C, 129);
-function Ee(e, t) {
-	if (!de(e) || !e.hasOwnProperty("raw")) throw Error("invalid template strings array");
-	return oe === void 0 ? t : oe.createHTML(t);
+}), T = be(1), xe = be(2), Se = Symbol.for("lit-noChange"), E = Symbol.for("lit-nothing"), Ce = /* @__PURE__ */ new WeakMap(), we = w.createTreeWalker(w, 129);
+function Te(e, t) {
+	if (!ue(e) || !e.hasOwnProperty("raw")) throw Error("invalid template strings array");
+	return ae === void 0 ? t : ae.createHTML(t);
 }
-var De = (e, t) => {
-	let n = e.length - 1, r = [], i, a = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", o = me;
+var Ee = (e, t) => {
+	let n = e.length - 1, r = [], i, a = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", o = pe;
 	for (let t = 0; t < n; t++) {
 		let n = e[t], s, c, l = -1, u = 0;
-		for (; u < n.length && (o.lastIndex = u, c = o.exec(n), c !== null);) u = o.lastIndex, o === me ? c[1] === "!--" ? o = he : c[1] === void 0 ? c[2] === void 0 ? c[3] !== void 0 && (o = _e) : (be.test(c[2]) && (i = RegExp("</" + c[2], "g")), o = _e) : o = ge : o === _e ? c[0] === ">" ? (o = i ?? me, l = -1) : c[1] === void 0 ? l = -2 : (l = o.lastIndex - c[2].length, s = c[1], o = c[3] === void 0 ? _e : c[3] === "\"" ? ye : ve) : o === ye || o === ve ? o = _e : o === he || o === ge ? o = me : (o = _e, i = void 0);
-		let d = o === _e && e[t + 1].startsWith("/>") ? " " : "";
-		a += o === me ? n + ce : l >= 0 ? (r.push(s), n.slice(0, l) + x + n.slice(l) + S + d) : n + S + (l === -2 ? t : d);
+		for (; u < n.length && (o.lastIndex = u, c = o.exec(n), c !== null);) u = o.lastIndex, o === pe ? c[1] === "!--" ? o = me : c[1] === void 0 ? c[2] === void 0 ? c[3] !== void 0 && (o = ge) : (ye.test(c[2]) && (i = RegExp("</" + c[2], "g")), o = ge) : o = he : o === ge ? c[0] === ">" ? (o = i ?? pe, l = -1) : c[1] === void 0 ? l = -2 : (l = o.lastIndex - c[2].length, s = c[1], o = c[3] === void 0 ? ge : c[3] === "\"" ? ve : _e) : o === ve || o === _e ? o = ge : o === me || o === he ? o = pe : (o = ge, i = void 0);
+		let d = o === ge && e[t + 1].startsWith("/>") ? " " : "";
+		a += o === pe ? n + se : l >= 0 ? (r.push(s), n.slice(0, l) + S + n.slice(l) + C + d) : n + C + (l === -2 ? t : d);
 	}
-	return [Ee(e, a + (e[n] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), r];
-}, Oe = class e {
+	return [Te(e, a + (e[n] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), r];
+}, De = class e {
 	constructor({ strings: t, _$litType$: n }, r) {
 		let i;
 		this.parts = [];
-		let a = 0, o = 0, s = t.length - 1, c = this.parts, [l, u] = De(t, n);
-		if (this.el = e.createElement(l, r), Te.currentNode = this.el.content, n === 2 || n === 3) {
+		let a = 0, o = 0, s = t.length - 1, c = this.parts, [l, u] = Ee(t, n);
+		if (this.el = e.createElement(l, r), we.currentNode = this.el.content, n === 2 || n === 3) {
 			let e = this.el.content.firstChild;
 			e.replaceWith(...e.childNodes);
 		}
-		for (; (i = Te.nextNode()) !== null && c.length < s;) {
+		for (; (i = we.nextNode()) !== null && c.length < s;) {
 			if (i.nodeType === 1) {
-				if (i.hasAttributes()) for (let e of i.getAttributeNames()) if (e.endsWith(x)) {
-					let t = u[o++], n = i.getAttribute(e).split(S), r = /([.?@])?(.*)/.exec(t);
+				if (i.hasAttributes()) for (let e of i.getAttributeNames()) if (e.endsWith(S)) {
+					let t = u[o++], n = i.getAttribute(e).split(C), r = /([.?@])?(.*)/.exec(t);
 					c.push({
 						type: 1,
 						index: a,
 						name: r[2],
 						strings: n,
-						ctor: r[1] === "." ? Ne : r[1] === "?" ? Pe : r[1] === "@" ? Fe : Me
+						ctor: r[1] === "." ? Me : r[1] === "?" ? Ne : r[1] === "@" ? Pe : je
 					}), i.removeAttribute(e);
-				} else e.startsWith(S) && (c.push({
+				} else e.startsWith(C) && (c.push({
 					type: 6,
 					index: a
 				}), i.removeAttribute(e));
-				if (be.test(i.tagName)) {
-					let e = i.textContent.split(S), t = e.length - 1;
+				if (ye.test(i.tagName)) {
+					let e = i.textContent.split(C), t = e.length - 1;
 					if (t > 0) {
-						i.textContent = b ? b.emptyScript : "";
-						for (let n = 0; n < t; n++) i.append(e[n], le()), Te.nextNode(), c.push({
+						i.textContent = x ? x.emptyScript : "";
+						for (let n = 0; n < t; n++) i.append(e[n], ce()), we.nextNode(), c.push({
 							type: 2,
 							index: ++a
 						});
-						i.append(e[t], le());
+						i.append(e[t], ce());
 					}
 				}
 			} else if (i.nodeType === 8) {
-				if (i.data === se) c.push({
+				if (i.data === oe) c.push({
 					type: 2,
 					index: a
 				});
 				else {
 					let e = -1;
-					for (; (e = i.data.indexOf(S, e + 1)) !== -1;) c.push({
+					for (; (e = i.data.indexOf(C, e + 1)) !== -1;) c.push({
 						type: 7,
 						index: a
-					}), e += S.length - 1;
+					}), e += C.length - 1;
 				}
 			}
 			a++;
 		}
 	}
 	static createElement(e, t) {
-		let n = C.createElement("template");
+		let n = w.createElement("template");
 		return n.innerHTML = e, n;
 	}
 };
-function ke(e, t, n = e, r) {
-	if (t === Ce) return t;
-	let i = r === void 0 ? n._$Cl : n._$Co?.[r], a = ue(t) ? void 0 : t._$litDirective$;
-	return i?.constructor !== a && (i?._$AO?.(!1), a === void 0 ? i = void 0 : (i = new a(e), i._$AT(e, n, r)), r === void 0 ? n._$Cl = i : (n._$Co ??= [])[r] = i), i !== void 0 && (t = ke(e, i._$AS(e, t.values), i, r)), t;
+function Oe(e, t, n = e, r) {
+	if (t === Se) return t;
+	let i = r === void 0 ? n._$Cl : n._$Co?.[r], a = le(t) ? void 0 : t._$litDirective$;
+	return i?.constructor !== a && (i?._$AO?.(!1), a === void 0 ? i = void 0 : (i = new a(e), i._$AT(e, n, r)), r === void 0 ? n._$Cl = i : (n._$Co ??= [])[r] = i), i !== void 0 && (t = Oe(e, i._$AS(e, t.values), i, r)), t;
 }
-var Ae = class {
+var ke = class {
 	constructor(e, t) {
 		this._$AV = [], this._$AN = void 0, this._$AD = e, this._$AM = t;
 	}
@@ -343,28 +343,28 @@ var Ae = class {
 		return this._$AM._$AU;
 	}
 	u(e) {
-		let { el: { content: t }, parts: n } = this._$AD, r = (e?.creationScope ?? C).importNode(t, !0);
-		Te.currentNode = r;
-		let i = Te.nextNode(), a = 0, o = 0, s = n[0];
+		let { el: { content: t }, parts: n } = this._$AD, r = (e?.creationScope ?? w).importNode(t, !0);
+		we.currentNode = r;
+		let i = we.nextNode(), a = 0, o = 0, s = n[0];
 		for (; s !== void 0;) {
 			if (a === s.index) {
 				let t;
-				s.type === 2 ? t = new je(i, i.nextSibling, this, e) : s.type === 1 ? t = new s.ctor(i, s.name, s.strings, this, e) : s.type === 6 && (t = new Ie(i, this, e)), this._$AV.push(t), s = n[++o];
+				s.type === 2 ? t = new Ae(i, i.nextSibling, this, e) : s.type === 1 ? t = new s.ctor(i, s.name, s.strings, this, e) : s.type === 6 && (t = new Fe(i, this, e)), this._$AV.push(t), s = n[++o];
 			}
-			a !== s?.index && (i = Te.nextNode(), a++);
+			a !== s?.index && (i = we.nextNode(), a++);
 		}
-		return Te.currentNode = C, r;
+		return we.currentNode = w, r;
 	}
 	p(e) {
 		let t = 0;
 		for (let n of this._$AV) n !== void 0 && (n.strings === void 0 ? n._$AI(e[t]) : (n._$AI(e, n, t), t += n.strings.length - 2)), t++;
 	}
-}, je = class e {
+}, Ae = class e {
 	get _$AU() {
 		return this._$AM?._$AU ?? this._$Cv;
 	}
 	constructor(e, t, n, r) {
-		this.type = 2, this._$AH = T, this._$AN = void 0, this._$AA = e, this._$AB = t, this._$AM = n, this.options = r, this._$Cv = r?.isConnected ?? !0;
+		this.type = 2, this._$AH = E, this._$AN = void 0, this._$AA = e, this._$AB = t, this._$AM = n, this.options = r, this._$Cv = r?.isConnected ?? !0;
 	}
 	get parentNode() {
 		let e = this._$AA.parentNode, t = this._$AM;
@@ -377,7 +377,7 @@ var Ae = class {
 		return this._$AB;
 	}
 	_$AI(e, t = this) {
-		e = ke(this, e, t), ue(e) ? e === T || e == null || e === "" ? (this._$AH !== T && this._$AR(), this._$AH = T) : e !== this._$AH && e !== Ce && this._(e) : e._$litType$ === void 0 ? e.nodeType === void 0 ? fe(e) ? this.k(e) : this._(e) : this.T(e) : this.$(e);
+		e = Oe(this, e, t), le(e) ? e === E || e == null || e === "" ? (this._$AH !== E && this._$AR(), this._$AH = E) : e !== this._$AH && e !== Se && this._(e) : e._$litType$ === void 0 ? e.nodeType === void 0 ? de(e) ? this.k(e) : this._(e) : this.T(e) : this.$(e);
 	}
 	O(e) {
 		return this._$AA.parentNode.insertBefore(e, this._$AB);
@@ -386,36 +386,36 @@ var Ae = class {
 		this._$AH !== e && (this._$AR(), this._$AH = this.O(e));
 	}
 	_(e) {
-		this._$AH !== T && ue(this._$AH) ? this._$AA.nextSibling.data = e : this.T(C.createTextNode(e)), this._$AH = e;
+		this._$AH !== E && le(this._$AH) ? this._$AA.nextSibling.data = e : this.T(w.createTextNode(e)), this._$AH = e;
 	}
 	$(e) {
-		let { values: t, _$litType$: n } = e, r = typeof n == "number" ? this._$AC(e) : (n.el === void 0 && (n.el = Oe.createElement(Ee(n.h, n.h[0]), this.options)), n);
+		let { values: t, _$litType$: n } = e, r = typeof n == "number" ? this._$AC(e) : (n.el === void 0 && (n.el = De.createElement(Te(n.h, n.h[0]), this.options)), n);
 		if (this._$AH?._$AD === r) this._$AH.p(t);
 		else {
-			let e = new Ae(r, this), n = e.u(this.options);
+			let e = new ke(r, this), n = e.u(this.options);
 			e.p(t), this.T(n), this._$AH = e;
 		}
 	}
 	_$AC(e) {
-		let t = we.get(e.strings);
-		return t === void 0 && we.set(e.strings, t = new Oe(e)), t;
+		let t = Ce.get(e.strings);
+		return t === void 0 && Ce.set(e.strings, t = new De(e)), t;
 	}
 	k(t) {
-		de(this._$AH) || (this._$AH = [], this._$AR());
+		ue(this._$AH) || (this._$AH = [], this._$AR());
 		let n = this._$AH, r, i = 0;
-		for (let a of t) i === n.length ? n.push(r = new e(this.O(le()), this.O(le()), this, this.options)) : r = n[i], r._$AI(a), i++;
+		for (let a of t) i === n.length ? n.push(r = new e(this.O(ce()), this.O(ce()), this, this.options)) : r = n[i], r._$AI(a), i++;
 		i < n.length && (this._$AR(r && r._$AB.nextSibling, i), n.length = i);
 	}
 	_$AR(e = this._$AA.nextSibling, t) {
 		for (this._$AP?.(!1, !0, t); e !== this._$AB;) {
-			let t = y(e).nextSibling;
-			y(e).remove(), e = t;
+			let t = b(e).nextSibling;
+			b(e).remove(), e = t;
 		}
 	}
 	setConnected(e) {
 		this._$AM === void 0 && (this._$Cv = e, this._$AP?.(e));
 	}
-}, Me = class {
+}, je = class {
 	get tagName() {
 		return this.element.tagName;
 	}
@@ -423,47 +423,47 @@ var Ae = class {
 		return this._$AM._$AU;
 	}
 	constructor(e, t, n, r, i) {
-		this.type = 1, this._$AH = T, this._$AN = void 0, this.element = e, this.name = t, this._$AM = r, this.options = i, n.length > 2 || n[0] !== "" || n[1] !== "" ? (this._$AH = Array(n.length - 1).fill(/* @__PURE__ */ new String()), this.strings = n) : this._$AH = T;
+		this.type = 1, this._$AH = E, this._$AN = void 0, this.element = e, this.name = t, this._$AM = r, this.options = i, n.length > 2 || n[0] !== "" || n[1] !== "" ? (this._$AH = Array(n.length - 1).fill(/* @__PURE__ */ new String()), this.strings = n) : this._$AH = E;
 	}
 	_$AI(e, t = this, n, r) {
 		let i = this.strings, a = !1;
-		if (i === void 0) e = ke(this, e, t, 0), a = !ue(e) || e !== this._$AH && e !== Ce, a && (this._$AH = e);
+		if (i === void 0) e = Oe(this, e, t, 0), a = !le(e) || e !== this._$AH && e !== Se, a && (this._$AH = e);
 		else {
 			let r = e, o, s;
-			for (e = i[0], o = 0; o < i.length - 1; o++) s = ke(this, r[n + o], t, o), s === Ce && (s = this._$AH[o]), a ||= !ue(s) || s !== this._$AH[o], s === T ? e = T : e !== T && (e += (s ?? "") + i[o + 1]), this._$AH[o] = s;
+			for (e = i[0], o = 0; o < i.length - 1; o++) s = Oe(this, r[n + o], t, o), s === Se && (s = this._$AH[o]), a ||= !le(s) || s !== this._$AH[o], s === E ? e = E : e !== E && (e += (s ?? "") + i[o + 1]), this._$AH[o] = s;
 		}
 		a && !r && this.j(e);
 	}
 	j(e) {
-		e === T ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, e ?? "");
+		e === E ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, e ?? "");
 	}
-}, Ne = class extends Me {
+}, Me = class extends je {
 	constructor() {
 		super(...arguments), this.type = 3;
 	}
 	j(e) {
-		this.element[this.name] = e === T ? void 0 : e;
+		this.element[this.name] = e === E ? void 0 : e;
 	}
-}, Pe = class extends Me {
+}, Ne = class extends je {
 	constructor() {
 		super(...arguments), this.type = 4;
 	}
 	j(e) {
-		this.element.toggleAttribute(this.name, !!e && e !== T);
+		this.element.toggleAttribute(this.name, !!e && e !== E);
 	}
-}, Fe = class extends Me {
+}, Pe = class extends je {
 	constructor(e, t, n, r, i) {
 		super(e, t, n, r, i), this.type = 5;
 	}
 	_$AI(e, t = this) {
-		if ((e = ke(this, e, t, 0) ?? T) === Ce) return;
-		let n = this._$AH, r = e === T && n !== T || e.capture !== n.capture || e.once !== n.once || e.passive !== n.passive, i = e !== T && (n === T || r);
+		if ((e = Oe(this, e, t, 0) ?? E) === Se) return;
+		let n = this._$AH, r = e === E && n !== E || e.capture !== n.capture || e.once !== n.once || e.passive !== n.passive, i = e !== E && (n === E || r);
 		r && this.element.removeEventListener(this.name, this, n), i && this.element.addEventListener(this.name, this, e), this._$AH = e;
 	}
 	handleEvent(e) {
 		typeof this._$AH == "function" ? this._$AH.call(this.options?.host ?? this.element, e) : this._$AH.handleEvent(e);
 	}
-}, Ie = class {
+}, Fe = class {
 	constructor(e, t, n) {
 		this.element = e, this.type = 6, this._$AN = void 0, this._$AM = t, this.options = n;
 	}
@@ -471,33 +471,33 @@ var Ae = class {
 		return this._$AM._$AU;
 	}
 	_$AI(e) {
-		ke(this, e);
+		Oe(this, e);
 	}
-}, Le = {
-	M: x,
-	P: S,
-	A: se,
+}, Ie = {
+	M: S,
+	P: C,
+	A: oe,
 	C: 1,
-	L: De,
-	R: Ae,
-	D: fe,
-	V: ke,
-	I: je,
-	H: Me,
-	N: Pe,
-	U: Fe,
-	B: Ne,
-	F: Ie
-}, Re = ae.litHtmlPolyfillSupport;
-Re?.(Oe, je), (ae.litHtmlVersions ??= []).push("3.3.3");
-var ze = (e, t, n) => {
+	L: Ee,
+	R: ke,
+	D: de,
+	V: Oe,
+	I: Ae,
+	H: je,
+	N: Ne,
+	U: Pe,
+	B: Me,
+	F: Fe
+}, Le = ie.litHtmlPolyfillSupport;
+Le?.(De, Ae), (ie.litHtmlVersions ??= []).push("3.3.3");
+var Re = (e, t, n) => {
 	let r = n?.renderBefore ?? t, i = r._$litPart$;
 	if (i === void 0) {
 		let e = n?.renderBefore ?? null;
-		r._$litPart$ = i = new je(t.insertBefore(le(), e), e, void 0, n ?? {});
+		r._$litPart$ = i = new Ae(t.insertBefore(ce(), e), e, void 0, n ?? {});
 	}
 	return i._$AI(e), i;
-}, Be = globalThis, E = class extends ie {
+}, ze = globalThis, D = class extends y {
 	constructor() {
 		super(...arguments), this.renderOptions = { host: this }, this._$Do = void 0;
 	}
@@ -507,7 +507,7 @@ var ze = (e, t, n) => {
 	}
 	update(e) {
 		let t = this.render();
-		this.hasUpdated || (this.renderOptions.isConnected = this.isConnected), super.update(e), this._$Do = ze(t, this.renderRoot, this.renderOptions);
+		this.hasUpdated || (this.renderOptions.isConnected = this.isConnected), super.update(e), this._$Do = Re(t, this.renderRoot, this.renderOptions);
 	}
 	connectedCallback() {
 		super.connectedCallback(), this._$Do?.setConnected(!0);
@@ -516,14 +516,14 @@ var ze = (e, t, n) => {
 		super.disconnectedCallback(), this._$Do?.setConnected(!1);
 	}
 	render() {
-		return Ce;
+		return Se;
 	}
 };
-E._$litElement$ = !0, E.finalized = !0, Be.litElementHydrateSupport?.({ LitElement: E });
-var Ve = Be.litElementPolyfillSupport;
-Ve?.({ LitElement: E }), (Be.litElementVersions ??= []).push("4.2.2");
+D._$litElement$ = !0, D.finalized = !0, ze.litElementHydrateSupport?.({ LitElement: D });
+var Be = ze.litElementPolyfillSupport;
+Be?.({ LitElement: D }), (ze.litElementVersions ??= []).push("4.2.2");
 // src/styles.js
-var D = o`
+var O = o`
   :host {
     --it-radius: var(--ha-card-border-radius, 20px);
     --it-surface: var(--card-background-color, #fff);
@@ -537,6 +537,12 @@ var D = o`
     --it-soft: color-mix(in srgb, var(--it-accent) 12%, transparent);
     --it-warn: var(--warning-color, #f5a524);
     --it-error: var(--error-color, #e5484d);
+    --it-ok: var(--success-color, #30a46c);
+    /* Marks what a draft changed: HA's accent, so it stands apart from ordinary buttons. */
+    --it-mark: var(--accent-color, #ff9800);
+    --it-mark-soft: color-mix(in srgb, var(--it-mark) 24%, transparent);
+    --it-error-soft: color-mix(in srgb, var(--it-error) 18%, transparent);
+    --it-ok-soft: color-mix(in srgb, var(--it-ok) 18%, transparent);
     color: var(--it-text);
     font-family: var(--ha-font-family-body, var(--paper-font-body1_-_font-family, system-ui, sans-serif));
   }
@@ -597,7 +603,7 @@ var D = o`
     border-radius: 14px; padding: 12px 16px; margin-bottom: 16px;
     background: color-mix(in srgb, var(--it-warn) 18%, transparent);
   }
-`, He = {
+`, Ve = {
 	en: {
 		recipes: "Recipes",
 		search: "Search recipes or tags",
@@ -755,6 +761,19 @@ var D = o`
 			draft_not_found: "This draft no longer exists.",
 			todo_list_missing: "That to-do list no longer exists."
 		},
+		changesCount: "Changes from the saved recipe: {n}",
+		noChanges: "No changes from the saved recipe.",
+		sourceIn: "Source text in {lang}",
+		showAll: "Show all",
+		hideAll: "Hide all",
+		changed: "Changed",
+		added: "Added",
+		removed: "Removed",
+		moved: "Moved",
+		sourceText: "Source",
+		undoChange: "Undo change",
+		before: "Before",
+		restore: "Restore",
 		aiFailedKept: "The AI could not finish ({error}). The draft is kept as it was.",
 		workingLeave: "The AI is working on this. You can leave this page; the draft waits in the inbox.",
 		units: "Units",
@@ -1010,6 +1029,19 @@ var D = o`
 			draft_not_found: "この下書きはもう存在しません。",
 			todo_list_missing: "そのToDoリストはもう存在しません。"
 		},
+		changesCount: "保存済みのレシピから{n}件の変更",
+		noChanges: "保存済みのレシピからの変更はありません。",
+		sourceIn: "原文（{lang}）",
+		showAll: "すべて表示",
+		hideAll: "すべて閉じる",
+		changed: "変更あり",
+		added: "追加",
+		removed: "削除",
+		moved: "移動",
+		sourceText: "原文",
+		undoChange: "元に戻す",
+		before: "変更前",
+		restore: "戻す",
 		aiFailedKept: "AIの処理が完了しませんでした（{error}）。下書きは元のまま残っています。",
 		workingLeave: "AIが処理中です。このページを離れても、下書きは受信箱に残ります。",
 		units: "単位",
@@ -1109,12 +1141,12 @@ var D = o`
 		defaultList: "既定のリスト"
 	}
 };
-function Ue(e) {
+function He(e) {
 	let t = (e?.locale?.language || e?.language || "en").split("-")[0];
-	return He[t] ? t : "en";
+	return Ve[t] ? t : "en";
 }
-function We(e) {
-	let t = He[e], n = (e, t = {}) => String(e).replace(/\{(\w+)\}/g, (e, n) => t[n] ?? ""), r = (e, r) => n(t[e] ?? He.en[e] ?? e, r), i = new Intl.DisplayNames([e], { type: "language" });
+function Ue(e) {
+	let t = Ve[e], n = (e, t = {}) => String(e).replace(/\{(\w+)\}/g, (e, n) => t[n] ?? ""), r = (e, r) => n(t[e] ?? Ve.en[e] ?? e, r), i = new Intl.DisplayNames([e], { type: "language" });
 	return r.langName = (e) => {
 		try {
 			return i.of(e);
@@ -1124,7 +1156,7 @@ function We(e) {
 	}, r.status = (e) => t.status[e] || e, r.action = (e) => t.action[e] || e, r.error = (e) => t.errors[e?.key] ? n(t.errors[e.key], e.params) : e?.message || String(e), r;
 }
 // src/transport.js
-function Ge(e) {
+function We(e) {
 	return {
 		async call(t, n = {}) {
 			try {
@@ -1149,7 +1181,7 @@ function Ge(e) {
 	};
 }
 // src/catalog.js
-var Ke = {
+var Ge = {
 	ingredients: {
 		list: ["list_ingredients"],
 		key: "ingredients",
@@ -1181,27 +1213,27 @@ var Ke = {
 		tagKind: "ingredient"
 	}
 };
-async function qe(e, t) {
-	let { list: n, key: r } = Ke[t];
+async function Ke(e, t) {
+	let { list: n, key: r } = Ge[t];
 	return (await e.call(...n))[r];
 }
-function O(e, t) {
+function k(e, t) {
 	let n = e.localized;
 	return (n[t] || n.en || Object.values(n)[0])?.name || e.id;
 }
-function Je(e, t, n) {
+function qe(e, t, n) {
 	return n && n !== t ? n : e.find((e) => e !== t);
 }
-function Ye(e, t) {
+function Je(e, t) {
 	return (n) => ({
-		name: O(n, e),
+		name: k(n, e),
 		hint: n.localized[t]?.name ?? ""
 	});
 }
-var Xe = {
+var Ye = {
 	mass: "g",
 	volume: "ml"
-}, Ze = (e) => (t, n) => O(t, e).localeCompare(O(n, e)), Qe = /* @__PURE__ */ new Set([
+}, Xe = (e) => (t, n) => k(t, e).localeCompare(k(n, e)), Ze = /* @__PURE__ */ new Set([
 	"ja",
 	"zh",
 	"ko",
@@ -1212,9 +1244,9 @@ var Xe = {
 	"km",
 	"lo",
 	"my"
-]), $e = (e) => !Qe.has(e.split("-")[0]);
+]), Qe = (e) => !Ze.has(e.split("-")[0]);
 // src/router.js
-function et({ view: e, id: t }) {
+function $e({ view: e, id: t }) {
 	switch (e) {
 		case "recipe": return `/recipe/${t}`;
 		case "edit": return `/recipe/${t}/edit`;
@@ -1230,7 +1262,7 @@ function et({ view: e, id: t }) {
 		default: return "";
 	}
 }
-function tt(e = "") {
+function et(e = "") {
 	let [, t, n, r] = e.split("/");
 	return t === "recipe" && n ? r === "edit" ? {
 		view: "edit",
@@ -1241,19 +1273,19 @@ function tt(e = "") {
 	} : t === "draft" && n ? {
 		view: "draft",
 		id: n
-	} : t === "new" ? { view: "new" } : t === "add" ? { view: "add" } : t === "manage" && (n === "languages" || n === "ai" || n === "shopping" || n === "storage") ? { view: n } : t === "manage" ? Object.hasOwn(Ke, n ?? "") ? {
+	} : t === "new" ? { view: "new" } : t === "add" ? { view: "add" } : t === "manage" && (n === "languages" || n === "ai" || n === "shopping" || n === "storage") ? { view: n } : t === "manage" ? Object.hasOwn(Ge, n ?? "") ? {
 		view: "catalog",
 		id: n
 	} : { view: "manage" } : { view: "list" };
 }
-function nt(e, t, n = !1) {
-	let r = history.state?.itadakiDepth ?? 0, i = e + et(t);
+function tt(e, t, n = !1) {
+	let r = history.state?.itadakiDepth ?? 0, i = e + $e(t);
 	n ? history.replaceState({ itadakiDepth: r }, "", i) : history.pushState({ itadakiDepth: r + 1 }, "", i), window.dispatchEvent(new CustomEvent("location-changed", { detail: { replace: n } })), window.scrollTo(0, 0);
 }
-function rt(e) {
-	(history.state?.itadakiDepth ?? 0) > 0 ? history.back() : nt(e, { view: "list" }, !0);
+function nt(e) {
+	(history.state?.itadakiDepth ?? 0) > 0 ? history.back() : tt(e, { view: "list" }, !0);
 }
-function k(e, t) {
+function A(e, t) {
 	e.dispatchEvent(new CustomEvent("navigate", {
 		detail: t,
 		bubbles: !0,
@@ -1261,7 +1293,7 @@ function k(e, t) {
 	}));
 }
 // src/icons.js
-var it = {
+var rt = {
 	back: "M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z",
 	menu: "M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z",
 	group: "M2,2H14V5H2V2M6,7H22V9H6V7M6,10.5H22V12.5H6V10.5M2,15H14V18H2V15M6,20H22V22H6V20Z",
@@ -1282,15 +1314,15 @@ var it = {
 	database: "M12,3C7.58,3 4,4.79 4,7C4,9.21 7.58,11 12,11C16.42,11 20,9.21 20,7C20,4.79 16.42,3 12,3M4,9V12C4,14.21 7.58,16 12,16C16.42,16 20,14.21 20,12V9C20,11.21 16.42,13 12,13C7.58,13 4,11.21 4,9M4,14V17C4,19.21 7.58,21 12,21C16.42,21 20,19.21 20,17V14C20,16.21 16.42,18 12,18C7.58,18 4,16.21 4,14Z",
 	cart: "M17,18C15.89,18 15,18.89 15,20A2,2 0 0,0 17,22A2,2 0 0,0 19,20C19,18.89 18.1,18 17,18M1,2V4H3L6.6,11.59L5.24,14.04C5.09,14.32 5,14.65 5,15A2,2 0 0,0 7,17H19V15H7.42A0.25,0.25 0 0,1 7.17,14.75C7.17,14.7 7.18,14.66 7.2,14.63L8.1,13H15.55C16.3,13 16.96,12.58 17.3,11.97L20.88,5.5C20.95,5.34 21,5.17 21,5A1,1 0 0,0 20,4H5.21L4.27,2M7,18C5.89,18 5,18.89 5,20A2,2 0 0,0 7,22A2,2 0 0,0 9,20C9,18.89 8.1,18 7,18Z",
 	close: "M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"
-}, A = (e) => Se`<svg viewBox="0 0 24 24" aria-hidden="true"><path d=${it[e]} /></svg>`, at = (e, t, n, r = !1) => w`<button slot="actions" class="icon"
-  ?disabled=${r} aria-label=${t} title=${t} @click=${n}>${A(e)}</button>`, ot = (e, t, n) => w`<button class="fab" @click=${n}>${A(e)}${t}</button>`, st = class extends E {
+}, j = (e) => xe`<svg viewBox="0 0 24 24" aria-hidden="true"><path d=${rt[e]} /></svg>`, it = (e, t, n, r = !1) => T`<button slot="actions" class="icon"
+  ?disabled=${r} aria-label=${t} title=${t} @click=${n}>${j(e)}</button>`, at = (e, t, n) => T`<button class="fab" @click=${n}>${j(e)}${t}</button>`, ot = class extends D {
 	static properties = {
 		t: { attribute: !1 },
 		header: {},
 		home: { type: Boolean },
 		narrow: { type: Boolean }
 	};
-	static styles = [D, o`
+	static styles = [O, o`
       :host { display: block; }
       header {
         position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: 4px;
@@ -1306,12 +1338,12 @@ var it = {
       main { max-width: 1100px; margin: 0 auto; padding: 16px; }
     `];
 	render() {
-		let e = this.t, t = T;
-		return this.home ? this.narrow && (t = w`<button class="icon" aria-label="Menu"
+		let e = this.t, t = E;
+		return this.home ? this.narrow && (t = T`<button class="icon" aria-label="Menu"
         @click=${() => this.dispatchEvent(new Event("hass-toggle-menu", {
 			bubbles: !0,
 			composed: !0
-		}))}>${A("menu")}</button>`) : t = w`<button class="icon" @click=${() => k(this, { view: "back" })} aria-label=${e("back")} title=${e("back")}>${A("back")}</button>`, w`
+		}))}>${j("menu")}</button>`) : t = T`<button class="icon" @click=${() => A(this, { view: "back" })} aria-label=${e("back")} title=${e("back")}>${j("back")}</button>`, T`
       <header>
         ${t}
         <div class="title"><slot name="title"><span class="text">${this.header ?? ""}</span></slot></div>
@@ -1321,12 +1353,12 @@ var it = {
     `;
 	}
 };
-customElements.define("itadaki-page", st);
+customElements.define("itadaki-page", ot);
 // src/recipes.js
-function ct(e) {
+function st(e) {
 	return e.total_minutes || (e.prep_minutes || 0) + (e.cook_minutes || 0);
 }
-async function lt(e, t, n, r) {
+async function ct(e, t, n, r) {
 	if (!confirm(r)) return null;
 	try {
 		return (await e.call("delete_recipes", { recipe_ids: n })).deleted;
@@ -1339,7 +1371,7 @@ async function lt(e, t, n, r) {
 	}
 }
 // src/views/text.js
-var ut = class extends E {
+var lt = class extends D {
 	static properties = {
 		value: {},
 		placeholder: {},
@@ -1349,7 +1381,7 @@ var ut = class extends E {
 			reflect: !0
 		}
 	};
-	static styles = [D, o`
+	static styles = [O, o`
       :host { display: block; position: relative; min-width: 0; }
       input { padding-right: 34px; }
       :host([invalid]) input { border-color: var(--it-error); }
@@ -1381,45 +1413,45 @@ var ut = class extends E {
 		})), this._change(), this.renderRoot.querySelector("input").focus();
 	}
 	render() {
-		return w`
+		return T`
       <input type=${this.type} .value=${this.value ?? ""} placeholder=${this.placeholder ?? ""}
         @input=${this._input} @change=${this._change} />
-      ${this.value ? w`<button class="clear" tabindex="-1" aria-label="Clear" @click=${this._clear}>✕</button>` : T}
+      ${this.value ? T`<button class="clear" tabindex="-1" aria-label="Clear" @click=${this._clear}>✕</button>` : E}
     `;
 	}
 };
-customElements.define("itadaki-text", ut);
+customElements.define("itadaki-text", lt);
 // src/search.js
-function dt(e) {
+function ut(e) {
 	return Object.values(e.localized).flatMap((e) => [
 		e.name,
 		e.plural,
 		...e.aliases || []
 	].filter(Boolean));
 }
-function ft(e, t, n = 8) {
+function dt(e, t, n = 8) {
 	let r = t.trim().toLowerCase();
 	if (!r) return e.slice(0, n);
 	let i = [];
 	for (let t of e) {
-		let e = dt(t).map((e) => e.toLowerCase()), n = e.some((e) => e === r) ? 0 : e.some((e) => e.startsWith(r)) ? 1 : e.some((e) => e.includes(r)) ? 2 : -1;
+		let e = ut(t).map((e) => e.toLowerCase()), n = e.some((e) => e === r) ? 0 : e.some((e) => e.startsWith(r)) ? 1 : e.some((e) => e.includes(r)) ? 2 : -1;
 		n >= 0 && i.push([n, t]);
 	}
 	return i.sort((e, t) => e[0] - t[0]).slice(0, n).map(([, e]) => e);
 }
-function pt(e, t) {
+function ft(e, t) {
 	let n = t.trim().toLowerCase();
-	return e.find((e) => dt(e).some((e) => e.toLowerCase() === n));
+	return e.find((e) => ut(e).some((e) => e.toLowerCase() === n));
 }
-function mt(e, t, n = "ingredient") {
+function pt(e, t, n = "ingredient") {
 	let r = e.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "") || n, i = r;
 	for (let e = 2; t.has(i); e++) i = `${r}_${e}`;
 	return i;
 }
 // src/views/combo.js
-var ht = class extends E {
+var mt = class extends D {
 	static shadowRootOptions = {
-		...E.shadowRootOptions,
+		...D.shadowRootOptions,
 		delegatesFocus: !0
 	};
 	static properties = {
@@ -1439,7 +1471,7 @@ var ht = class extends E {
 		_open: { state: !0 },
 		_active: { state: !0 }
 	};
-	static styles = [D, o`
+	static styles = [O, o`
       :host { display: block; position: relative; min-width: 0; }
       :host([invalid]) input { border-color: var(--it-error); }
       ul {
@@ -1458,8 +1490,8 @@ var ht = class extends E {
 	_results() {
 		let e = this._query !== void 0, t = e ? this._query : this.label ?? "";
 		return {
-			matches: t.trim() ? ft(this.entries, t) : [],
-			create: !this.noCreate && !this.freeText && e && t.trim() && !pt(this.entries, t)
+			matches: t.trim() ? dt(this.entries, t) : [],
+			create: !this.noCreate && !this.freeText && e && t.trim() && !ft(this.entries, t)
 		};
 	}
 	_choose(e) {
@@ -1483,7 +1515,7 @@ var ht = class extends E {
 			matches: [],
 			create: !1
 		};
-		return w`
+		return T`
       <input type="text" placeholder=${this.placeholder ?? ""}
         .value=${this._query ?? this.label ?? ""}
         @focus=${(e) => {
@@ -1496,19 +1528,19 @@ var ht = class extends E {
 			this._query = e.target.value, this._open = !!this._query.trim(), this._active = this.freeText ? void 0 : 0, this.freeText && this._text(this._query);
 		}}
         @keydown=${this._key} />
-      ${this._open && (e.length || t) ? w`<ul @mousedown=${(e) => e.preventDefault()}>
-            ${e.map((e, t) => w`<li class=${t === this._active ? "active" : ""} @click=${() => this._choose(t)}>
+      ${this._open && (e.length || t) ? T`<ul @mousedown=${(e) => e.preventDefault()}>
+            ${e.map((e, t) => T`<li class=${t === this._active ? "active" : ""} @click=${() => this._choose(t)}>
                 <span>${this.hint(e).name}</span><span class="hint">${this.hint(e).hint}</span>
               </li>`)}
-            ${t ? w`<li class="create ${this._active === e.length ? "active" : ""}" @click=${() => this._choose(e.length)}>
-                  + ${this.createLabel} “${this._query.trim()}”</li>` : T}
-          </ul>` : T}
+            ${t ? T`<li class="create ${this._active === e.length ? "active" : ""}" @click=${() => this._choose(e.length)}>
+                  + ${this.createLabel} “${this._query.trim()}”</li>` : E}
+          </ul>` : E}
     `;
 	}
 };
-customElements.define("itadaki-combo", ht);
+customElements.define("itadaki-combo", mt);
 // src/views/tags.js
-var gt = class extends E {
+var ht = class extends D {
 	static properties = {
 		entries: { attribute: !1 },
 		value: { attribute: !1 },
@@ -1521,7 +1553,7 @@ var gt = class extends E {
 		text: {},
 		only: {}
 	};
-	static styles = [D, o`
+	static styles = [O, o`
       :host { display: block; }
       .row { margin-bottom: 8px; }
       .x { background: none; border: none; color: inherit; cursor: pointer; padding: 0 0 0 4px; font: inherit; opacity: 0.6; }
@@ -1531,7 +1563,7 @@ var gt = class extends E {
 		return this.value || [];
 	}
 	_create(e) {
-		let t = pt(this.entries || [], e);
+		let t = ft(this.entries || [], e);
 		t ? this._value.includes(t.id) || this._fire([...this._value, t.id]) : this.dispatchEvent(new CustomEvent("create", { detail: { name: e } }));
 	}
 	focus() {
@@ -1545,15 +1577,15 @@ var gt = class extends E {
 	}
 	render() {
 		let e = this._value, t = new Map((this.entries || []).map((e) => [e.id, e]));
-		return w`
-      ${e.length && this.only !== "box" ? w`<div class="row">${e.map((n) => w`<span class="chip">
-      ${t.has(n) ? O(t.get(n), this.lang) : n}
+		return T`
+      ${e.length && this.only !== "box" ? T`<div class="row">${e.map((n) => T`<span class="chip">
+      ${t.has(n) ? k(t.get(n), this.lang) : n}
       <button class="x" aria-label=${this.t("remove")} title=${this.t("remove")}
         @click=${() => this._fire(e.filter((e) => e !== n))}>×</button>
-    </span>`)}</div>` : T}
-      ${this.only === "chips" ? T : w`<itadaki-combo .entries=${(this.entries || []).filter((t) => !e.includes(t.id))}
-        .hint=${this.hint || Ye(this.lang)} placeholder=${this.placeholder ?? ""}
-        ?noCreate=${!this.createLabel} createLabel=${this.createLabel ?? T}
+    </span>`)}</div>` : E}
+      ${this.only === "chips" ? E : T`<itadaki-combo .entries=${(this.entries || []).filter((t) => !e.includes(t.id))}
+        .hint=${this.hint || Je(this.lang)} placeholder=${this.placeholder ?? ""}
+        ?noCreate=${!this.createLabel} createLabel=${this.createLabel ?? E}
         ?freeText=${this.freeText} .label=${this.freeText ? this.text ?? "" : void 0} @keydown=${this._key}
         @text=${(e) => this.dispatchEvent(new CustomEvent("text", { detail: e.detail }))}
         @pick=${(t) => this._fire([...e, t.detail.id])}
@@ -1561,11 +1593,11 @@ var gt = class extends E {
     `;
 	}
 };
-customElements.define("itadaki-tags", gt);
+customElements.define("itadaki-tags", ht);
 // src/views/fit-chips.js
-var _t = class extends E {
+var gt = class extends D {
 	static properties = { labels: { attribute: !1 } };
-	static styles = [D, o`
+	static styles = [O, o`
       :host { display: block; min-width: 0; }
       .line { display: flex; gap: 4px; overflow: hidden; min-height: 1.4rem; }
       .chip { padding: 2px 8px; font-size: 0.75rem; flex-shrink: 0; white-space: nowrap; }
@@ -1590,15 +1622,15 @@ var _t = class extends E {
 		e.classList.add("squeeze");
 	}
 	render() {
-		return w`<div class="line">
-      ${(this.labels || []).map((e) => w`<span class="chip" title=${e}>${e}</span>`)}
+		return T`<div class="line">
+      ${(this.labels || []).map((e) => T`<span class="chip" title=${e}>${e}</span>`)}
       <span class="chip more gone"></span>
     </div>`;
 	}
 };
-customElements.define("itadaki-fit-chips", _t);
+customElements.define("itadaki-fit-chips", gt);
 // src/drafts.js
-function vt(e, t) {
+function _t(e, t) {
 	let n = t.request || {}, r = [];
 	if (t.action === "translate" && n.language && r.push(`→ ${e.langName(n.language)}`), n.instruction && r.push(`“${n.instruction}”`), t.action === "adapt" && n.as_variant && r.push(e("asNewVariant")), t.action === "import" && n.url) try {
 		r.push(new URL(n.url).hostname.replace(/^www\./, ""));
@@ -1608,7 +1640,7 @@ function vt(e, t) {
 	return n.note && r.push(`“${n.note}”`), r.join(" · ");
 }
 // src/stored.js
-function yt(e, t) {
+function vt(e, t) {
 	try {
 		let n = localStorage.getItem(e);
 		return n === null ? t : JSON.parse(n);
@@ -1616,24 +1648,24 @@ function yt(e, t) {
 		return t;
 	}
 }
-function bt(e, t) {
+function yt(e, t) {
 	try {
 		t === void 0 ? localStorage.removeItem(e) : localStorage.setItem(e, JSON.stringify(t));
 	} catch {}
 }
 // src/groups.js
-var xt = [
+var bt = [
 	"none",
 	"tag",
 	"language",
 	"time"
-], St = [
+], xt = [
 	15,
 	30,
 	60,
 	Infinity
 ];
-function Ct(e, t, n) {
+function St(e, t, n) {
 	if (t === "none") return [{
 		key: "all",
 		label: "",
@@ -1643,8 +1675,8 @@ function Ct(e, t, n) {
 		tag: (e) => e.tags,
 		language: (e) => [e.language],
 		time: (e) => {
-			let t = ct(e);
-			return t ? [St.find((e) => t <= e)] : [];
+			let t = st(e);
+			return t ? [xt.find((e) => t <= e)] : [];
 		}
 	}[t], i = /* @__PURE__ */ new Map(), a = [];
 	for (let o of e) {
@@ -1664,7 +1696,7 @@ function Ct(e, t, n) {
 	}), o;
 }
 // src/views/menu.js
-var wt = class extends E {
+var Ct = class extends D {
 	static properties = {
 		icon: {},
 		label: {},
@@ -1672,7 +1704,7 @@ var wt = class extends E {
 		disabled: { type: Boolean },
 		_open: { state: !0 }
 	};
-	static styles = [D, o`
+	static styles = [O, o`
       :host { position: relative; display: block; }
       .list {
         position: absolute; right: 0; top: 100%; z-index: 3; min-width: 200px; padding: 6px 0;
@@ -1702,19 +1734,19 @@ var wt = class extends E {
 		this._open = !1, e.run();
 	}
 	render() {
-		return w`
+		return T`
       <button class="icon" ?disabled=${this.disabled} aria-label=${this.label} title=${this.label}
-        @click=${() => this._open = !this._open}>${A(this.icon)}</button>
-      ${this._open ? w`<div class="list">
-            ${this.items.map((e) => e === "-" ? w`<hr />` : w`<button class="item" @click=${() => this._pick(e)}>
-                    <span class="mark">${e.active ? A("check") : T}</span>${e.label}</button>`)}
-          </div>` : T}
+        @click=${() => this._open = !this._open}>${j(this.icon)}</button>
+      ${this._open ? T`<div class="list">
+            ${this.items.map((e) => e === "-" ? T`<hr />` : T`<button class="item" @click=${() => this._pick(e)}>
+                    <span class="mark">${e.active ? j("check") : E}</span>${e.label}</button>`)}
+          </div>` : E}
     `;
 	}
 };
-customElements.define("itadaki-menu", wt);
+customElements.define("itadaki-menu", Ct);
 // src/views/ai-run.js
-var Tt = class extends E {
+var wt = class extends D {
 	static properties = {
 		t: { attribute: !1 },
 		heading: {},
@@ -1725,7 +1757,7 @@ var Tt = class extends E {
 		disabled: { type: Boolean },
 		_note: { state: !0 }
 	};
-	static styles = [D, o`
+	static styles = [O, o`
       :host { display: block; }
       .standing { white-space: pre-wrap; font-size: 0.9rem; }
       .foot { margin-top: 12px; justify-content: space-between; }
@@ -1747,7 +1779,7 @@ var Tt = class extends E {
 	}
 	render() {
 		let e = this.t;
-		return w`
+		return T`
       <div class="card">
         <h2>${this.heading}</h2>
         <slot></slot>
@@ -1757,9 +1789,9 @@ var Tt = class extends E {
         <textarea id="note" rows="2" placeholder=${this.noteRequired ? e("adaptHint") : e("noteHint")}
           @input=${(e) => this._note = e.target.value}></textarea>
         <div class="row foot">
-          ${this.variant ? w`<label class="row" style="margin:0"><input type="checkbox" id="variant" /> ${e("asVariant")}</label>` : w`<span></span>`}
+          ${this.variant ? T`<label class="row" style="margin:0"><input type="checkbox" id="variant" /> ${e("asVariant")}</label>` : T`<span></span>`}
           <div class="row">
-            ${this.cancellable ? w`<button class="btn quiet" ?disabled=${this.disabled} @click=${() => this.dispatchEvent(new CustomEvent("cancel"))}>${e("cancel")}</button>` : T}
+            ${this.cancellable ? T`<button class="btn quiet" ?disabled=${this.disabled} @click=${() => this.dispatchEvent(new CustomEvent("cancel"))}>${e("cancel")}</button>` : E}
             <button class="btn" ?disabled=${this.disabled || this.noteRequired && !this._note?.trim()} @click=${this._run}>${e("run")}</button>
           </div>
         </div>
@@ -1767,9 +1799,9 @@ var Tt = class extends E {
     `;
 	}
 };
-customElements.define("itadaki-ai-run", Tt);
+customElements.define("itadaki-ai-run", wt);
 // src/views/ai-task.js
-var Et = class extends E {
+var Tt = class extends D {
 	static properties = {
 		api: { attribute: !1 },
 		t: { attribute: !1 },
@@ -1779,7 +1811,7 @@ var Et = class extends E {
 		_busy: { state: !0 },
 		_error: { state: !0 }
 	};
-	static styles = [D];
+	static styles = [O];
 	_call({ note: e, asVariant: t }) {
 		let n = this.recipeIds, r = e ? { note: e } : {}, { action: i, language: a } = this.task;
 		return i === "adapt" ? ["adapt", {
@@ -1808,19 +1840,19 @@ var Et = class extends E {
 	}
 	render() {
 		let e = this.t, { action: t, language: n, again: r } = this.task, i = t === "adapt";
-		return w`<itadaki-ai-run .t=${e} cancellable ?variant=${i} ?noteRequired=${i}
+		return T`<itadaki-ai-run .t=${e} cancellable ?variant=${i} ?noteRequired=${i}
       heading=${t === "translate" ? e("translateTo", { lang: e.langName(n) }) : e(`${t}Ai`)} .standing=${this.instructions[t]} ?disabled=${this._busy}
       @run=${this._run} @cancel=${() => this.dispatchEvent(new CustomEvent("cancel"))}>
-      ${this.recipeIds.length > 1 ? w`<div class="muted">${e("forNRecipes", { n: this.recipeIds.length })}</div>` : T}
-      ${r ? w`<div class="muted">${e("retranslateNote")}</div>` : T}
-      ${t === "tag" ? w`<div class="muted">${e("tagAiExplain")}</div>` : T}
-      ${this._error ? w`<div class="error">${this._error}</div>` : T}
+      ${this.recipeIds.length > 1 ? T`<div class="muted">${e("forNRecipes", { n: this.recipeIds.length })}</div>` : E}
+      ${r ? T`<div class="muted">${e("retranslateNote")}</div>` : E}
+      ${t === "tag" ? T`<div class="muted">${e("tagAiExplain")}</div>` : E}
+      ${this._error ? T`<div class="error">${this._error}</div>` : E}
     </itadaki-ai-run>`;
 	}
 };
-customElements.define("itadaki-ai-task", Et);
+customElements.define("itadaki-ai-task", Tt);
 // src/views/bulk.js
-var Dt = class extends E {
+var Et = class extends D {
 	static properties = {
 		api: { attribute: !1 },
 		t: { attribute: !1 },
@@ -1836,7 +1868,7 @@ var Dt = class extends E {
 		_busy: { state: !0 },
 		_error: { state: !0 }
 	};
-	static styles = [D, o`
+	static styles = [O, o`
       :host { display: block; position: sticky; top: var(--header-height, 56px); z-index: 1; margin-bottom: 16px; }
       .bar { display: flex; align-items: center; gap: 4px; padding: 4px 4px 4px 16px; border-radius: 999px;
         background: var(--it-accent); color: var(--it-on-accent); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2); }
@@ -1878,7 +1910,7 @@ var Dt = class extends E {
 	_delete() {
 		let e = this.t;
 		return this._act(async () => {
-			let t = await lt(this.api, e, this._ids, e("confirmDeleteN", { n: this._ids.length }));
+			let t = await ct(this.api, e, this._ids, e("confirmDeleteN", { n: this._ids.length }));
 			t && this._done(e("deletedN", { n: t.length }));
 		});
 	}
@@ -1887,50 +1919,50 @@ var Dt = class extends E {
 		this._done([t("startedN", { n: n.length }), r.length ? t("skippedN", { n: r.length }) : ""].join(" ").trim());
 	}
 	_tagsPanel() {
-		let e = this.t, t = new Set(this.recipes.flatMap((e) => e.tags)), n = (t, n, r, i) => w`<label>${t}</label>
+		let e = this.t, t = new Set(this.recipes.flatMap((e) => e.tags)), n = (t, n, r, i) => T`<label>${t}</label>
       <itadaki-tags .entries=${n} .value=${r} lang=${this.lang} .t=${e} placeholder=${e("tagSearch")}
         @change=${(e) => i(e.detail.value)}></itadaki-tags>`;
-		return w`<div class="card panel">
+		return T`<div class="card panel">
       ${n(e("addTags"), this.tags, this._add, (e) => this._add = e)}
       ${n(e("removeTags"), this.tags.filter((e) => t.has(e.id)), this._remove, (e) => this._remove = e)}
       <div class="row actions">
-        ${this.ai ? w`<button class="btn quiet" ?disabled=${this._busy} @click=${() => this._toggle({ action: "tag" })}>${e("tagAi")}</button>` : T}
+        ${this.ai ? T`<button class="btn quiet" ?disabled=${this._busy} @click=${() => this._toggle({ action: "tag" })}>${e("tagAi")}</button>` : E}
         <button class="btn" ?disabled=${this._busy || !(this._add.length || this._remove.length)} @click=${this._applyTags}>${e("apply")}</button>
       </div>
     </div>`;
 	}
 	render() {
-		let e = this.t, t = (e, t, n) => w`<button class="icon" ?disabled=${this._busy} title=${t} aria-label=${t} @click=${n}>${A(e)}</button>`, n = this.languages.map((t) => ({
+		let e = this.t, t = (e, t, n) => T`<button class="icon" ?disabled=${this._busy} title=${t} aria-label=${t} @click=${n}>${j(e)}</button>`, n = this.languages.map((t) => ({
 			label: e("translateTo", { lang: e.langName(t) }),
 			run: () => this._toggle({
 				action: "translate",
 				language: t
 			})
 		})), r = this._open && this._open !== "tags" ? this._open : void 0;
-		return w`
+		return T`
       <div class="bar">
         <span class="count">${e("selectedN", { n: this.recipes.length })}</span>
         <button class="link all" @click=${() => this.dispatchEvent(new CustomEvent("select-all"))}>${e("selectAll")}</button>
         ${t("tag", e("tags"), () => this._toggle("tags"))}
-        ${this.ai ? w`<itadaki-menu icon="translate" label=${e("translate")} .items=${n} ?disabled=${this._busy}></itadaki-menu>` : T}
-        ${this.ai ? t("adapt", e("adapt"), () => this._toggle({ action: "adapt" })) : T}
+        ${this.ai ? T`<itadaki-menu icon="translate" label=${e("translate")} .items=${n} ?disabled=${this._busy}></itadaki-menu>` : E}
+        ${this.ai ? t("adapt", e("adapt"), () => this._toggle({ action: "adapt" })) : E}
         ${t("delete", e("delete"), this._delete)}
         ${t("close", e("clearSelection"), () => this.dispatchEvent(new CustomEvent("clear")))}
       </div>
-      ${this._open === "tags" ? this._tagsPanel() : T}
-      ${r ? w`<itadaki-ai-task class="panel" .api=${this.api} .t=${e} .task=${r} .recipeIds=${this._ids}
-            .instructions=${this.instructions} @started=${this._started} @cancel=${() => this._open = void 0}></itadaki-ai-task>` : T}
-      ${this._error ? w`<div class="card panel error">${this._error}</div>` : T}
+      ${this._open === "tags" ? this._tagsPanel() : E}
+      ${r ? T`<itadaki-ai-task class="panel" .api=${this.api} .t=${e} .task=${r} .recipeIds=${this._ids}
+            .instructions=${this.instructions} @started=${this._started} @cancel=${() => this._open = void 0}></itadaki-ai-task>` : E}
+      ${this._error ? T`<div class="card panel error">${this._error}</div>` : E}
     `;
 	}
 };
-customElements.define("itadaki-bulk", Dt);
+customElements.define("itadaki-bulk", Et);
 // src/views/list.js
-var Ot = {
+var Dt = {
 	query: "",
 	searching: !1,
 	selected: /* @__PURE__ */ new Set()
-}, kt = "itadaki.list", At = class extends E {
+}, Ot = "itadaki.list", kt = class extends D {
 	static properties = {
 		api: { attribute: !1 },
 		t: { attribute: !1 },
@@ -1951,7 +1983,7 @@ var Ot = {
 		_searching: { state: !0 },
 		_error: { state: !0 }
 	};
-	static styles = [D, o`
+	static styles = [O, o`
       .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
       .recipe { cursor: pointer; display: flex; flex-direction: column; gap: 8px; min-height: 96px; }
       .recipe:hover { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); }
@@ -1992,9 +2024,9 @@ var Ot = {
       }
     `];
 	connectedCallback() {
-		super.connectedCallback(), this._query = Ot.query;
-		let e = yt(kt, {});
-		this._filter = Array.isArray(e.tags) ? e.tags : [], this._group = xt.includes(e.group) ? e.group : "none", this._searching = Ot.searching, this._selected = Ot.selected, this._load(), this._loadTags(), this._loadDrafts(), this._unsubscribe = this.api.subscribeDrafts((e) => {
+		super.connectedCallback(), this._query = Dt.query;
+		let e = vt(Ot, {});
+		this._filter = Array.isArray(e.tags) ? e.tags : [], this._group = bt.includes(e.group) ? e.group : "none", this._searching = Dt.searching, this._selected = Dt.selected, this._load(), this._loadTags(), this._loadDrafts(), this._unsubscribe = this.api.subscribeDrafts((e) => {
 			this._loadDrafts(), e.status === "saved" && this._load();
 		});
 	}
@@ -2003,8 +2035,8 @@ var Ot = {
 	}
 	async _loadTags() {
 		try {
-			let [e, t] = await Promise.all([qe(this.api, "recipe_tags"), qe(this.api, "ingredient_tags")]);
-			this._tags = [...e, ...t].sort(Ze(this.lang));
+			let [e, t] = await Promise.all([Ke(this.api, "recipe_tags"), Ke(this.api, "ingredient_tags")]);
+			this._tags = [...e, ...t].sort(Xe(this.lang));
 			let n = this._filter.filter((e) => this._tags.some((t) => t.id === e));
 			n.length !== this._filter.length && this._setFilter(n);
 		} catch (e) {
@@ -2012,7 +2044,7 @@ var Ot = {
 		}
 	}
 	_save() {
-		bt(kt, {
+		yt(Ot, {
 			tags: this._filter,
 			group: this._group
 		});
@@ -2028,7 +2060,7 @@ var Ot = {
 		if (t === null) return n(e === "tag" ? "noTags" : "noTime");
 		if (e === "tag") {
 			let e = this._tags?.find((e) => e.id === t);
-			return e && O(e, this.lang);
+			return e && k(e, this.lang);
 		}
 		return e === "language" ? n.langName(t) : n(`time_${t}`);
 	};
@@ -2055,7 +2087,7 @@ var Ot = {
 		}
 	}
 	_select(e) {
-		this._selected = Ot.selected = new Set(e);
+		this._selected = Dt.selected = new Set(e);
 	}
 	_toggleSelected(e, t) {
 		e.stopPropagation(), this._notice = void 0;
@@ -2067,88 +2099,88 @@ var Ot = {
 	}
 	_bulkBar() {
 		let e = (this._recipes || []).filter((e) => this._selected.has(e.id));
-		return e.length ? w`<itadaki-bulk .api=${this.api} .t=${this.t} lang=${this.lang} ?ai=${this.ai} .languages=${this.languages}
+		return e.length ? T`<itadaki-bulk .api=${this.api} .t=${this.t} lang=${this.lang} ?ai=${this.ai} .languages=${this.languages}
       .instructions=${this.instructions} .recipes=${e} .tags=${(this._tags || []).filter((e) => e.kind === "recipe")}
       @select-all=${() => this._select(this._recipes.map((e) => e.id))} @clear=${() => this._select([])}
-      @done=${this._bulkDone}></itadaki-bulk>` : T;
+      @done=${this._bulkDone}></itadaki-bulk>` : E;
 	}
 	_search(e) {
-		this._query = Ot.query = e, clearTimeout(this._timer), this._timer = setTimeout(() => this._load(), 250);
+		this._query = Dt.query = e, clearTimeout(this._timer), this._timer = setTimeout(() => this._load(), 250);
 	}
 	async _setSearching(e) {
-		if (this._searching = Ot.searching = e, e) {
+		if (this._searching = Dt.searching = e, e) {
 			await this.updateComplete;
 			let e = this.renderRoot.querySelector(".search");
 			await e.updateComplete, e.focus();
-		} else (this._query || this._filtered) && (this._query = Ot.query = "", this._setFilter([]));
+		} else (this._query || this._filtered) && (this._query = Dt.query = "", this._setFilter([]));
 	}
 	get _filtered() {
 		return this._filter.length > 0;
 	}
 	_tagBar(e) {
 		let t = this.t;
-		return w`<itadaki-tags slot=${e === "box" ? "title" : T} class=${e === "box" ? "search" : "chosen"}
+		return T`<itadaki-tags slot=${e === "box" ? "title" : E} class=${e === "box" ? "search" : "chosen"}
       only=${e} freeText .entries=${this._tags || []}
       .value=${this._filter} .text=${this._query} lang=${this.lang} .hint=${(e) => ({
-			name: O(e, this.lang),
+			name: k(e, this.lang),
 			hint: e.kind === "ingredient" ? t("ingredientTag") : ""
 		})} .t=${t}
       placeholder=${t("search")} @text=${(e) => this._search(e.detail.value)} @change=${(e) => this._setFilter(e.detail.value)}></itadaki-tags>`;
 	}
 	_picture(e) {
-		let t = this.t, n = ct(e);
-		return w`<div class="picture">
-      ${e.image_url ? w`<img src=${e.thumbnail_url || e.image_url} alt="" loading="lazy" referrerpolicy="no-referrer" />` : w`<div class="placeholder"></div>`}
+		let t = this.t, n = st(e);
+		return T`<div class="picture">
+      ${e.image_url ? T`<img src=${e.thumbnail_url || e.image_url} alt="" loading="lazy" referrerpolicy="no-referrer" />` : T`<div class="placeholder"></div>`}
       <button class="pick ${this._selected.has(e.id) ? "on" : ""}" title=${t("select")} aria-label=${t("select")}
-        aria-pressed=${this._selected.has(e.id)} @click=${(t) => this._toggleSelected(t, e.id)}>${A("check")}</button>
+        aria-pressed=${this._selected.has(e.id)} @click=${(t) => this._toggleSelected(t, e.id)}>${j("check")}</button>
       <div class="badges">
-        ${n ? w`<span>${A("clock")}${t("minutes", { n })}</span>` : T}
-        ${e.languages.length > 1 ? w`<span title=${e.languages.map((e) => t.langName(e)).join(", ")}>${A("translate")}</span>` : T}
-        ${e.relation === "variant" ? w`<span>${t("variant")}</span>` : T}
+        ${n ? T`<span>${j("clock")}${t("minutes", { n })}</span>` : E}
+        ${e.languages.length > 1 ? T`<span title=${e.languages.map((e) => t.langName(e)).join(", ")}>${j("translate")}</span>` : E}
+        ${e.relation === "variant" ? T`<span>${t("variant")}</span>` : E}
       </div>
     </div>`;
 	}
 	_tagNames(e) {
 		let t = new Map((this._tags || []).map((e) => [e.id, e]));
-		return e.tags.filter((e) => t.has(e)).map((e) => O(t.get(e), this.lang));
+		return e.tags.filter((e) => t.has(e)).map((e) => k(t.get(e), this.lang));
 	}
 	_card(e) {
-		return w`<div class="card recipe photo ${this._selected.has(e.id) ? "selected" : ""}" @click=${() => this._open(e.id)}>
+		return T`<div class="card recipe photo ${this._selected.has(e.id) ? "selected" : ""}" @click=${() => this._open(e.id)}>
       ${this._picture(e)}
       <div class="name" title=${e.title}>${e.title}</div>
       <itadaki-fit-chips .labels=${this._tagNames(e)}></itadaki-fit-chips>
     </div>`;
 	}
 	_open(e) {
-		k(this, {
+		A(this, {
 			view: "recipe",
 			id: e
 		});
 	}
 	render() {
 		let e = this.t;
-		return w`<itadaki-page .t=${e} header=${e("recipes")} home ?narrow=${this.narrow}>
-      ${this._searching ? w`${this._tagBar("box")}${at("close", e("closeSearch"), () => this._setSearching(!1))}` : at("search", e("search"), () => this._setSearching(!0))}
+		return T`<itadaki-page .t=${e} header=${e("recipes")} home ?narrow=${this.narrow}>
+      ${this._searching ? T`${this._tagBar("box")}${it("close", e("closeSearch"), () => this._setSearching(!1))}` : it("search", e("search"), () => this._setSearching(!0))}
       <itadaki-menu slot="actions" icon="group" label=${e("groupBy")}
-        .items=${xt.map((t) => ({
+        .items=${bt.map((t) => ({
 			label: e(`group_${t}`),
 			active: t === this._group,
 			run: () => this._setGroup(t)
 		}))}></itadaki-menu>
-      ${this.admin ? at("cog", e("manage"), () => k(this, { view: "manage" })) : T}
-      ${this._filtered ? this._tagBar("chips") : T}
+      ${this.admin ? it("cog", e("manage"), () => A(this, { view: "manage" })) : E}
+      ${this._filtered ? this._tagBar("chips") : E}
       ${this._bulkBar()}
-      ${this._notice ? w`<div class="banner notice">${this._notice}</div>` : T}
-      ${this._error ? w`<div class="error">${this._error}</div>` : T}
-      ${this._drafts?.length ? w`<h2>${e("drafts")}</h2>
+      ${this._notice ? T`<div class="banner notice">${this._notice}</div>` : E}
+      ${this._error ? T`<div class="error">${this._error}</div>` : E}
+      ${this._drafts?.length ? T`<h2>${e("drafts")}</h2>
             <div class="grid inbox">
-              ${this._drafts.map((t) => w`
-                  <div class="card recipe" @click=${() => k(this, {
+              ${this._drafts.map((t) => T`
+                  <div class="card recipe" @click=${() => A(this, {
 			view: "draft",
 			id: t.id
 		})}>
                     <div class="name">${t.title}</div>
-                    ${vt(e, t) ? w`<div class="muted request">${vt(e, t)}</div>` : T}
+                    ${_t(e, t) ? T`<div class="muted request">${_t(e, t)}</div>` : E}
                     <div class="row">
                       <span class="chip">${e.action(t.action)}</span>
                       <span class="chip ${t.status}">${e.status(t.status)}</span>
@@ -2156,19 +2188,19 @@ var Ot = {
                   </div>
                 `)}
             </div>
-            <h2>${e("recipes")}</h2>` : T}
-      ${this._recipes?.length === 0 && !this._query && !this._filtered ? w`<p class="muted">${e("empty")}</p>` : T}
-      ${this._recipes?.length === 0 && (this._filtered || this._query) ? w`<p class="muted">${e("noMatches")}</p>` : T}
-      ${Ct(this._recipes || [], this._group, this._groupLabel).map((e) => w`${e.label ? w`<h2 class="group">${e.label}</h2>` : T}
+            <h2>${e("recipes")}</h2>` : E}
+      ${this._recipes?.length === 0 && !this._query && !this._filtered ? T`<p class="muted">${e("empty")}</p>` : E}
+      ${this._recipes?.length === 0 && (this._filtered || this._query) ? T`<p class="muted">${e("noMatches")}</p>` : E}
+      ${St(this._recipes || [], this._group, this._groupLabel).map((e) => T`${e.label ? T`<h2 class="group">${e.label}</h2>` : E}
           <div class="grid">${e.recipes.map((e) => this._card(e))}</div>`)}
       <div class="fab-space"></div>
     </itadaki-page>
-    ${ot("plus", e("add"), () => k(this, { view: "add" }))}`;
+    ${at("plus", e("add"), () => A(this, { view: "add" }))}`;
 	}
 };
-customElements.define("itadaki-list", At);
+customElements.define("itadaki-list", kt);
 // src/views/amount.js
-var jt = class extends E {
+var At = class extends D {
 	static properties = {
 		value: { type: Number },
 		text: {},
@@ -2176,7 +2208,7 @@ var jt = class extends E {
 		label: {},
 		_editing: { state: !0 }
 	};
-	static styles = [D, o`
+	static styles = [O, o`
       :host { display: inline-flex; }
       button { font: inherit; color: inherit; font-weight: inherit; background: none; border: none; padding: 2px 6px;
         margin: -2px -6px; border-radius: 8px; cursor: pointer; text-decoration: underline dotted var(--it-muted);
@@ -2201,18 +2233,18 @@ var jt = class extends E {
 		e.key === "Enter" && this._commit(e.target), e.key === "Escape" && (this._editing = !1);
 	}
 	render() {
-		return this._editing ? w`<span class="edit">
+		return this._editing ? T`<span class="edit">
       <input type="number" inputmode="decimal" step="any" min="0" aria-label=${this.label}
         .value=${String(Math.round(this.value * 100) / 100)} @keydown=${this._key} @blur=${(e) => this._commit(e.target)} />
       ${this.unit}
-    </span>` : w`<button title=${this.label} @click=${() => this._editing = !0}>${this.text}</button>`;
+    </span>` : T`<button title=${this.label} @click=${() => this._editing = !0}>${this.text}</button>`;
 	}
 };
-customElements.define("itadaki-amount", jt);
+customElements.define("itadaki-amount", At);
 // src/views/busy.js
-var Mt = class extends E {
+var jt = class extends D {
 	static properties = { text: {} };
-	static styles = [D, o`
+	static styles = [O, o`
       :host { display: flex; align-items: center; gap: 12px; padding: 16px 0; }
       .spinner {
         width: 22px; height: 22px; border-radius: 50%;
@@ -2222,12 +2254,12 @@ var Mt = class extends E {
       @keyframes spin { to { transform: rotate(360deg); } }
     `];
 	render() {
-		return w`<div class="spinner"></div><span class="muted">${this.text}</span>`;
+		return T`<div class="spinner"></div><span class="muted">${this.text}</span>`;
 	}
 };
-customElements.define("itadaki-busy", Mt);
+customElements.define("itadaki-busy", jt);
 // src/views/shopping.js
-var Nt = class extends E {
+var Mt = class extends D {
 	static properties = {
 		api: { attribute: !1 },
 		t: { attribute: !1 },
@@ -2240,7 +2272,7 @@ var Nt = class extends E {
 		_busy: { state: !0 },
 		_error: { state: !0 }
 	};
-	static styles = [D, o`
+	static styles = [O, o`
       :host { display: block; }
       .item { display: grid; grid-template-columns: auto minmax(0, 1fr) 5.5em; gap: 8px; align-items: center; padding: 8px 0; }
       .item + .item { border-top: var(--it-row-rule); }
@@ -2300,8 +2332,8 @@ var Nt = class extends E {
 	}
 	render() {
 		let e = this.t, t = this._items?.filter((e) => e.checked).length ?? 0;
-		return w`
-      ${this._items ? w`${this._items.map((t, n) => w`<div class="item ${t.checked ? "on" : ""}">
+		return T`
+      ${this._items ? T`${this._items.map((t, n) => T`<div class="item ${t.checked ? "on" : ""}">
               <input type="checkbox" .checked=${t.checked} @change=${(e) => this._set(n, { checked: e.target.checked })} />
               <input type="text" aria-label=${e("name")} .value=${t.name}
                 @input=${(e) => this._set(n, {
@@ -2313,13 +2345,13 @@ var Nt = class extends E {
 			quantity: e.target.value,
 			checked: !0
 		})} />
-            </div>`)}` : this._error ? T : w`<itadaki-busy></itadaki-busy>`}
-      ${this._lists && !this._lists.length ? w`<div class="error">${e("noTodoLists")}</div>` : T}
-      ${this._error ? w`<div class="error">${this._error}</div>` : T}
+            </div>`)}` : this._error ? E : T`<itadaki-busy></itadaki-busy>`}
+      ${this._lists && !this._lists.length ? T`<div class="error">${e("noTodoLists")}</div>` : E}
+      ${this._error ? T`<div class="error">${this._error}</div>` : E}
       <div class="foot">
-        ${this._lists?.length > 1 ? w`<select aria-label=${e("todoList")} @change=${(e) => this._list = e.target.value}>
-              ${this._lists.map((e) => w`<option value=${e.entity_id} ?selected=${e.entity_id === this._list}>${e.name}</option>`)}
-            </select>` : T}
+        ${this._lists?.length > 1 ? T`<select aria-label=${e("todoList")} @change=${(e) => this._list = e.target.value}>
+              ${this._lists.map((e) => T`<option value=${e.entity_id} ?selected=${e.entity_id === this._list}>${e.name}</option>`)}
+            </select>` : E}
         <div class="row">
           <button class="btn quiet" ?disabled=${this._busy} @click=${() => this.dispatchEvent(new CustomEvent("cancel"))}>${e("cancel")}</button>
           <button class="btn" ?disabled=${this._busy || !t || !this._list} @click=${this._add}>${e("addN", { n: t })}</button>
@@ -2327,9 +2359,9 @@ var Nt = class extends E {
       </div>`;
 	}
 };
-customElements.define("itadaki-shopping", Nt);
+customElements.define("itadaki-shopping", Mt);
 // src/views/body.js
-function Pt(e, t) {
+function Nt(e, t) {
 	let n = [];
 	return e.forEach((e, r) => {
 		let i = t(e, r) || "", a = n[n.length - 1];
@@ -2339,7 +2371,7 @@ function Pt(e, t) {
 		});
 	}), n;
 }
-var Ft = class extends E {
+var Pt = class extends D {
 	static properties = {
 		recipe: { attribute: !1 },
 		lines: { attribute: !1 },
@@ -2350,7 +2382,7 @@ var Ft = class extends E {
 		},
 		scalable: { type: Boolean }
 	};
-	static styles = [D, o`
+	static styles = [O, o`
       :host { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); }
       @media (max-width: 800px) { :host { grid-template-columns: minmax(0, 1fr); } }
       .item { display: flex; gap: 14px; padding: 12px 0; line-height: 1.5; }
@@ -2373,7 +2405,7 @@ var Ft = class extends E {
     `];
 	_measure(e) {
 		let t = this.recipe.ingredients[e.index]?.quantity;
-		return !this.scalable || t == null ? e.measure : w`<itadaki-amount .value=${t} text=${e.measure} unit=${e.unit}
+		return !this.scalable || t == null ? e.measure : T`<itadaki-amount .value=${t} text=${e.measure} unit=${e.unit}
       label=${this.t("amountFor", { name: e.name })} @amount=${(e) => this.dispatchEvent(new CustomEvent("scale", {
 			detail: { ratio: e.detail.value / t },
 			bubbles: !0,
@@ -2381,47 +2413,47 @@ var Ft = class extends E {
 		}))}></itadaki-amount>`;
 	}
 	render() {
-		let { recipe: e, lines: t, t: n } = this, r = Pt(t.map((e, t) => ({
+		let { recipe: e, lines: t, t: n } = this, r = Nt(t.map((e, t) => ({
 			...e,
 			index: t
-		})), (t) => e.ingredients[t.index]?.section), i = Pt(e.steps.map((e, t) => ({
+		})), (t) => e.ingredients[t.index]?.section), i = Nt(e.steps.map((e, t) => ({
 			...e,
 			number: t + 1
 		})), (e) => e.section);
-		return w`
+		return T`
       <div class="card">
         <div class="head"><h2>${n("ingredients")}</h2><slot name="ingredients-action"></slot></div>
         <slot name="ingredients-note"></slot>
-        <slot name="ingredients">${r.map((e) => w`${e.section ? w`<h3>${e.section}</h3>` : T}
-            ${e.items.map((e) => w`<div class="item ingredient">
+        <slot name="ingredients">${r.map((e) => T`${e.section ? T`<h3>${e.section}</h3>` : E}
+            ${e.items.map((e) => T`<div class="item ingredient">
                 <div class="line"><span>${e.name}</span><span class="measure">${this._measure(e)}</span></div>
-                ${e.note ? w`<div class="note">${e.note}</div>` : T}
+                ${e.note ? T`<div class="note">${e.note}</div>` : E}
               </div>`)}`)}</slot>
       </div>
       <div class="card">
         <h2>${n("steps")}</h2>
-        ${i.map((e) => w`${e.section ? w`<h3>${e.section}</h3>` : T}
-            ${e.items.map((e) => w`<div class="item"><span class="num">${e.number}</span><span>${e.text}</span></div>`)}`)}
+        ${i.map((e) => T`${e.section ? T`<h3>${e.section}</h3>` : E}
+            ${e.items.map((e) => T`<div class="item"><span class="num">${e.number}</span><span>${e.text}</span></div>`)}`)}
       </div>
-      ${e.notes && !this.cooking ? w`<div class="card notes"><h2>${n("notes")}</h2>${e.notes}</div>` : T}
+      ${e.notes && !this.cooking ? T`<div class="card notes"><h2>${n("notes")}</h2>${e.notes}</div>` : E}
     `;
 	}
 };
-customElements.define("itadaki-body", Ft);
+customElements.define("itadaki-body", Pt);
 // src/scale.js
-var It = (e) => `itadaki.scale.${e}`, Lt = (e) => {
+var Ft = (e) => `itadaki.scale.${e}`, It = (e) => {
 	let t = Math.round(e * 1e4) / 1e4;
 	return Math.abs(t - 1) < .001 ? 1 : t;
 };
-function Rt(e) {
-	let t = Number(yt(It(e), 1));
+function Lt(e) {
+	let t = Number(vt(Ft(e), 1));
 	return t > 0 ? t : 1;
 }
-function zt(e, t) {
-	bt(It(e), t === 1 ? void 0 : t);
+function Rt(e, t) {
+	yt(Ft(e), t === 1 ? void 0 : t);
 }
 // src/views/recipe.js
-var Bt = class extends E {
+var zt = class extends D {
 	static properties = {
 		api: { attribute: !1 },
 		t: { attribute: !1 },
@@ -2440,7 +2472,7 @@ var Bt = class extends E {
 		_drafts: { state: !0 },
 		_cooking: { state: !0 }
 	};
-	static styles = [D, o`
+	static styles = [O, o`
       .hero { display: flex; gap: 20px; align-items: flex-start; margin-bottom: 16px; }
       .hero img { width: 360px; max-width: 45%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--it-radius); flex-shrink: 0; }
       @media (max-width: 600px) { .hero { flex-direction: column; } .hero img { width: 100%; max-width: none; height: auto; } }
@@ -2476,7 +2508,7 @@ var Bt = class extends E {
 		document.removeEventListener("visibilitychange", this._onVisible), this._wakeLock?.then((e) => e?.release()), this._wakeLock = void 0, e && navigator.wakeLock && (this._onVisible ??= () => document.visibilityState === "visible" && this._keepAwake(!0), document.addEventListener("visibilitychange", this._onVisible), this._wakeLock = navigator.wakeLock.request("screen").catch(() => void 0));
 	}
 	updated(e) {
-		e.has("_cooking") && this._keepAwake(!!this._cooking), e.has("recipeId") && (this._factor = Rt(this.recipeId), this._shopping = !1, this._notice = void 0, this._task = void 0, this._cooking = !1, this._load(), this._loadDrafts());
+		e.has("_cooking") && this._keepAwake(!!this._cooking), e.has("recipeId") && (this._factor = Lt(this.recipeId), this._shopping = !1, this._notice = void 0, this._task = void 0, this._cooking = !1, this._load(), this._loadDrafts());
 	}
 	async _loadDrafts() {
 		try {
@@ -2490,29 +2522,29 @@ var Bt = class extends E {
 			let [e, t] = await Promise.all([this.api.call("get_recipe", {
 				recipe_id: this.recipeId,
 				factor: this._factor
-			}), this._tags ?? qe(this.api, "recipe_tags")]);
+			}), this._tags ?? Ke(this.api, "recipe_tags")]);
 			this._data = e, this._tags = t, this._error = void 0;
 		} catch (e) {
 			this._error = this.t.error(e);
 		}
 	}
 	_scale(e) {
-		this._setFactor(Lt(this._factor * e));
+		this._setFactor(It(this._factor * e));
 	}
 	_setFactor(e) {
-		this._factor = e, zt(this.recipeId, e), this._load();
+		this._factor = e, Rt(this.recipeId, e), this._load();
 	}
 	_scaleChip() {
-		if (this._factor === 1) return T;
+		if (this._factor === 1) return E;
 		let e = this.t("resetScale");
-		return w`<button class="chip active scale" title=${e} aria-label=${e} @click=${() => this._setFactor(1)}>
-      ${this.t("scaled", { n: Math.round(this._factor * 100) / 100 })} ${A("close")}</button>`;
+		return T`<button class="chip active scale" title=${e} aria-label=${e} @click=${() => this._setFactor(1)}>
+      ${this.t("scaled", { n: Math.round(this._factor * 100) / 100 })} ${j("close")}</button>`;
 	}
 	_yield() {
 		let e = this.t, { recipe: t, yield: n } = this._data, r = t.yield_quantity;
-		if (!r) return T;
+		if (!r) return E;
 		let i = Math.round(r * 100) / 100, a = (e) => this._scale(e / r);
-		return w`<itadaki-amount .value=${r} text=${n ? e("makes", { measure: n.measure }) : e("serves", { n: i })}
+		return T`<itadaki-amount .value=${r} text=${n ? e("makes", { measure: n.measure }) : e("serves", { n: i })}
       unit=${n ? n.unit : e("people")} label=${e("yield")} @amount=${(e) => a(e.detail.value)}></itadaki-amount>`;
 	}
 	async _keepTranslation() {
@@ -2524,7 +2556,7 @@ var Bt = class extends E {
 	}
 	async _delete() {
 		try {
-			await lt(this.api, this.t, [this.recipeId], this.t("confirmDelete")) && k(this, {
+			await ct(this.api, this.t, [this.recipeId], this.t("confirmDelete")) && A(this, {
 				view: "list",
 				replace: !0
 			});
@@ -2533,17 +2565,17 @@ var Bt = class extends E {
 		}
 	}
 	render() {
-		return this._cooking ? this._cookingMode() : w`<itadaki-page .t=${this.t}>${this._data ? this._actions() : T}${this._content()}</itadaki-page>
-      ${this._data ? ot("cook", this.t("cook"), () => this._cooking = !0) : T}`;
+		return this._cooking ? this._cookingMode() : T`<itadaki-page .t=${this.t}>${this._data ? this._actions() : E}${this._content()}</itadaki-page>
+      ${this._data ? at("cook", this.t("cook"), () => this._cooking = !0) : E}`;
 	}
 	_cookingMode() {
 		let { recipe: e, lines: t } = this._data;
-		return w`<div class="cooking">
+		return T`<div class="cooking">
       <header>
         <h1>${e.title}</h1>
         ${this._scaleChip()}
         <button class="icon" aria-label=${this.t("closeCooking")} title=${this.t("closeCooking")}
-          @click=${() => this._cooking = !1}>${A("close")}</button>
+          @click=${() => this._cooking = !1}>${j("close")}</button>
       </header>
       <div class="body"><itadaki-body cooking scalable .recipe=${e} .lines=${t} .t=${this.t}
         @scale=${(e) => this._scale(e.detail.ratio)}></itadaki-body></div>
@@ -2557,7 +2589,7 @@ var Bt = class extends E {
 			...r.map((n) => ({
 				label: e.langName(n.language),
 				active: n.id === t.id,
-				run: () => n.id !== t.id && (zt(n.id, this._factor), k(this, {
+				run: () => n.id !== t.id && (Rt(n.id, this._factor), A(this, {
 					view: "recipe",
 					id: n.id,
 					replace: !0
@@ -2572,15 +2604,15 @@ var Bt = class extends E {
 				}
 			}))
 		];
-		return w`
-      ${a.length > 1 ? w`<itadaki-menu slot="actions" icon="translate" label=${e("language")} .items=${a}></itadaki-menu>` : T}
-      ${at("edit", e("edit"), () => k(this, {
+		return T`
+      ${a.length > 1 ? T`<itadaki-menu slot="actions" icon="translate" label=${e("language")} .items=${a}></itadaki-menu>` : E}
+      ${it("edit", e("edit"), () => A(this, {
 			view: "edit",
 			id: t.id
 		}))}
-      ${this.ai ? at("tag", e("tagAi"), () => this._toggleTask("tag")) : T}
-      ${this.ai ? at("adapt", e("adapt"), () => this._toggleTask("adapt")) : T}
-      ${at("delete", e("delete"), this._delete)}
+      ${this.ai ? it("tag", e("tagAi"), () => this._toggleTask("tag")) : E}
+      ${this.ai ? it("adapt", e("adapt"), () => this._toggleTask("adapt")) : E}
+      ${it("delete", e("delete"), this._delete)}
     `;
 	}
 	_toggleTask(e) {
@@ -2588,93 +2620,93 @@ var Bt = class extends E {
 	}
 	_taskCard() {
 		let e = this._task.again ? this._data.parent.id : this.recipeId;
-		return w`<itadaki-ai-task class="adapt" .api=${this.api} .t=${this.t} .task=${this._task}
+		return T`<itadaki-ai-task class="adapt" .api=${this.api} .t=${this.t} .task=${this._task}
       .recipeIds=${[e]} .instructions=${this.instructions}
       @started=${this._started} @cancel=${() => this._task = void 0}></itadaki-ai-task>`;
 	}
 	_started(e) {
 		let [t] = e.detail.draft_ids;
-		t ? k(this, {
+		t ? A(this, {
 			view: "draft",
 			id: t
 		}) : this._error = this.t("nothingToTranslate");
 	}
 	_content() {
 		let e = this.t;
-		if (!this._data) return this._error ? w`<div class="error">${this._error}</div>` : w`<itadaki-busy></itadaki-busy>`;
-		let { recipe: t, lines: n, variants: r, stale: i, parent: a } = this._data, o = ct(t);
-		return w`
+		if (!this._data) return this._error ? T`<div class="error">${this._error}</div>` : T`<itadaki-busy></itadaki-busy>`;
+		let { recipe: t, lines: n, variants: r, stale: i, parent: a } = this._data, o = st(t);
+		return T`
       <div class="hero">
-        ${t.image_url ? w`<img src=${t.image_url} alt="" referrerpolicy="no-referrer" />` : T}
+        ${t.image_url ? T`<img src=${t.image_url} alt="" referrerpolicy="no-referrer" />` : E}
         <div>
           <h1>${t.title}</h1>
-          ${t.description ? w`<div class="muted">${t.description}</div>` : T}
+          ${t.description ? T`<div class="muted">${t.description}</div>` : E}
           <div class="row meta">
             <span class="chip">${e.langName(t.language)}</span>
-            ${t.relation === "variant" && a ? w`<button class="chip" @click=${() => k(this, {
+            ${t.relation === "variant" && a ? T`<button class="chip" @click=${() => A(this, {
 			view: "recipe",
 			id: a.id
 		})}>
-                  ${e("variant")}: ${a.title}</button>` : T}
-            ${o ? w`<span class="chip">${e("minutes", { n: o })}</span>` : T}
+                  ${e("variant")}: ${a.title}</button>` : E}
+            ${o ? T`<span class="chip">${e("minutes", { n: o })}</span>` : E}
             ${this._yield()}
             ${this._scaleChip()}
           </div>
-          ${t.tags.length ? w`<div class="row meta">${t.tags.map((e) => {
+          ${t.tags.length ? T`<div class="row meta">${t.tags.map((e) => {
 			let n = this._tags.find((t) => t.id === e);
-			return w`<span class="chip tag">${n ? O(n, t.language) : e}</span>`;
-		})}</div>` : T}
-          ${t.source_url ? w`<div class="muted"><a href=${t.source_url} target="_blank" rel="noreferrer">${e("source")}</a></div>` : T}
+			return T`<span class="chip tag">${n ? k(n, t.language) : e}</span>`;
+		})}</div>` : E}
+          ${t.source_url ? T`<div class="muted"><a href=${t.source_url} target="_blank" rel="noreferrer">${e("source")}</a></div>` : E}
         </div>
       </div>
 
-      ${i ? w`<div class="banner row">${e("stale")}
-            ${this.ai ? w`<button class="btn quiet"
+      ${i ? T`<div class="banner row">${e("stale")}
+            ${this.ai ? T`<button class="btn quiet"
                   @click=${() => this._task = {
 			action: "translate",
 			language: t.language,
 			again: !0
-		}}>${e("retranslate")}</button>` : T}
+		}}>${e("retranslate")}</button>` : E}
             <button class="btn quiet" title=${e("keepTranslationHint")} @click=${this._keepTranslation}>${e("keepTranslation")}</button>
-          </div>` : T}
+          </div>` : E}
 
-      ${this._task ? this._taskCard() : T}
-      ${this._drafts?.length ? w`<div class="card drafts">
+      ${this._task ? this._taskCard() : E}
+      ${this._drafts?.length ? T`<div class="card drafts">
             <h2>${e("inProgress")}</h2>
-            ${this._drafts.map((t) => w`<button class="draft" @click=${() => k(this, {
+            ${this._drafts.map((t) => T`<button class="draft" @click=${() => A(this, {
 			view: "draft",
 			id: t.id
 		})}>
                 <span class="chip ${t.status}">${e.status(t.status)}</span>
-                <span>${e.action(t.action)}${vt(e, t) ? ` · ${vt(e, t)}` : ""}</span>
+                <span>${e.action(t.action)}${_t(e, t) ? ` · ${_t(e, t)}` : ""}</span>
               </button>`)}
-          </div>` : T}
-      ${this._error ? w`<div class="error">${this._error}</div>` : T}
+          </div>` : E}
+      ${this._error ? T`<div class="error">${this._error}</div>` : E}
 
       <itadaki-body scalable .recipe=${t} .lines=${n} .t=${e} @scale=${(e) => this._scale(e.detail.ratio)}>
         <button slot="ingredients-action" class="icon cart ${this._shopping ? "on" : ""}" aria-label=${e("toShoppingList")}
           title=${e("toShoppingList")} aria-pressed=${this._shopping ? "true" : "false"}
-          @click=${() => (this._shopping = !this._shopping, this._notice = void 0)}>${A("cart")}</button>
-        ${this._notice ? w`<div slot="ingredients-note" class="muted">${this._notice}</div>` : T}
-        ${this._shopping ? w`<itadaki-shopping slot="ingredients" .api=${this.api} .t=${e} recipeId=${t.id} .factor=${this._factor}
+          @click=${() => (this._shopping = !this._shopping, this._notice = void 0)}>${j("cart")}</button>
+        ${this._notice ? T`<div slot="ingredients-note" class="muted">${this._notice}</div>` : E}
+        ${this._shopping ? T`<itadaki-shopping slot="ingredients" .api=${this.api} .t=${e} recipeId=${t.id} .factor=${this._factor}
               subject=${t.title} @cancel=${() => this._shopping = !1}
-              @added=${(e) => (this._shopping = !1, this._notice = e.detail.message)}></itadaki-shopping>` : T}
+              @added=${(e) => (this._shopping = !1, this._notice = e.detail.message)}></itadaki-shopping>` : E}
       </itadaki-body>
 
-      ${r.length ? w`<div class="card variants">
+      ${r.length ? T`<div class="card variants">
             <h2>${e("variants")}</h2>
-            <div class="row">${r.map((e) => w`<button class="chip" @click=${() => k(this, {
+            <div class="row">${r.map((e) => T`<button class="chip" @click=${() => A(this, {
 			view: "recipe",
 			id: e.id
 		})}>${e.title}</button>`)}</div>
-          </div>` : T}
+          </div>` : E}
       <div class="fab-space"></div>
     `;
 	}
 };
-customElements.define("itadaki-recipe", Bt);
+customElements.define("itadaki-recipe", zt);
 // src/views/import.js
-var Vt = class extends E {
+var Bt = class extends D {
 	static properties = {
 		api: { attribute: !1 },
 		t: { attribute: !1 },
@@ -2684,7 +2716,7 @@ var Vt = class extends E {
 		_busy: { state: !0 },
 		_error: { state: !0 }
 	};
-	static styles = [D, o`.card + .card, .card + itadaki-ai-run { margin-top: 16px; }`];
+	static styles = [O, o`.card + .card, .card + itadaki-ai-run { margin-top: 16px; }`];
 	get _url() {
 		return this.renderRoot.querySelector("#url").value.trim();
 	}
@@ -2695,7 +2727,7 @@ var Vt = class extends E {
 		this._busy = !0, this._error = void 0;
 		try {
 			let { draft_id: n } = await this.api.call(e, t);
-			k(this, {
+			A(this, {
 				view: "draft",
 				id: n
 			});
@@ -2707,31 +2739,31 @@ var Vt = class extends E {
 	}
 	render() {
 		let e = this.t;
-		return w`<itadaki-page .t=${e} header=${e("addRecipe")}>
+		return T`<itadaki-page .t=${e} header=${e("addRecipe")}>
       <form class="card" @submit=${this._import}>
         <h2>${e("importTitle")}</h2>
         <label for="url">${e("url")}</label>
         <itadaki-text id="url" type="url" placeholder="https://" @input=${() => this._noData = !1}></itadaki-text>
-        ${this.ai ? T : w`<div class="muted" style="margin-top:12px">${e("importNoAi")}</div>`}
+        ${this.ai ? E : T`<div class="muted" style="margin-top:12px">${e("importNoAi")}</div>`}
         <div class="row" style="margin-top:16px">
           <button class="btn" type="submit" ?disabled=${this._busy}>${e("import")}</button>
         </div>
-        ${this._noData && !this.ai ? w`<div class="error">${e("noRecipeDataNoAi")}</div>` : T}
-        ${this._busy ? w`<itadaki-busy></itadaki-busy>` : T}
-        ${this._error ? w`<div class="error">${this._error}</div>` : T}
+        ${this._noData && !this.ai ? T`<div class="error">${e("noRecipeDataNoAi")}</div>` : E}
+        ${this._busy ? T`<itadaki-busy></itadaki-busy>` : E}
+        ${this._error ? T`<div class="error">${this._error}</div>` : E}
       </form>
-      ${this._noData && this.ai ? w`<itadaki-ai-run .t=${e} heading=${e("importAi")} .standing=${this.instructions.extract}
+      ${this._noData && this.ai ? T`<itadaki-ai-run .t=${e} heading=${e("importAi")} .standing=${this.instructions.extract}
             ?disabled=${this._busy} @run=${(e) => this._open("extract_url", {
 			url: this._url,
 			...e.detail.note ? { note: e.detail.note } : {}
 		})}>
             <div class="muted">${e("noRecipeData")}</div>
-          </itadaki-ai-run>` : T}
+          </itadaki-ai-run>` : E}
       <div class="card">
         <h2>${e("writeTitle")}</h2>
         <div class="muted">${e("writeHint")}</div>
         <div class="row" style="margin-top:16px">
-          <button class="btn quiet" @click=${() => k(this, {
+          <button class="btn quiet" @click=${() => A(this, {
 			view: "new",
 			replace: !0
 		})}>${e("writeRecipe")}</button>
@@ -2740,19 +2772,19 @@ var Vt = class extends E {
     </itadaki-page>`;
 	}
 };
-customElements.define("itadaki-import", Vt);
+customElements.define("itadaki-import", Bt);
 // node_modules/lit-html/directive.js
-var Ht = {
+var Vt = {
 	ATTRIBUTE: 1,
 	CHILD: 2,
 	PROPERTY: 3,
 	BOOLEAN_ATTRIBUTE: 4,
 	EVENT: 5,
 	ELEMENT: 6
-}, Ut = (e) => (...t) => ({
+}, Ht = (e) => (...t) => ({
 	_$litDirective$: e,
 	values: t
-}), Wt = class {
+}), Ut = class {
 	constructor(e) {}
 	get _$AU() {
 		return this._$AM._$AU;
@@ -2766,9 +2798,9 @@ var Ht = {
 	update(e, t) {
 		return this.render(...t);
 	}
-}, { I: Gt } = Le, Kt = (e) => e, qt = () => document.createComment(""), Jt = (e, t, n) => {
+}, { I: Wt } = Ie, Gt = (e) => e, Kt = () => document.createComment(""), qt = (e, t, n) => {
 	let r = e._$AA.parentNode, i = t === void 0 ? e._$AB : t._$AA;
-	if (n === void 0) n = new Gt(r.insertBefore(qt(), i), r.insertBefore(qt(), i), e, e.options);
+	if (n === void 0) n = new Wt(r.insertBefore(Kt(), i), r.insertBefore(Kt(), i), e, e.options);
 	else {
 		let t = n._$AB.nextSibling, a = n._$AM, o = a !== e;
 		if (o) {
@@ -2778,21 +2810,21 @@ var Ht = {
 		if (t !== i || o) {
 			let e = n._$AA;
 			for (; e !== t;) {
-				let t = Kt(e).nextSibling;
-				Kt(r).insertBefore(e, i), e = t;
+				let t = Gt(e).nextSibling;
+				Gt(r).insertBefore(e, i), e = t;
 			}
 		}
 	}
 	return n;
-}, Yt = (e, t, n = e) => (e._$AI(t, n), e), Xt = {}, Zt = (e, t = Xt) => e._$AH = t, Qt = (e) => e._$AH, $t = (e) => {
+}, Jt = (e, t, n = e) => (e._$AI(t, n), e), Yt = {}, Xt = (e, t = Yt) => e._$AH = t, Zt = (e) => e._$AH, Qt = (e) => {
 	e._$AR(), e._$AA.remove();
-}, en = (e, t, n) => {
+}, $t = (e, t, n) => {
 	let r = /* @__PURE__ */ new Map();
 	for (let i = t; i <= n; i++) r.set(e[i], i);
 	return r;
-}, tn = Ut(class extends Wt {
+}, en = Ht(class extends Ut {
 	constructor(e) {
-		if (super(e), e.type !== Ht.CHILD) throw Error("repeat() can only be used in text expressions");
+		if (super(e), e.type !== Vt.CHILD) throw Error("repeat() can only be used in text expressions");
 	}
 	dt(e, t, n) {
 		let r;
@@ -2808,38 +2840,38 @@ var Ht = {
 		return this.dt(e, t, n).values;
 	}
 	update(e, [t, n, r]) {
-		let i = Qt(e), { values: a, keys: o } = this.dt(t, n, r);
+		let i = Zt(e), { values: a, keys: o } = this.dt(t, n, r);
 		if (!Array.isArray(i)) return this.ut = o, a;
 		let s = this.ut ??= [], c = [], l, u, d = 0, f = i.length - 1, p = 0, m = a.length - 1;
 		for (; d <= f && p <= m;) if (i[d] === null) d++;
 		else if (i[f] === null) f--;
-		else if (s[d] === o[p]) c[p] = Yt(i[d], a[p]), d++, p++;
-		else if (s[f] === o[m]) c[m] = Yt(i[f], a[m]), f--, m--;
-		else if (s[d] === o[m]) c[m] = Yt(i[d], a[m]), Jt(e, c[m + 1], i[d]), d++, m--;
-		else if (s[f] === o[p]) c[p] = Yt(i[f], a[p]), Jt(e, i[d], i[f]), f--, p++;
-		else if (l === void 0 && (l = en(o, p, m), u = en(s, d, f)), l.has(s[d])) {
+		else if (s[d] === o[p]) c[p] = Jt(i[d], a[p]), d++, p++;
+		else if (s[f] === o[m]) c[m] = Jt(i[f], a[m]), f--, m--;
+		else if (s[d] === o[m]) c[m] = Jt(i[d], a[m]), qt(e, c[m + 1], i[d]), d++, m--;
+		else if (s[f] === o[p]) c[p] = Jt(i[f], a[p]), qt(e, i[d], i[f]), f--, p++;
+		else if (l === void 0 && (l = $t(o, p, m), u = $t(s, d, f)), l.has(s[d])) {
 			if (l.has(s[f])) {
 				let t = u.get(o[p]), n = t === void 0 ? null : i[t];
 				if (n === null) {
-					let t = Jt(e, i[d]);
-					Yt(t, a[p]), c[p] = t;
-				} else c[p] = Yt(n, a[p]), Jt(e, i[d], n), i[t] = null;
+					let t = qt(e, i[d]);
+					Jt(t, a[p]), c[p] = t;
+				} else c[p] = Jt(n, a[p]), qt(e, i[d], n), i[t] = null;
 				p++;
-			} else $t(i[f]), f--;
-		} else $t(i[d]), d++;
+			} else Qt(i[f]), f--;
+		} else Qt(i[d]), d++;
 		for (; p <= m;) {
-			let t = Jt(e, c[m + 1]);
-			Yt(t, a[p]), c[p++] = t;
+			let t = qt(e, c[m + 1]);
+			Jt(t, a[p]), c[p++] = t;
 		}
 		for (; d <= f;) {
 			let e = i[d++];
-			e !== null && $t(e);
+			e !== null && Qt(e);
 		}
-		return this.ut = o, Zt(e, c), Ce;
+		return this.ut = o, Xt(e, c), Se;
 	}
 });
 // node_modules/sortablejs/modular/sortable.esm.js
-function nn(e, t, n) {
+function tn(e, t, n) {
 	return (t = ln(t)) in e ? Object.defineProperty(e, t, {
 		value: n,
 		enumerable: !0,
@@ -2847,16 +2879,16 @@ function nn(e, t, n) {
 		writable: !0
 	}) : e[t] = n, e;
 }
-function rn() {
-	return rn = Object.assign ? Object.assign.bind() : function(e) {
+function nn() {
+	return nn = Object.assign ? Object.assign.bind() : function(e) {
 		for (var t = 1; t < arguments.length; t++) {
 			var n = arguments[t];
 			for (var r in n) ({}).hasOwnProperty.call(n, r) && (e[r] = n[r]);
 		}
 		return e;
-	}, rn.apply(null, arguments);
+	}, nn.apply(null, arguments);
 }
-function an(e, t) {
+function rn(e, t) {
 	var n = Object.keys(e);
 	if (Object.getOwnPropertySymbols) {
 		var r = Object.getOwnPropertySymbols(e);
@@ -2866,12 +2898,12 @@ function an(e, t) {
 	}
 	return n;
 }
-function j(e) {
+function an(e) {
 	for (var t = 1; t < arguments.length; t++) {
 		var n = arguments[t] == null ? {} : arguments[t];
-		t % 2 ? an(Object(n), !0).forEach(function(t) {
-			nn(e, t, n[t]);
-		}) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(n)) : an(Object(n)).forEach(function(t) {
+		t % 2 ? rn(Object(n), !0).forEach(function(t) {
+			tn(e, t, n[t]);
+		}) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(n)) : rn(Object(n)).forEach(function(t) {
 			Object.defineProperty(e, t, Object.getOwnPropertyDescriptor(n, t));
 		});
 	}
@@ -3118,7 +3150,7 @@ function zn() {
 						target: t,
 						rect: R(t)
 					});
-					var n = j({}, e[e.length - 1].rect);
+					var n = an({}, e[e.length - 1].rect);
 					if (t.thisAnimationDuration) {
 						var r = Cn(t, !0);
 						r && (n.top -= r.f, n.left -= r.e);
@@ -3179,7 +3211,7 @@ var Hn = [], Un = { initializeByDefault: !0 }, Wn = {
 		};
 		var i = e + "Global";
 		Hn.forEach(function(r) {
-			t[r.pluginName] && (t[r.pluginName][i] && t[r.pluginName][i](j({ sortable: t }, n)), t.options[r.pluginName] && t[r.pluginName][e] && t[r.pluginName][e](j({ sortable: t }, n)));
+			t[r.pluginName] && (t[r.pluginName][i] && t[r.pluginName][i](an({ sortable: t }, n)), t.options[r.pluginName] && t[r.pluginName][e] && t[r.pluginName][e](an({ sortable: t }, n)));
 		});
 	},
 	initializePlugins: function(e, t, n, r) {
@@ -3187,7 +3219,7 @@ var Hn = [], Un = { initializeByDefault: !0 }, Wn = {
 			var i = r.pluginName;
 			if (e.options[i] || r.initializeByDefault) {
 				var a = new r(e, t, e.options);
-				a.sortable = e, a.options = e.options, e[i] = a, rn(n, a.defaults);
+				a.sortable = e, a.options = e.options, e[i] = a, nn(n, a.defaults);
 			}
 		}), e.options) if (e.options.hasOwnProperty(i)) {
 			var a = this.modifyOption(e, i, e.options[i]);
@@ -3197,7 +3229,7 @@ var Hn = [], Un = { initializeByDefault: !0 }, Wn = {
 	getEventProperties: function(e, t) {
 		var n = {};
 		return Hn.forEach(function(r) {
-			typeof r.eventProperties == "function" && rn(n, r.eventProperties.call(t[r.pluginName], e));
+			typeof r.eventProperties == "function" && nn(n, r.eventProperties.call(t[r.pluginName], e));
 		}), n;
 	},
 	modifyOption: function(e, t, n) {
@@ -3215,14 +3247,14 @@ function Gn(e) {
 			bubbles: !0,
 			cancelable: !0
 		}) : (h = document.createEvent("Event"), h.initEvent(r, !0, !0)), h.to = o || n, h.from = s || n, h.item = i || n, h.clone = a, h.oldIndex = c, h.newIndex = l, h.oldDraggableIndex = u, h.newDraggableIndex = d, h.originalEvent = f, h.pullMode = p ? p.lastPutMode : void 0;
-		var te = j(j({}, m), Wn.getEventProperties(r, t));
+		var te = an(an({}, m), Wn.getEventProperties(r, t));
 		for (var _ in te) h[_] = te[_];
 		n && n.dispatchEvent(h), ee[g] && ee[g].call(t, h);
 	}
 }
 var Kn = ["evt"], V = function(e, t) {
 	var n = arguments.length > 2 && arguments[2] !== void 0 ? arguments[2] : {}, r = n.evt, i = on(n, Kn);
-	Wn.pluginEvent.bind(Q)(e, t, j({
+	Wn.pluginEvent.bind(Q)(e, t, an({
 		dragEl: U,
 		parentEl: W,
 		ghostEl: G,
@@ -3257,7 +3289,7 @@ var Kn = ["evt"], V = function(e, t) {
 	}, i));
 };
 function H(e) {
-	Gn(j({
+	Gn(an({
 		putSortable: Y,
 		cloneEl: q,
 		targetEl: U,
@@ -3332,7 +3364,7 @@ var Or = function(e) {
 };
 function Q(e, t) {
 	if (!(e && e.nodeType && e.nodeType === 1)) throw `Sortable: \`el\` must be an HTMLElement, not ${{}.toString.call(e)}`;
-	this.el = e, this.options = t = rn({}, t), e[B] = this;
+	this.el = e, this.options = t = nn({}, t), e[B] = this;
 	var n = {
 		group: null,
 		sort: !0,
@@ -3377,7 +3409,7 @@ function Q(e, t) {
 	};
 	for (var r in Wn.initializePlugins(this, e, n), n) !(r in t) && (t[r] = n[r]);
 	for (var i in Tr(t), this) i.charAt(0) === "_" && typeof this[i] == "function" && (this[i] = this[i].bind(this));
-	this.nativeDraggable = !t.forceFallback && br, this.nativeDraggable && (this.options.touchStartThreshold = 1), t.supportPointer ? M(e, "pointerdown", this._onTapStart) : (M(e, "mousedown", this._onTapStart), M(e, "touchstart", this._onTapStart)), this.nativeDraggable && (M(e, "dragover", this), M(e, "dragenter", this)), nr.push(this.el), t.store && t.store.get && this.sort(t.store.get(this) || []), rn(this, zn());
+	this.nativeDraggable = !t.forceFallback && br, this.nativeDraggable && (this.options.touchStartThreshold = 1), t.supportPointer ? M(e, "pointerdown", this._onTapStart) : (M(e, "mousedown", this._onTapStart), M(e, "touchstart", this._onTapStart)), this.nativeDraggable && (M(e, "dragover", this), M(e, "dragenter", this)), nr.push(this.el), t.store && t.store.get && this.sort(t.store.get(this) || []), nn(this, zn());
 }
 Q.prototype = {
 	constructor: Q,
@@ -3539,7 +3571,7 @@ Q.prototype = {
 		var t = this.el, n = e.target, r, i, a, o = this.options, s = o.group, c = Q.active, l = $n === s, u = o.sort, d = Y || c, f, p = this, m = !1;
 		if (hr) return;
 		function h(o, s) {
-			V(o, p, j({
+			V(o, p, an({
 				evt: e,
 				isOwner: l,
 				axis: f ? "vertical" : "horizontal",
@@ -3589,21 +3621,21 @@ Q.prototype = {
 				if (n = ne, i = R(n), jr(K, t, U, r, n, i, e, !1) !== !1) return ee(), t.insertBefore(U, ne), W = t, te(), g(!0);
 			} else if (n.parentNode === t) {
 				i = R(n);
-				var v = 0, re, ie = U.parentNode !== t, ae = !Cr(U.animated && U.toRect || r, n.animated && n.toRect || i, f), y = f ? "top" : "left", b = Tn(n, "top", "top") || Tn(U, "top", "top"), oe = b ? b.scrollTop : void 0;
-				lr !== n && (re = i[y], dr = !1, fr = !ae && o.invertSwap || ie), v = Ir(e, n, i, f, ae ? 1 : o.swapThreshold, o.invertedSwapThreshold == null ? o.swapThreshold : o.invertedSwapThreshold, fr, lr === n);
-				var x;
+				var v = 0, re, y = U.parentNode !== t, ie = !Cr(U.animated && U.toRect || r, n.animated && n.toRect || i, f), b = f ? "top" : "left", x = Tn(n, "top", "top") || Tn(U, "top", "top"), ae = x ? x.scrollTop : void 0;
+				lr !== n && (re = i[b], dr = !1, fr = !ie && o.invertSwap || y), v = Ir(e, n, i, f, ie ? 1 : o.swapThreshold, o.invertedSwapThreshold == null ? o.swapThreshold : o.invertedSwapThreshold, fr, lr === n);
+				var S;
 				if (v !== 0) {
-					var S = z(U);
+					var C = z(U);
 					do
-						S -= v, x = W.children[S];
-					while (x && (I(x, "display") === "none" || x === G));
+						C -= v, S = W.children[C];
+					while (S && (I(S, "display") === "none" || S === G));
 				}
-				if (v === 0 || x === n) return g(!1);
+				if (v === 0 || S === n) return g(!1);
 				lr = n, ur = v;
-				var se = n.nextElementSibling, ce = !1;
-				ce = v === 1;
-				var C = jr(K, t, U, r, n, i, e, ce);
-				if (C !== !1) return (C === 1 || C === -1) && (ce = C === 1), hr = !0, setTimeout(Nr, 30), ee(), ce && !se ? t.appendChild(U) : n.parentNode.insertBefore(U, ce ? se : n), b && In(b, 0, oe - b.scrollTop), W = U.parentNode, re !== void 0 && !fr && (pr = Math.abs(re - R(n)[y])), te(), g(!0);
+				var oe = n.nextElementSibling, se = !1;
+				se = v === 1;
+				var w = jr(K, t, U, r, n, i, e, se);
+				if (w !== !1) return (w === 1 || w === -1) && (se = w === 1), hr = !0, setTimeout(Nr, 30), ee(), se && !oe ? t.appendChild(U) : n.parentNode.insertBefore(U, se ? oe : n), x && In(x, 0, ae - x.scrollTop), W = U.parentNode, re !== void 0 && !fr && (pr = Math.abs(re - R(n)[b])), te(), g(!0);
 			}
 			if (t.contains(U)) return g(!1);
 		}
@@ -3813,7 +3845,7 @@ _r && M(document, "touchmove", function(e) {
 	var e = [...arguments];
 	e[0].constructor === Array && (e = e[0]), e.forEach(function(e) {
 		if (!e.prototype || !e.prototype.constructor) throw `Sortable: Mounted plugin must be a constructor function, not ${{}.toString.call(e)}`;
-		e.utils && (Q.utils = j(j({}, Q.utils), e.utils)), Wn.mount(e);
+		e.utils && (Q.utils = an(an({}, Q.utils), e.utils)), Wn.mount(e);
 	});
 }, Q.create = function(e, t) {
 	return new Q(e, t);
@@ -3864,7 +3896,7 @@ function Yr() {
 				Qr(e, this.options, An(a, !1), !1);
 			}
 		}
-	}, rn(e, {
+	}, nn(e, {
 		pluginName: "scroll",
 		initializeByDefault: !0
 	});
@@ -3883,11 +3915,11 @@ var Qr = Pn(function(e, t, n, r) {
 		Ur !== n && (Ur = n, Xr(), Hr = t.scroll, u = t.scrollFn, Hr === !0 && (Hr = An(n, !0)));
 		var d = 0, f = Hr;
 		do {
-			var p = f, m = R(p), h = m.top, ee = m.bottom, g = m.left, te = m.right, _ = m.width, ne = m.height, v = void 0, re = void 0, ie = p.scrollWidth, ae = p.scrollHeight, y = I(p), b = p.scrollLeft, oe = p.scrollTop;
-			p === c ? (v = _ < ie && (y.overflowX === "auto" || y.overflowX === "scroll" || y.overflowX === "visible"), re = ne < ae && (y.overflowY === "auto" || y.overflowY === "scroll" || y.overflowY === "visible")) : (v = _ < ie && (y.overflowX === "auto" || y.overflowX === "scroll"), re = ne < ae && (y.overflowY === "auto" || y.overflowY === "scroll"));
-			var x = v && (Math.abs(te - i) <= o && b + _ < ie) - (Math.abs(g - i) <= o && !!b), S = re && (Math.abs(ee - a) <= o && oe + ne < ae) - (Math.abs(h - a) <= o && !!oe);
-			if (!$[d]) for (var se = 0; se <= d; se++) $[se] || ($[se] = {});
-			($[d].vx != x || $[d].vy != S || $[d].el !== p) && ($[d].el = p, $[d].vx = x, $[d].vy = S, clearInterval($[d].pid), (x != 0 || S != 0) && (l = !0, $[d].pid = setInterval(function() {
+			var p = f, m = R(p), h = m.top, ee = m.bottom, g = m.left, te = m.right, _ = m.width, ne = m.height, v = void 0, re = void 0, y = p.scrollWidth, ie = p.scrollHeight, b = I(p), x = p.scrollLeft, ae = p.scrollTop;
+			p === c ? (v = _ < y && (b.overflowX === "auto" || b.overflowX === "scroll" || b.overflowX === "visible"), re = ne < ie && (b.overflowY === "auto" || b.overflowY === "scroll" || b.overflowY === "visible")) : (v = _ < y && (b.overflowX === "auto" || b.overflowX === "scroll"), re = ne < ie && (b.overflowY === "auto" || b.overflowY === "scroll"));
+			var S = v && (Math.abs(te - i) <= o && x + _ < y) - (Math.abs(g - i) <= o && !!x), C = re && (Math.abs(ee - a) <= o && ae + ne < ie) - (Math.abs(h - a) <= o && !!ae);
+			if (!$[d]) for (var oe = 0; oe <= d; oe++) $[oe] || ($[oe] = {});
+			($[d].vx != S || $[d].vy != C || $[d].el !== p) && ($[d].el = p, $[d].vx = S, $[d].vy = C, clearInterval($[d].pid), (S != 0 || C != 0) && (l = !0, $[d].pid = setInterval(function() {
 				r && this.layer === 0 && Q.active._onTouchMove(qr);
 				var t = $[this.layer].vy ? $[this.layer].vy * s : 0, n = $[this.layer].vx ? $[this.layer].vx * s : 0;
 				(typeof u != "function" || u.call(Q.dragged.parentNode[B], n, t, e, qr, $[this.layer].el) === "continue") && In($[this.layer].el, n, t);
@@ -3921,7 +3953,7 @@ ei.prototype = {
 		r ? this.sortable.el.insertBefore(t, r) : this.sortable.el.appendChild(t), this.sortable.animateAll(), n && n.animateAll();
 	},
 	drop: $r
-}, rn(ei, { pluginName: "revertOnSpill" });
+}, nn(ei, { pluginName: "revertOnSpill" });
 function ti() {}
 ti.prototype = {
 	onSpill: function(e) {
@@ -3929,7 +3961,7 @@ ti.prototype = {
 		n.captureAnimationState(), t.parentNode && t.parentNode.removeChild(t), n.animateAll();
 	},
 	drop: $r
-}, rn(ti, { pluginName: "removeOnSpill" }), Q.mount(new Yr()), Q.mount(ti, ei);
+}, nn(ti, { pluginName: "removeOnSpill" }), Q.mount(new Yr()), Q.mount(ti, ei);
 // src/image.js
 var ni = 1600;
 async function ri(e) {
@@ -3940,8 +3972,520 @@ async function ri(e) {
 	let a = r.toDataURL("image/jpeg", .85);
 	return a.slice(a.indexOf(",") + 1);
 }
+// src/views/change.js
+var ii = class extends D {
+	static properties = {
+		t: { attribute: !1 },
+		kind: {},
+		parts: { attribute: !1 },
+		text: {},
+		undoable: { type: Boolean },
+		expanded: { type: Boolean },
+		_open: { state: !0 }
+	};
+	static styles = [O, o`
+      :host { display: block; }
+      .pill { font: inherit; font-size: 0.75rem; font-weight: 600; border: none; border-radius: 999px; cursor: pointer;
+        padding: 4px 10px; margin: 2px 0; min-height: 28px; background: var(--it-mark-soft); color: var(--it-text);
+        display: inline-flex; align-items: center; gap: 4px; position: relative; }
+      /* A bigger invisible tap area than the pill shows. */
+      .pill::after { content: ""; position: absolute; inset: -8px -4px; }
+      .pill.added { background: var(--it-ok-soft); cursor: default; }
+      .pill.removed { background: var(--it-error-soft); cursor: default; }
+      .pill.moved { cursor: default; }
+      .pill .arrow { transition: transform 0.15s; }
+      .pill[aria-expanded="true"] .arrow { transform: rotate(180deg); }
+      /* Ruled, not filled, so it does not read as one more field to edit. */
+      .was { margin-top: 6px; padding: 2px 0 2px 12px; border-left: 3px solid var(--it-divider);
+        font-size: 0.9rem; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+      .caption { display: block; font-size: 0.75rem; color: var(--it-muted); }
+      del { background: var(--it-error-soft); text-decoration: line-through; text-decoration-color: var(--it-error); }
+      ins { background: var(--it-ok-soft); text-decoration: none; }
+      del, ins { padding: 0 2px; border-radius: 4px; }
+      .btn.undo { margin-top: 6px; padding: 6px 14px; font-size: 0.8rem; background: var(--it-mark-soft); }
+    `];
+	willUpdate(e) {
+		e.has("expanded") && (this._open = this.expanded);
+	}
+	_content() {
+		let { parts: e, text: t } = this;
+		return e ? e.map((e) => e.added ? T`<ins>${e.value}</ins>` : e.removed ? T`<del>${e.value}</del>` : e.value) : t;
+	}
+	render() {
+		let e = this.t;
+		if ([
+			"added",
+			"removed",
+			"moved"
+		].includes(this.kind)) return T`<span class="pill ${this.kind}">${e(this.kind)}</span>`;
+		let t = this.kind === "source" ? e("sourceText") : e("changed");
+		return T`
+      <button class="pill" aria-expanded=${this._open ? "true" : "false"} @click=${() => this._open = !this._open}>
+        ${t}<span class="arrow">▾</span>
+      </button>
+      ${this._open ? T`<div class="was">${this.kind === "changed" ? T`<span class="caption">${e("before")}</span>` : E}${this._content()}</div>
+            ${this.undoable ? T`<button class="btn quiet undo" @click=${() => this.dispatchEvent(new CustomEvent("undo"))}>${e("undoChange")}</button>` : E}` : E}
+    `;
+	}
+};
+customElements.define("itadaki-change", ii);
+// node_modules/diff/libesm/diff/base.js
+var ai = class {
+	diff(e, t, n = {}) {
+		let r;
+		typeof n == "function" ? (r = n, n = {}) : "callback" in n && (r = n.callback);
+		let i = this.castInput(e, n), a = this.castInput(t, n), o = this.removeEmpty(this.tokenize(i, n)), s = this.removeEmpty(this.tokenize(a, n));
+		return this.diffWithOptionsObj(o, s, n, r);
+	}
+	diffWithOptionsObj(e, t, n, r) {
+		let i = (e) => {
+			if (e = this.postProcess(e, n), r) setTimeout(function() {
+				r(e);
+			}, 0);
+			else return e;
+		}, a = t.length, o = e.length, s = 1, c = a + o;
+		n.maxEditLength != null && (c = Math.min(c, n.maxEditLength));
+		let l = n.timeout ?? Infinity, u = Date.now() + l, d = [{
+			oldPos: -1,
+			lastComponent: void 0
+		}], f = this.extractCommon(d[0], t, e, 0, n);
+		if (d[0].oldPos + 1 >= o && f + 1 >= a) return i(this.buildValues(d[0].lastComponent, t, e));
+		let p = -Infinity, m = Infinity, h = () => {
+			for (let r = Math.max(p, -s); r <= Math.min(m, s); r += 2) {
+				let s, c = d[r - 1], l = d[r + 1];
+				c && (d[r - 1] = void 0);
+				let u = !1;
+				if (l) {
+					let e = l.oldPos - r;
+					u = l && 0 <= e && e < a;
+				}
+				let h = c && c.oldPos + 1 < o;
+				if (!u && !h) d[r] = void 0;
+				else {
+					if (s = !h || u && c.oldPos < l.oldPos ? this.addToPath(l, !0, !1, 0, n) : this.addToPath(c, !1, !0, 1, n), f = this.extractCommon(s, t, e, r, n), s.oldPos + 1 >= o && f + 1 >= a) return i(this.buildValues(s.lastComponent, t, e)) || !0;
+					d[r] = s, s.oldPos + 1 >= o && (m = Math.min(m, r - 1)), f + 1 >= a && (p = Math.max(p, r + 1));
+				}
+			}
+			s++;
+		};
+		if (r) (function e() {
+			setTimeout(function() {
+				if (s > c || Date.now() > u) return r(void 0);
+				h() || e();
+			}, 0);
+		})();
+		else for (; s <= c && Date.now() <= u;) {
+			let e = h();
+			if (e) return e;
+		}
+	}
+	addToPath(e, t, n, r, i) {
+		let a = e.lastComponent;
+		return a && !i.oneChangePerToken && a.added === t && a.removed === n ? {
+			oldPos: e.oldPos + r,
+			lastComponent: {
+				count: a.count + 1,
+				added: t,
+				removed: n,
+				previousComponent: a.previousComponent
+			}
+		} : {
+			oldPos: e.oldPos + r,
+			lastComponent: {
+				count: 1,
+				added: t,
+				removed: n,
+				previousComponent: a
+			}
+		};
+	}
+	extractCommon(e, t, n, r, i) {
+		let a = t.length, o = n.length, s = e.oldPos, c = s - r, l = 0;
+		for (; c + 1 < a && s + 1 < o && this.equals(n[s + 1], t[c + 1], i);) c++, s++, l++, i.oneChangePerToken && (e.lastComponent = {
+			count: 1,
+			previousComponent: e.lastComponent,
+			added: !1,
+			removed: !1
+		});
+		return l && !i.oneChangePerToken && (e.lastComponent = {
+			count: l,
+			previousComponent: e.lastComponent,
+			added: !1,
+			removed: !1
+		}), e.oldPos = s, c;
+	}
+	equals(e, t, n) {
+		return n.comparator ? n.comparator(e, t) : e === t || !!n.ignoreCase && e.toLowerCase() === t.toLowerCase();
+	}
+	removeEmpty(e) {
+		let t = [];
+		for (let n = 0; n < e.length; n++) e[n] && t.push(e[n]);
+		return t;
+	}
+	castInput(e, t) {
+		return e;
+	}
+	tokenize(e, t) {
+		return Array.from(e);
+	}
+	join(e) {
+		return e.join("");
+	}
+	postProcess(e, t) {
+		return e;
+	}
+	get useLongestToken() {
+		return !1;
+	}
+	buildValues(e, t, n) {
+		let r = [], i;
+		for (; e;) r.push(e), i = e.previousComponent, delete e.previousComponent, e = i;
+		r.reverse();
+		let a = r.length, o = 0, s = 0, c = 0;
+		for (; o < a; o++) {
+			let e = r[o];
+			if (e.removed) e.value = this.join(n.slice(c, c + e.count)), c += e.count;
+			else {
+				if (!e.added && this.useLongestToken) {
+					let r = t.slice(s, s + e.count);
+					r = r.map(function(e, t) {
+						let r = n[c + t];
+						return r.length > e.length ? r : e;
+					}), e.value = this.join(r);
+				} else e.value = this.join(t.slice(s, s + e.count));
+				s += e.count, e.added || (c += e.count);
+			}
+		}
+		return r;
+	}
+};
+new class extends ai {}();
+// node_modules/diff/libesm/util/string.js
+function oi(e, t) {
+	let n = 0;
+	for (; n < e.length && n < t.length; n++) if (e[n] != t[n]) return e.slice(0, n);
+	return e.slice(0, n);
+}
+function si(e, t) {
+	let n;
+	if (!e || !t || e[e.length - 1] != t[t.length - 1]) return "";
+	for (n = 0; n < e.length && n < t.length; n++) if (e[e.length - (n + 1)] != t[t.length - (n + 1)]) return e.slice(-n);
+	return e.slice(-n);
+}
+function ci(e, t, n) {
+	if (e.slice(0, t.length) != t) throw Error(`string ${JSON.stringify(e)} doesn't start with prefix ${JSON.stringify(t)}; this is a bug`);
+	return n + e.slice(t.length);
+}
+function li(e, t, n) {
+	if (!t) return e + n;
+	if (e.slice(-t.length) != t) throw Error(`string ${JSON.stringify(e)} doesn't end with suffix ${JSON.stringify(t)}; this is a bug`);
+	return e.slice(0, -t.length) + n;
+}
+function ui(e, t) {
+	return ci(e, t, "");
+}
+function di(e, t) {
+	return li(e, t, "");
+}
+function fi(e, t) {
+	return t.slice(0, pi(e, t));
+}
+function pi(e, t) {
+	let n = 0;
+	e.length > t.length && (n = e.length - t.length);
+	let r = t.length;
+	e.length < t.length && (r = e.length);
+	let i = Array(r), a = 0;
+	i[0] = 0;
+	for (let e = 1; e < r; e++) {
+		for (t[e] == t[a] ? i[e] = i[a] : i[e] = a; a > 0 && t[e] != t[a];) a = i[a];
+		t[e] == t[a] && a++;
+	}
+	a = 0;
+	for (let r = n; r < e.length; r++) {
+		for (; a > 0 && e[r] != t[a];) a = i[a];
+		e[r] == t[a] && a++;
+	}
+	return a;
+}
+function mi(e, t) {
+	let n = [];
+	for (let r of Array.from(t.segment(e))) {
+		let e = r.segment;
+		n.length && /\s/.test(n[n.length - 1]) && /\s/.test(e) ? n[n.length - 1] += e : n.push(e);
+	}
+	return n;
+}
+function hi(e, t) {
+	if (t) return _i(e, t)[1];
+	let n;
+	for (n = e.length - 1; n >= 0 && e[n].match(/\s/); n--);
+	return e.substring(n + 1);
+}
+function gi(e, t) {
+	if (t) return _i(e, t)[0];
+	let n = e.match(/^\s*/);
+	return n ? n[0] : "";
+}
+function _i(e, t) {
+	if (!t) return [gi(e), hi(e)];
+	if (t.resolvedOptions().granularity != "word") throw Error("The segmenter passed must have a granularity of \"word\"");
+	let n = mi(e, t), r = n[0], i = n[n.length - 1];
+	return [/\s/.test(r) ? r : "", /\s/.test(i) ? i : ""];
+}
+// node_modules/diff/libesm/diff/word.js
+var vi = "a-zA-Z0-9_\\u{AD}\\u{C0}-\\u{D6}\\u{D8}-\\u{F6}\\u{F8}-\\u{2C6}\\u{2C8}-\\u{2D7}\\u{2DE}-\\u{2FF}\\u{1E00}-\\u{1EFF}", yi = RegExp(`[${vi}]+|\\s+|[^${vi}]`, "ug"), bi = new class extends ai {
+	equals(e, t, n) {
+		return n.ignoreCase && (e = e.toLowerCase(), t = t.toLowerCase()), e.trim() === t.trim();
+	}
+	tokenize(e, t = {}) {
+		let n;
+		if (t.intlSegmenter) {
+			let r = t.intlSegmenter;
+			if (r.resolvedOptions().granularity != "word") throw Error("The segmenter passed must have a granularity of \"word\"");
+			n = mi(e, r);
+		} else n = e.match(yi) || [];
+		let r = [], i = null;
+		return n.forEach((e) => {
+			/\s/.test(e) ? i == null ? r.push(e) : r.push(r.pop() + e) : i != null && /\s/.test(i) ? r[r.length - 1] == i ? r.push(r.pop() + e) : r.push(i + e) : r.push(e), i = e;
+		}), r;
+	}
+	join(e) {
+		return e.map((e, t) => t == 0 ? e : e.replace(/^\s+/, "")).join("");
+	}
+	postProcess(e, t) {
+		if (!e || t.oneChangePerToken) return e;
+		let n = null, r = null, i = null;
+		return e.forEach((e) => {
+			e.added ? r = e : e.removed ? i = e : ((r || i) && Si(n, i, r, e, t.intlSegmenter), n = e, r = null, i = null);
+		}), (r || i) && Si(n, i, r, null, t.intlSegmenter), e;
+	}
+}();
+function xi(e, t, n) {
+	return n?.ignoreWhitespace != null && !n.ignoreWhitespace ? wi(e, t, n) : bi.diff(e, t, n);
+}
+function Si(e, t, n, r, i) {
+	if (t && n) {
+		let [a, o] = _i(t.value, i), [s, c] = _i(n.value, i);
+		if (e) {
+			let r = oi(a, s);
+			e.value = li(e.value, s, r), t.value = ui(t.value, r), n.value = ui(n.value, r);
+		}
+		if (r) {
+			let e = si(o, c);
+			r.value = ci(r.value, c, e), t.value = di(t.value, e), n.value = di(n.value, e);
+		}
+	} else if (n) {
+		if (e) {
+			let e = gi(n.value, i);
+			n.value = n.value.substring(e.length);
+		}
+		if (r) {
+			let e = gi(r.value, i);
+			r.value = r.value.substring(e.length);
+		}
+	} else if (e && r) {
+		let n = gi(r.value, i), [a, o] = _i(t.value, i), s = oi(n, a);
+		t.value = ui(t.value, s);
+		let c = si(ui(n, s), o);
+		t.value = di(t.value, c), r.value = ci(r.value, n, c), e.value = li(e.value, n, n.slice(0, n.length - c.length));
+	} else if (r) {
+		let e = gi(r.value, i), n = fi(hi(t.value, i), e);
+		t.value = di(t.value, n);
+	} else if (e) {
+		let n = fi(hi(e.value, i), gi(t.value, i));
+		t.value = ui(t.value, n);
+	}
+}
+var Ci = new class extends ai {
+	tokenize(e) {
+		let t = RegExp(`(\\r?\\n)|[${vi}]+|[^\\S\\n\\r]+|[^${vi}]`, "ug");
+		return e.match(t) || [];
+	}
+}();
+function wi(e, t, n) {
+	return Ci.diff(e, t, n);
+}
+new class extends ai {
+	constructor() {
+		super(...arguments), this.tokenize = Ti;
+	}
+	equals(e, t, n) {
+		return n.ignoreWhitespace ? (n.newlineIsToken && e.includes("\n") || (e = e.trim()), n.newlineIsToken && t.includes("\n") || (t = t.trim())) : n.ignoreNewlineAtEof && !n.newlineIsToken && (e.endsWith("\n") && (e = e.slice(0, -1)), t.endsWith("\n") && (t = t.slice(0, -1))), super.equals(e, t, n);
+	}
+}();
+function Ti(e, t) {
+	t.stripTrailingCr && (e = e.replace(/\r\n/g, "\n"));
+	let n = [], r = e.split(/(\n|\r\n)/);
+	r[r.length - 1] || r.pop();
+	for (let e = 0; e < r.length; e++) {
+		let i = r[e];
+		e % 2 && !t.newlineIsToken ? n[n.length - 1] += i : n.push(i);
+	}
+	return n;
+}
+// node_modules/diff/libesm/diff/sentence.js
+function Ei(e) {
+	return e == "." || e == "!" || e == "?";
+}
+new class extends ai {
+	tokenize(e) {
+		let t = [], n = 0;
+		for (let r = 0; r < e.length; r++) {
+			if (r == e.length - 1) {
+				t.push(e.slice(n));
+				break;
+			}
+			if (Ei(e[r]) && e[r + 1].match(/\s/)) {
+				for (t.push(e.slice(n, r + 1)), r = n = r + 1; e[r + 1]?.match(/\s/);) r++;
+				t.push(e.slice(n, r + 1)), n = r + 1;
+			}
+		}
+		return t;
+	}
+}(), new class extends ai {
+	tokenize(e) {
+		return e.split(/([{}:;,]|\s+)/);
+	}
+}(), new class extends ai {
+	constructor() {
+		super(...arguments), this.tokenize = Ti;
+	}
+	get useLongestToken() {
+		return !0;
+	}
+	castInput(e, t) {
+		let { undefinedReplacement: n, stringifyReplacer: r = (e, t) => t === void 0 ? n : t } = t;
+		return typeof e == "string" ? e : JSON.stringify(Di(e, null, null, r), null, "  ");
+	}
+	equals(e, t, n) {
+		return super.equals(e.replace(/,([\r\n])/g, "$1"), t.replace(/,([\r\n])/g, "$1"), n);
+	}
+}();
+function Di(e, t, n, r, i) {
+	t ||= [], n ||= [], r && (e = r(i === void 0 ? "" : i, e));
+	let a = 0;
+	for (; a < t.length; a += 1) if (t[a] === e) return n[a];
+	let o;
+	if (Object.prototype.toString.call(e) === "[object Array]") {
+		for (t.push(e), o = Array(e.length), n.push(o), a = 0; a < e.length; a += 1) o[a] = Di(e[a], t, n, r, String(a));
+		return t.pop(), n.pop(), o;
+	}
+	if (e && e.toJSON && (e = e.toJSON()), typeof e == "object" && e) {
+		t.push(e), o = {}, n.push(o);
+		let i = [], s;
+		for (s in e)
+ /* istanbul ignore else */
+		Object.prototype.hasOwnProperty.call(e, s) && i.push(s);
+		for (i.sort(), a = 0; a < i.length; a += 1) s = i[a], o[s] = Di(e[s], t, n, r, s);
+		t.pop(), n.pop();
+	} else o = e;
+	return o;
+}
+var Oi = new class extends ai {
+	tokenize(e) {
+		return e.slice();
+	}
+	join(e) {
+		return e;
+	}
+	removeEmpty(e) {
+		return e;
+	}
+}();
+function ki(e, t, n) {
+	return Oi.diff(e, t, n);
+}
+// src/changes.js
+var Ai = .4;
+function ji(e, t, n) {
+	if (e ??= "", t ??= "", e === t) return null;
+	let r = xi(e, t, { intlSegmenter: new Intl.Segmenter(n, { granularity: "word" }) });
+	return {
+		parts: r,
+		rewritten: r.filter((e) => !e.added && !e.removed).reduce((e, t) => e + t.value.trim().length, 0) / Math.max(e.trim().length, t.trim().length) < Ai
+	};
+}
+function Mi(e, t, n, r = () => !0) {
+	let i = ki(e, t, { comparator: n }), a = 0, o = 0, s = i.map((e) => ({
+		run: e,
+		from: e.added ? a : (a += e.value.length) - e.value.length,
+		to: e.removed ? o : (o += e.value.length) - e.value.length
+	})), c = s.filter((e) => e.run.removed).flatMap((e) => e.run.value.map((t, n) => ({
+		item: t,
+		index: e.from + n
+	}))), l = /* @__PURE__ */ new Map();
+	for (let e of s.filter((e) => e.run.added)) e.run.value.forEach((t, r) => {
+		let i = c.find((e) => !e.taken && n(e.item, t));
+		i && ([i.taken, i.moved] = [!0, !0]), i && l.set(e.to + r, i);
+	});
+	let u = {
+		after: [],
+		removed: []
+	};
+	for (let t = 0; t < s.length; t++) {
+		let { run: n, from: i, to: a } = s[t];
+		if (!n.added && !n.removed) {
+			n.value.forEach((t, n) => u.after.push({
+				status: "same",
+				before: e[i + n],
+				beforeIndex: i + n
+			}));
+			continue;
+		}
+		let o = n.removed ? c.filter((e) => !e.moved && e.index >= i && e.index < i + n.value.length) : [], d = n.removed && s[t + 1]?.run.added ? s[++t] : n.added ? s[t] : null, f = u.after.length, p = (d?.run.value ?? []).map((e, t) => {
+			let n = l.get(d.to + t);
+			if (n) return {
+				status: "moved",
+				before: n.item,
+				beforeIndex: n.index
+			};
+			let i = o.find((t) => !t.taken && r(t.item, e));
+			return i && (i.taken = !0), i ? {
+				status: "changed",
+				before: i.item,
+				beforeIndex: i.index
+			} : { status: "added" };
+		});
+		u.after.push(...p);
+		for (let e of o.filter((e) => !e.taken)) {
+			let t = f + p.filter((t) => t.status === "changed" && t.beforeIndex < e.index).length;
+			u.removed.push({
+				item: e.item,
+				index: e.index,
+				at: t
+			});
+		}
+	}
+	return u;
+}
+var Ni = (e, t) => e.text.trim() === t.text.trim(), Pi = (e, t) => e.ingredient_id === t.ingredient_id && e.quantity === t.quantity && e.unit_id === t.unit_id && (e.note || null) === (t.note || null), Fi = (e, t) => e.ingredient_id === t.ingredient_id, Ii = [
+	"title",
+	"description",
+	"notes"
+], Li = [
+	"prep_minutes",
+	"cook_minutes",
+	"total_minutes"
+];
+function Ri(e, t) {
+	let n = t.language, r = Object.fromEntries(Ii.map((r) => [r, ji(e[r], t[r], n)]).filter(([, e]) => e)), i = Li.filter((n) => (e[n] ?? null) !== (t[n] ?? null));
+	((e.yield_quantity ?? null) !== (t.yield_quantity ?? null) || (e.yield_unit_id ?? null) !== (t.yield_unit_id ?? null)) && i.push("yield");
+	let a = Mi(e.steps, t.steps, Ni);
+	a.after.forEach((e, r) => {
+		e.status === "changed" && (e.diff = ji(e.before.text, t.steps[r].text, n));
+	});
+	let o = Mi(e.ingredients, t.ingredients, Pi, Fi);
+	return {
+		text: r,
+		numbers: i,
+		steps: a,
+		ingredients: o,
+		count: Object.keys(r).length + i.length + [a, o].reduce((e, t) => e + t.after.filter((e) => e.status !== "same").length + t.removed.length, 0)
+	};
+}
 // src/sections.js
-function ii(e) {
+function zi(e) {
 	let t = [];
 	return e.forEach((e, n) => {
 		let r = e.section || null, i = t[t.length - 1];
@@ -3952,15 +4496,15 @@ function ii(e) {
 		});
 	}), t;
 }
-function ai(e, t, n) {
+function Bi(e, t, n) {
 	let r = n.trim() || null;
 	return e.map((e, n) => n >= t.start && n <= t.end ? {
 		...e,
 		section: r
 	} : e);
 }
-function oi(e, t, n) {
-	let r = ii(e), i = r.find((e) => t >= e.start && t <= e.end), a = n < 0 ? t === i.start : t === i.end, o = r[r.indexOf(i) + n];
+function Vi(e, t, n) {
+	let r = zi(e), i = r.find((e) => t >= e.start && t <= e.end), a = n < 0 ? t === i.start : t === i.end, o = r[r.indexOf(i) + n];
 	if (a) return o ? e.map((e, n) => n === t ? {
 		...e,
 		section: o.section
@@ -3968,15 +4512,15 @@ function oi(e, t, n) {
 	let s = [...e];
 	return [s[t], s[t + n]] = [s[t + n], s[t]], s;
 }
-function si(e, t, n) {
+function Hi(e, t, n) {
 	let r = [...e];
 	return r.splice(t.end + 1, 0, {
 		...n,
 		section: t.section
 	}), r;
 }
-function ci(e, t, n, r, i) {
-	let a = ii(e).map((t) => ({
+function Ui(e, t, n, r, i) {
+	let a = zi(e).map((t) => ({
 		section: t.section,
 		items: e.slice(t.start, t.end + 1)
 	})), [o] = a[t].items.splice(n, 1);
@@ -3985,15 +4529,15 @@ function ci(e, t, n, r, i) {
 		section: e.section
 	})));
 }
-function li(e, t) {
-	let n = e[t].text.trim().replace(/[:：]$/, ""), r = e.filter((e, n) => n !== t), i = ii(r).find((e) => t >= e.start && t <= e.end);
+function Wi(e, t) {
+	let n = e[t].text.trim().replace(/[:：]$/, ""), r = e.filter((e, n) => n !== t), i = zi(r).find((e) => t >= e.start && t <= e.end);
 	return i ? r.map((e, r) => r >= t && r <= i.end ? {
 		...e,
 		section: n
 	} : e) : r;
 }
-function ui(e, t) {
-	let n = ii(e).find((e) => e.end === t.start - 1), r = n ? n.section : null, i = {
+function Gi(e, t) {
+	let n = zi(e).find((e) => e.end === t.start - 1), r = n ? n.section : null, i = {
 		text: t.section,
 		section: r
 	}, a = e.map((e, n) => n >= t.start && n <= t.end ? {
@@ -4003,10 +4547,10 @@ function ui(e, t) {
 	return a.splice(t.start, 0, i), a;
 }
 // src/views/editor.js
-var di = (e) => e == null ? e : Math.round(e * 100) / 100, fi = (e) => e === "" || e == null ? null : di(Number(e)), pi = 0, mi = (e) => ({
+var Ki = (e) => e == null ? e : Math.round(e * 100) / 100, qi = (e) => e === "" || e == null ? null : Ki(Number(e)), Ji = 0, Yi = (e) => ({
 	...e,
-	_key: ++pi
-}), hi = ({ _key: e, _raw: t, ...n }) => n, gi = (e) => !(!e._raw || e.ingredient_id), _i = (e) => e && e.trim() ? e.trim() : null, vi = class extends E {
+	_key: ++Ji
+}), Xi = ({ _key: e, _raw: t, ...n }) => n, Zi = (e) => !(!e._raw || e.ingredient_id), Qi = (e) => e && e.trim() ? e.trim() : null, $i = class extends D {
 	static properties = {
 		api: { attribute: !1 },
 		recipe: { attribute: !1 },
@@ -4020,6 +4564,8 @@ var di = (e) => e == null ? e : Math.round(e * 100) / 100, fi = (e) => e === "" 
 		newTags: { attribute: !1 },
 		suggestedTags: { attribute: !1 },
 		fixedLanguage: { type: Boolean },
+		base: { attribute: !1 },
+		_showAll: { state: !0 },
 		_r: { state: !0 },
 		_new: { state: !0 },
 		_newTags: { state: !0 },
@@ -4027,7 +4573,7 @@ var di = (e) => e == null ? e : Math.round(e * 100) / 100, fi = (e) => e === "" 
 		_uploading: { state: !0 },
 		_imageError: { state: !0 }
 	};
-	static styles = [D, o`
+	static styles = [O, o`
       :host { display: grid; gap: 16px; }
       .grid2 { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
       .grid2 .wide { grid-column: span 2; }
@@ -4067,27 +4613,132 @@ var di = (e) => e == null ? e : Math.round(e * 100) / 100, fi = (e) => e === "" 
       .photo { width: 100%; max-height: 260px; object-fit: cover; border-radius: 14px; display: block; margin-bottom: 8px; }
       .photo-link { margin-top: 8px; }
       .suggested { margin-top: 10px; font-size: 0.85rem; }
+      .changes { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px 10px 20px; }
+      .changes .btn, .ghost .btn { background: var(--it-mark-soft); }
+      .changes .btn { padding: 8px 16px; font-size: 0.85rem; }
+      .line > itadaki-change, .step > itadaki-change { grid-column: 1 / -1; margin-top: -4px; }
+      .ghost { display: flex; align-items: center; gap: 8px; margin: 0 0 10px 26px; padding: 6px 6px 6px 12px;
+        border: 1px dashed var(--it-divider); border-radius: 12px; font-size: 0.9rem; color: var(--it-muted); }
+      .ghost > div { flex: 1; min-width: 0; }
+      .ghost s { display: block; overflow-wrap: anywhere; margin-bottom: 4px; }
+      .ghost .btn { padding: 6px 14px; font-size: 0.8rem; flex-shrink: 0; }
     `];
 	willUpdate(e) {
 		if ((e.has("newIngredients") || !this._new) && (this._new = structuredClone(this.newIngredients || [])), (e.has("newTags") || !this._newTags) && (this._newTags = structuredClone(this.newTags || [])), (e.has("suggestedTags") || !this._suggested) && (this._suggested = [...this.suggestedTags || []]), e.has("recipe")) {
 			let e = structuredClone(this.recipe);
 			this._r = {
 				...e,
-				ingredients: e.ingredients.map(mi),
-				steps: e.steps.map(mi)
+				ingredients: e.ingredients.map(Yi),
+				steps: e.steps.map(Yi)
 			};
 		}
+		if (e.has("_r") || e.has("base")) {
+			let e = this.base?.recipe;
+			this._source = e && e.language !== this._r.language ? e : null, this._changes = e && !this._source ? Ri(e, this._r) : null;
+		}
+	}
+	_changesBar() {
+		let e = this.t;
+		if (!this.base) return E;
+		let t = this._changes?.count;
+		return t === 0 ? T`<div class="card changes muted">${e("noChanges")}</div>` : T`<div class="card changes">
+      <span>${this._source ? e("sourceIn", { lang: e.langName(this._source.language) }) : e("changesCount", { n: t })}</span>
+      <button class="btn quiet" @click=${() => this._showAll = !this._showAll}>${e(this._showAll ? "hideAll" : "showAll")}</button>
+    </div>`;
+	}
+	_marker(e, t) {
+		return T`<itadaki-change .t=${this.t} kind=${e.kind} .parts=${e.parts} .text=${e.text}
+      ?undoable=${!!t} ?expanded=${this._showAll} @undo=${t}></itadaki-change>`;
+	}
+	_fieldChange(e) {
+		let t = this.base?.recipe;
+		if (this._source) return t[e] && typeof t[e] == "string" ? this._marker({
+			kind: "source",
+			text: t[e]
+		}) : E;
+		if (!this._changes) return E;
+		let n = this._changes.text[e];
+		if (n) return this._marker({
+			kind: "changed",
+			parts: n.rewritten ? void 0 : n.parts,
+			text: t[e]
+		}, () => this._set(e, t[e]));
+		if (!this._changes.numbers.includes(e)) return E;
+		if (e !== "yield") return this._marker({
+			kind: "changed",
+			text: String(t[e] ?? "—")
+		}, () => this._set(e, t[e]));
+		let r = this.units.find((e) => e.id === t.yield_unit_id), i = `${t.yield_quantity ?? "—"} ${r ? k(r, t.language) : this.t("people")}`;
+		return this._marker({
+			kind: "changed",
+			text: i
+		}, () => {
+			this._r = {
+				...this._r,
+				yield_quantity: t.yield_quantity,
+				yield_unit_id: t.yield_unit_id
+			};
+		});
+	}
+	_baseLine(e) {
+		let t = this.base.lines[e];
+		return [t.name, t.measure].filter(Boolean).join(" ") + (t.note ? `, ${t.note}` : "");
+	}
+	_itemChange(e, t) {
+		let n = this._r[e][t];
+		if (this._source) {
+			let n = e === "steps" ? this._source.steps[t]?.text : null;
+			return n ? this._marker({
+				kind: "source",
+				text: n
+			}) : E;
+		}
+		let r = this._changes?.[e].after[t];
+		if (!r || r.status === "same" || n._raw) return E;
+		if (r.status === "added" || r.status === "moved") return this._marker({ kind: r.status });
+		let i = r.before, a = () => this._set(e, this._r[e].map((e, n) => n === t ? {
+			...i,
+			section: e.section,
+			_key: e._key
+		} : e));
+		if (e === "ingredients") return this._marker({
+			kind: "changed",
+			text: this._baseLine(r.beforeIndex)
+		}, a);
+		let { diff: o } = r;
+		return this._marker({
+			kind: "changed",
+			parts: o.rewritten ? void 0 : o.parts,
+			text: i.text
+		}, a);
+	}
+	_ghosts(e, t) {
+		let n = this.t;
+		return (this._changes?.[e].removed.filter((e) => e.at === t) ?? []).map(({ item: r, index: i }) => T`<div class="ghost">
+        <div><s>${e === "steps" ? r.text : this._baseLine(i)}</s>${this._marker({ kind: "removed" })}</div>
+        <button class="btn quiet" @click=${() => {
+			let n = this._r[e], i = (n[t - 1] ?? n[t])?.section ?? r.section;
+			this._set(e, [
+				...n.slice(0, t),
+				Yi({
+					...r,
+					section: i
+				}),
+				...n.slice(t)
+			]);
+		}}>${n("restore")}</button>
+      </div>`);
 	}
 	get value() {
-		let e = this._r.ingredients.filter((e) => !gi(e)).map(hi);
+		let e = this._r.ingredients.filter((e) => !Zi(e)).map(Xi);
 		return {
 			...this._r,
 			ingredients: e,
-			steps: this._r.steps.map(hi)
+			steps: this._r.steps.map(Xi)
 		};
 	}
 	get unmatchedLines() {
-		return this._r.ingredients.filter(gi).map((e) => ({
+		return this._r.ingredients.filter(Zi).map((e) => ({
 			text: e._raw,
 			section: e.section ?? null
 		}));
@@ -4114,7 +4765,7 @@ var di = (e) => e == null ? e : Math.round(e * 100) / 100, fi = (e) => e === "" 
 	}
 	_createTag(e) {
 		let t = {
-			id: mt(e, new Set(this._allTags.map((e) => e.id)), "tag"),
+			id: pt(e, new Set(this._allTags.map((e) => e.id)), "tag"),
 			kind: "recipe",
 			localized: { [this._r.language]: {
 				name: e,
@@ -4126,12 +4777,12 @@ var di = (e) => e == null ? e : Math.round(e * 100) / 100, fi = (e) => e === "" 
 	}
 	_useSuggestion(e) {
 		this._suggested = this._suggested.filter((t) => t !== e);
-		let t = pt(this._allTags, e);
+		let t = ft(this._allTags, e);
 		t ? this._r.tags.includes(t.id) || this._set("tags", [...this._r.tags, t.id]) : this._createTag(e);
 	}
 	_create(e, t) {
 		let n = {
-			id: mt(t, new Set([...this.ingredients, ...this._new].map((e) => e.id))),
+			id: pt(t, new Set([...this.ingredients, ...this._new].map((e) => e.id))),
 			localized: { [this._r.language]: {
 				name: t,
 				plural: null,
@@ -4165,7 +4816,7 @@ var di = (e) => e == null ? e : Math.round(e * 100) / 100, fi = (e) => e === "" 
 	}
 	updated(e) {
 		if (e.has("_r")) {
-			let e = this._r.ingredients.filter(gi).length;
+			let e = this._r.ingredients.filter(Zi).length;
 			e !== this._unmatchedCount && (this._unmatchedCount = e, this.dispatchEvent(new CustomEvent("unmatched-changed", { detail: { count: e } })));
 		}
 		this._sortables ??= /* @__PURE__ */ new WeakMap();
@@ -4181,7 +4832,7 @@ var di = (e) => e == null ? e : Math.round(e * 100) / 100, fi = (e) => e === "" 
 				onEnd: (e) => {
 					e.from.insertBefore(e.item, t);
 					let n = e.from.dataset.list, r = Number(e.from.dataset.block), i = Number(e.to.dataset.block);
-					(r !== i || e.oldIndex !== e.newIndex) && this._set(n, ci(this._r[n], r, e.oldIndex, i, e.newIndex));
+					(r !== i || e.oldDraggableIndex !== e.newDraggableIndex) && this._set(n, Ui(this._r[n], r, e.oldDraggableIndex, i, e.newDraggableIndex));
 				}
 			}));
 		}
@@ -4202,26 +4853,26 @@ var di = (e) => e == null ? e : Math.round(e * 100) / 100, fi = (e) => e === "" 
 	}
 	_photo() {
 		let e = this.t, t = this._r.image_url, n = t && !t.startsWith("/api/itadaki/images/") ? t : "";
-		return w`
+		return T`
       <label>${e("photo")}</label>
-      ${t ? w`<img class="photo" src=${t} alt="" referrerpolicy="no-referrer" />` : T}
+      ${t ? T`<img class="photo" src=${t} alt="" referrerpolicy="no-referrer" />` : E}
       <input id="file" type="file" accept="image/*" hidden @change=${this._upload} />
       <div class="row">
         <button class="btn quiet" ?disabled=${this._uploading} @click=${() => this.renderRoot.querySelector("#file").click()}>
           ${e(t ? "changePhoto" : "addPhoto")}</button>
-        ${t ? w`<button class="btn danger" ?disabled=${this._uploading} @click=${() => this._set("image_url", null)}>${e("removePhoto")}</button>` : T}
+        ${t ? T`<button class="btn danger" ?disabled=${this._uploading} @click=${() => this._set("image_url", null)}>${e("removePhoto")}</button>` : E}
       </div>
       <itadaki-text class="photo-link" type="url" .value=${n} placeholder=${e("photoLink")}
         @change=${(e) => (e.target.value.trim() || n) && this._set("image_url", e.target.value.trim() || null)}></itadaki-text>
-      ${this._uploading ? w`<itadaki-busy></itadaki-busy>` : T}
-      ${this._imageError ? w`<div class="error">${this._imageError}</div>` : T}
+      ${this._uploading ? T`<itadaki-busy></itadaki-busy>` : E}
+      ${this._imageError ? T`<div class="error">${this._imageError}</div>` : E}
     `;
 	}
 	_languagePicker() {
 		let e = this._r;
-		return w`<label>${this.t("language")}</label>
+		return T`<label>${this.t("language")}</label>
       <select @change=${(e) => this._set("language", e.target.value)}>
-        ${[.../* @__PURE__ */ new Set([e.language, ...this.languages])].map((t) => w`<option value=${t} ?selected=${t === e.language}>${this.t.langName(t)}</option>`)}
+        ${[.../* @__PURE__ */ new Set([e.language, ...this.languages])].map((t) => T`<option value=${t} ?selected=${t === e.language}>${this.t.langName(t)}</option>`)}
       </select>`;
 	}
 	_set(e, t) {
@@ -4241,29 +4892,31 @@ var di = (e) => e == null ? e : Math.round(e * 100) / 100, fi = (e) => e === "" 
 		this._set(e, this._r[e].filter((e, n) => n !== t));
 	}
 	_blocks(e, t, n, r) {
-		let i = this.t, a = this._r[e], o = (t) => w`<span class="tools">
-      <button class="x" title="▲" @click=${() => this._set(e, oi(a, t, -1))}>▲</button>
-      <button class="x" title="▼" @click=${() => this._set(e, oi(a, t, 1))}>▼</button>
-      ${e === "steps" ? w`<button class="x" title=${i("makeHeading")} @click=${() => this._set(e, li(a, t))}>H</button>` : T}
+		let i = this.t, a = this._r[e], o = (t) => T`<span class="tools">
+      <button class="x" title="▲" @click=${() => this._set(e, Vi(a, t, -1))}>▲</button>
+      <button class="x" title="▼" @click=${() => this._set(e, Vi(a, t, 1))}>▼</button>
+      ${e === "steps" ? T`<button class="x" title=${i("makeHeading")} @click=${() => this._set(e, Wi(a, t))}>H</button>` : E}
       <button class="x del" title=${i("remove")} @click=${() => this._remove(e, t)}>×</button>
-    </span>`;
-		return w`
-      ${ii(a).map((s, c) => w`<div class="block ${s.section ? "named" : ""}">
+    </span>`, s = zi(a);
+		return T`
+      ${s.map((c, l) => T`<div class="block ${c.section ? "named" : ""}">
           <div class="row">
-            <itadaki-text class="block-title" .value=${s.section || ""} placeholder=${i("sectionPlaceholder")}
-              @change=${(t) => this._set(e, ai(a, s, t.target.value))}></itadaki-text>
-            ${e === "steps" && s.section ? w`<button class="x" title=${i("headingToStep")} @click=${() => this._set(e, ui(a, s))}>↧</button>` : T}
+            <itadaki-text class="block-title" .value=${c.section || ""} placeholder=${i("sectionPlaceholder")}
+              @change=${(t) => this._set(e, Bi(a, c, t.target.value))}></itadaki-text>
+            ${e === "steps" && c.section ? T`<button class="x" title=${i("headingToStep")} @click=${() => this._set(e, Gi(a, c))}>↧</button>` : E}
           </div>
-          <div class="items" data-list=${e} data-block=${c}>
-            ${tn(a.slice(s.start, s.end + 1), (e) => e._key, (e, n) => w`<div class="item">
-                <span class="handle" title=${i("drag")}>⋮⋮</span>${t(e, s.start + n, o(s.start + n))}
+          <div class="items" data-list=${e} data-block=${l}>
+            ${en(a.slice(c.start, c.end + 1), (e) => e._key, (n, r) => T`${this._ghosts(e, c.start + r)}<div class="item">
+                <span class="handle" title=${i("drag")}>⋮⋮</span>${t(n, c.start + r, o(c.start + r))}
               </div>`)}
+            ${l === s.length - 1 ? this._ghosts(e, a.length) : E}
           </div>
-          <button class="btn quiet" @click=${() => this._set(e, si(a, s, mi(n())))}>+ ${r}</button>
+          <button class="btn quiet" @click=${() => this._set(e, Hi(a, c, Yi(n())))}>+ ${r}</button>
         </div>`)}
+      ${s.length ? E : this._ghosts(e, 0)}
       <button class="btn quiet" @click=${() => {
 			let t = a.length ? prompt(i("newSection"))?.trim() : null;
-			t !== void 0 && t !== "" && this._set(e, [...a, mi({
+			t !== void 0 && t !== "" && this._set(e, [...a, Yi({
 				...n(),
 				section: t
 			})]);
@@ -4271,27 +4924,31 @@ var di = (e) => e == null ? e : Math.round(e * 100) / 100, fi = (e) => e === "" 
     `;
 	}
 	render() {
-		let e = this.t, t = this._r, n = t.language, r = (e, t) => O(e, n).localeCompare(O(t, n)), i = [...this.ingredients].sort(r), a = [...this.ingredients, ...this._new].sort(r), o = [...this.units].sort((e, t) => O(e, n).localeCompare(O(t, n))), s = (e, n, r = "text") => w`<div>
+		let e = this.t, t = this._r, n = t.language, r = (e, t) => k(e, n).localeCompare(k(t, n)), i = [...this.ingredients].sort(r), a = [...this.ingredients, ...this._new].sort(r), o = [...this.units].sort((e, t) => k(e, n).localeCompare(k(t, n))), s = (e, n, r = "text") => T`<div>
       <label>${n}</label>
-      ${r === "number" ? w`<input type="number" .value=${t[e] ?? ""} @input=${(t) => this._set(e, fi(t.target.value))} />` : w`<itadaki-text .value=${t[e] ?? ""} @input=${(t) => this._set(e, t.target.value)}></itadaki-text>`}
-    </div>`, c = Ye(n, Je(this.languages, n, this.uiLang)), l = [.../* @__PURE__ */ new Set([n, ...this.languages])], u = new Map(a.map((e) => [e.id, e])), d = this.newIngredientsUsed;
-		return w`
+      ${r === "number" ? T`<input type="number" .value=${t[e] ?? ""} @input=${(t) => this._set(e, qi(t.target.value))} />` : T`<itadaki-text .value=${t[e] ?? ""} @input=${(t) => this._set(e, t.target.value)}></itadaki-text>`}
+      ${this._fieldChange(e)}
+    </div>`, c = Je(n, qe(this.languages, n, this.uiLang)), l = [.../* @__PURE__ */ new Set([n, ...this.languages])], u = new Map(a.map((e) => [e.id, e])), d = this.newIngredientsUsed;
+		return T`
+      ${this._changesBar()}
       <div class="card about"><div class="split"><div>
         ${s("title", e("title"))}
-        ${this.fixedLanguage ? T : this._languagePicker()}
+        ${this.fixedLanguage ? E : this._languagePicker()}
         <label>${e("description")}</label>
         <textarea rows="2" .value=${t.description || ""} @input=${(e) => this._set("description", e.target.value)}></textarea>
+        ${this._fieldChange("description")}
         <div class="grid2">
           <div class="wide">
             <label>${e("yield")}</label>
             <div class="yield">
               <input type="number" aria-label=${e("yieldAmount")} .value=${t.yield_quantity ?? ""}
-                @input=${(e) => this._set("yield_quantity", fi(e.target.value))} />
+                @input=${(e) => this._set("yield_quantity", qi(e.target.value))} />
               <select @change=${(e) => this._set("yield_unit_id", e.target.value || null)}>
                 <option value="" ?selected=${!t.yield_unit_id}>${e("people")}</option>
-                ${o.map((e) => w`<option value=${e.id} ?selected=${e.id === t.yield_unit_id}>${O(e, n)}</option>`)}
+                ${o.map((e) => T`<option value=${e.id} ?selected=${e.id === t.yield_unit_id}>${k(e, n)}</option>`)}
               </select>
             </div>
+            ${this._fieldChange("yield")}
           </div>
           ${s("prep_minutes", e("prepMinutes"), "number")}
           ${s("cook_minutes", e("cookMinutes"), "number")}
@@ -4299,20 +4956,20 @@ var di = (e) => e == null ? e : Math.round(e * 100) / 100, fi = (e) => e === "" 
         </div>
       </div><div>${this._photo()}</div></div></div>
 
-      ${d.length ? w`<div class="card">
+      ${d.length ? T`<div class="card">
             <h2>${e("newIngredients")}</h2>
             <div class="muted">${e("newIngredientsExplain")}</div>
             <div class="names head">
-              ${l.map((t) => w`<label>${e.langName(t)}${t === n ? w` · ${e("usedAs")}` : T}</label>`)}
+              ${l.map((t) => T`<label>${e.langName(t)}${t === n ? T` · ${e("usedAs")}` : E}</label>`)}
               <label>${e("useExisting")}</label>
             </div>
-            ${tn(d, (e) => e.id, (t) => w`<div class="names">
-                ${l.map((e) => w`<itadaki-text .value=${t.localized[e]?.name || ""}
+            ${en(d, (e) => e.id, (t) => T`<div class="names">
+                ${l.map((e) => T`<itadaki-text .value=${t.localized[e]?.name || ""}
                     @change=${(n) => this._rename(t.id, e, n.target.value)}></itadaki-text>`)}
                 <itadaki-combo .entries=${i} .hint=${c} noCreate placeholder=${e("ingredientSearch")}
                   @pick=${(e) => this._replaceNew(t.id, e.detail.id)}></itadaki-combo>
               </div>`)}
-          </div>` : T}
+          </div>` : E}
 
       <div class="card">
         <h2>${e("ingredients")}</h2>
@@ -4320,22 +4977,23 @@ var di = (e) => e == null ? e : Math.round(e * 100) / 100, fi = (e) => e === "" 
           <span>${e("ingredient")}</span><span>${e("amount")}</span>
           <span>${e("unit")}</span><span>${e("lineNote")}</span><span></span>
         </div>
-        ${this._blocks("ingredients", (t, r, i) => w`<div class="line ${gi(t) ? "unmatched" : ""}">
-                ${t._raw ? w`<div class="raw muted">${t._raw}</div>` : T}
+        ${this._blocks("ingredients", (t, r, i) => T`<div class="line ${Zi(t) ? "unmatched" : ""}">
+                ${t._raw ? T`<div class="raw muted">${t._raw}</div>` : E}
                 <itadaki-combo .entries=${a} .hint=${c} value=${t.ingredient_id ?? ""}
-                  .label=${u.has(t.ingredient_id) ? O(u.get(t.ingredient_id), n) : ""}
+                  .label=${u.has(t.ingredient_id) ? k(u.get(t.ingredient_id), n) : ""}
                   ?invalid=${!u.has(t.ingredient_id)} placeholder=${e("ingredientSearch")} createLabel=${e("create")}
                   @pick=${(e) => this._setItem("ingredients", r, "ingredient_id", e.detail.id)}
                   @create=${(e) => this._create(r, e.detail.name)}></itadaki-combo>
-                <input type="number" step="any" .value=${di(t.quantity) ?? ""} placeholder=${e("amount")}
-                  @input=${(e) => this._setItem("ingredients", r, "quantity", fi(e.target.value))} />
+                <input type="number" step="any" .value=${Ki(t.quantity) ?? ""} placeholder=${e("amount")}
+                  @input=${(e) => this._setItem("ingredients", r, "quantity", qi(e.target.value))} />
                 <select @change=${(e) => this._setItem("ingredients", r, "unit_id", e.target.value || null)}>
                   <option value="" ?selected=${!t.unit_id}>—</option>
-                  ${o.map((e) => w`<option value=${e.id} ?selected=${e.id === t.unit_id}>${O(e, n)}</option>`)}
+                  ${o.map((e) => T`<option value=${e.id} ?selected=${e.id === t.unit_id}>${k(e, n)}</option>`)}
                 </select>
                 <itadaki-text .value=${t.note || ""} placeholder=${e("lineNote")}
-                  @input=${(e) => this._setItem("ingredients", r, "note", _i(e.target.value))}></itadaki-text>
+                  @input=${(e) => this._setItem("ingredients", r, "note", Qi(e.target.value))}></itadaki-text>
                 ${i}
+                ${this._itemChange("ingredients", r)}
               </div>`, () => ({
 			ingredient_id: null,
 			quantity: null,
@@ -4346,30 +5004,32 @@ var di = (e) => e == null ? e : Math.round(e * 100) / 100, fi = (e) => e === "" 
 
       <div class="card">
         <h2>${e("steps")}</h2>
-        ${this._blocks("steps", (e, t, n) => w`<div class="step">
+        ${this._blocks("steps", (e, t, n) => T`<div class="step">
             <textarea rows="2" .value=${e.text} @input=${(e) => this._setItem("steps", t, "text", e.target.value)}></textarea>
             ${n}
+            ${this._itemChange("steps", t)}
           </div>`, () => ({ text: "" }), e("addStep"))}
       </div>
 
       <div class="card">
         <label>${e("notes")}</label>
         <textarea rows="3" .value=${t.notes || ""} @input=${(e) => this._set("notes", e.target.value)}></textarea>
+        ${this._fieldChange("notes")}
         <label>${e("tags")}</label>
         <itadaki-tags .entries=${this._allTags.sort(r)} .value=${t.tags} lang=${n} .hint=${c} .t=${e}
           placeholder=${e("tagSearch")} createLabel=${e("create")}
           @change=${(e) => this._set("tags", e.detail.value)} @create=${(e) => this._createTag(e.detail.name)}></itadaki-tags>
-        ${this._suggested.length ? w`<div class="row suggested">
+        ${this._suggested.length ? T`<div class="row suggested">
               <span class="muted">${e("pageTags")}</span>
-              ${this._suggested.map((e) => w`<button class="chip" @click=${() => this._useSuggestion(e)}>+ ${e}</button>`)}
-            </div>` : T}
+              ${this._suggested.map((e) => T`<button class="chip" @click=${() => this._useSuggestion(e)}>+ ${e}</button>`)}
+            </div>` : E}
       </div>
     `;
 	}
 };
-customElements.define("itadaki-editor", vi);
+customElements.define("itadaki-editor", $i);
 // src/views/draft.js
-var yi = class extends E {
+var ea = class extends D {
 	static properties = {
 		api: { attribute: !1 },
 		t: { attribute: !1 },
@@ -4382,16 +5042,17 @@ var yi = class extends E {
 		_unmatched: { state: !0 },
 		_entry: { state: !0 },
 		_catalog: { state: !0 },
+		_base: { state: !0 },
 		_busy: { state: !0 },
 		_error: { state: !0 }
 	};
-	static styles = [D, o`
+	static styles = [O, o`
       .head { margin-bottom: 16px; }
       .actions { margin: 16px 0; }
     `];
 	connectedCallback() {
 		super.connectedCallback(), this._unsubscribe = this.api.subscribeDrafts((e) => {
-			e.draft_id === this.draftId && (e.status === "saved" ? k(this, {
+			e.draft_id === this.draftId && (e.status === "saved" ? A(this, {
 				view: "recipe",
 				id: e.recipe_id,
 				replace: !0
@@ -4412,17 +5073,21 @@ var yi = class extends E {
 					"ingredients",
 					"units",
 					"recipe_tags"
-				].map((e) => qe(this.api, e)));
+				].map((e) => Ke(this.api, e)));
 				this._catalog = {
 					ingredients: e,
 					units: t,
 					tags: n
 				};
 			}
-			this._entry = e, this._error = void 0;
+			this._base = await this._loadBase(e), this._entry = e, this._error = void 0;
 		} catch (e) {
 			this._error = this.t.error(e);
 		}
+	}
+	async _loadBase(e) {
+		let t = e.status === "ready" ? e.draft : null, n = t?.updates_id || t?.parent_id;
+		if (n) return this.api.call("get_recipe", { recipe_id: n }).catch(() => void 0);
 	}
 	_edited() {
 		let e = this.renderRoot.querySelector("itadaki-editor");
@@ -4441,7 +5106,7 @@ var yi = class extends E {
 				draft_id: this.draftId,
 				draft: this._edited()
 			});
-			k(this, {
+			A(this, {
 				view: "recipe",
 				id: e.id,
 				replace: !0
@@ -4463,7 +5128,7 @@ var yi = class extends E {
 	}
 	async _discard() {
 		await this._act(async () => {
-			await this.api.call("discard_draft", { draft_id: this.draftId }), k(this, { view: "back" });
+			await this.api.call("discard_draft", { draft_id: this.draftId }), A(this, { view: "back" });
 		});
 	}
 	async _act(e) {
@@ -4477,39 +5142,39 @@ var yi = class extends E {
 		}
 	}
 	render() {
-		return w`<itadaki-page .t=${this.t} header=${this._entry ? this.t.action(this._entry.action) : ""}>${this._actions()}${this._content()}</itadaki-page>`;
+		return T`<itadaki-page .t=${this.t} header=${this._entry ? this.t.action(this._entry.action) : ""}>${this._actions()}${this._content()}</itadaki-page>`;
 	}
 	_content() {
 		let e = this.t, t = this._entry;
-		if (!t) return this._error ? w`<div class="error">${this._error}</div>` : w`<itadaki-busy></itadaki-busy>`;
+		if (!t) return this._error ? T`<div class="error">${this._error}</div>` : T`<itadaki-busy></itadaki-busy>`;
 		let n = t.draft, r = t.status === "ready";
-		if (!n) return w`
+		if (!n) return T`
         <div class="card head">
           <h2>${t.title}</h2>
           ${this._request(t)}
-          ${t.status === "working" ? w`<itadaki-busy .text=${e("workingLeave")}></itadaki-busy>` : T}
-          ${t.error ? w`<div class="error">${t.error}</div>` : T}
-          ${t.status === "failed" ? w`<button class="btn quiet" @click=${this._discard}>${e("discard")}</button>` : T}
+          ${t.status === "working" ? T`<itadaki-busy .text=${e("workingLeave")}></itadaki-busy>` : E}
+          ${t.error ? T`<div class="error">${t.error}</div>` : E}
+          ${t.status === "failed" ? T`<button class="btn quiet" @click=${this._discard}>${e("discard")}</button>` : E}
         </div>
       `;
 		let i = n.recipe, a = {
 			...i,
 			ingredients: [...i.ingredients, ...n.raw_lines.map((e) => ({ section: e.section }))]
 		}, o = [...t.lines || [], ...n.raw_lines.map((e) => ({ name: e.text }))];
-		return r ? this._renderReview(n) : w`
+		return r ? this._renderReview(n) : T`
       <div class="card head">
         <h2>${t.title}</h2>
         ${this._request(t)}
-        ${t.status === "working" ? w`<itadaki-busy .text=${e("workingLeave")}></itadaki-busy>` : T}
-        ${t.error ? w`<div class="error">${t.error}</div>` : T}
-        ${t.status === "failed" ? w`<button class="btn quiet" @click=${this._discard}>${e("discard")}</button>` : T}
+        ${t.status === "working" ? T`<itadaki-busy .text=${e("workingLeave")}></itadaki-busy>` : E}
+        ${t.error ? T`<div class="error">${t.error}</div>` : E}
+        ${t.status === "failed" ? T`<button class="btn quiet" @click=${this._discard}>${e("discard")}</button>` : E}
       </div>
       <itadaki-body .recipe=${a} .lines=${o} .t=${e}></itadaki-body>
     `;
 	}
 	_request(e) {
-		let t = this.t, n = vt(t, e);
-		return w`<div class="muted" style="margin-bottom:8px">${t.action(e.action)}${n ? w` · ${n}` : T}</div>`;
+		let t = this.t, n = _t(t, e);
+		return T`<div class="muted" style="margin-bottom:8px">${t.action(e.action)}${n ? T` · ${n}` : E}</div>`;
 	}
 	_reviewRecipe(e) {
 		return this._reviewOf !== e && (this._reviewOf = e, this._review = {
@@ -4526,7 +5191,7 @@ var yi = class extends E {
 	}
 	_renderReview(e) {
 		let t = this.t, n = this._reviewRecipe(e);
-		return w`
+		return T`
       <div class="card head">
         <h2>${t("review")} · ${t.langName(n.language)}</h2>
         ${this._request(this._entry)}
@@ -4536,43 +5201,43 @@ var yi = class extends E {
 			out: e.usage.completion_tokens
 		})}
         </div>
-        ${this._entry.error ? w`<div class="error">${t("aiFailedKept", { error: this._entry.error })}</div>` : T}
+        ${this._entry.error ? T`<div class="error">${t("aiFailedKept", { error: this._entry.error })}</div>` : E}
       </div>
 
-      ${this._unmatched && this._task !== "structure" ? this._matchCard() : T}
-      ${this._task ? this._taskCard() : T}
+      ${this._unmatched && this._task !== "structure" ? this._matchCard() : E}
+      ${this._task ? this._taskCard() : E}
 
       <itadaki-editor @unmatched-changed=${(e) => this._unmatched = e.detail.count} .api=${this.api} .languages=${this.languages} .recipe=${n} .t=${t} uiLang=${this.lang} .units=${this._catalog.units}
         .ingredients=${this._catalog.ingredients} .newIngredients=${e.new_ingredients}
         .tags=${this._catalog.tags} .newTags=${e.new_tags} .suggestedTags=${e.suggested_tags}
-        ?fixedLanguage=${!!(e.updates_id || e.parent_id)}></itadaki-editor>
+        ?fixedLanguage=${!!(e.updates_id || e.parent_id)} .base=${this._base}></itadaki-editor>
 
       <div class="row actions">
         <button class="btn" ?disabled=${this._busy} @click=${this._save}>${t("save")}</button>
         <button class="btn quiet" ?disabled=${this._busy} @click=${this._discard}>${t("discard")}</button>
       </div>
-      ${this._busy ? w`<itadaki-busy></itadaki-busy>` : T}
-      ${this._error ? w`<div class="error">${this._error}</div>` : T}
+      ${this._busy ? T`<itadaki-busy></itadaki-busy>` : E}
+      ${this._error ? T`<div class="error">${this._error}</div>` : E}
     `;
 	}
 	_matchCard() {
 		let e = this.t, t = () => this.renderRoot.querySelector("itadaki-editor");
-		return w`<div class="card actions">
+		return T`<div class="card actions">
       <h2>${e("matchTitle", { n: this._unmatched })}</h2>
       <div class="muted">${e("matchExplain")} ${e(this.ai ? "matchHowAi" : "matchHowHand")}</div>
       <div class="row" style="margin-top:12px">
-        ${this.ai ? w`<button class="btn" ?disabled=${this._busy} @click=${() => this._task = "structure"}>${e("structureAi")}</button>` : T}
+        ${this.ai ? T`<button class="btn" ?disabled=${this._busy} @click=${() => this._task = "structure"}>${e("structureAi")}</button>` : E}
         <button class="btn quiet" @click=${() => t().showUnmatched()}>${e("matchByHand")}</button>
       </div>
     </div>`;
 	}
 	_actions() {
 		let e = this.t, t = this._entry;
-		if (!this.ai || t?.status !== "ready") return T;
+		if (!this.ai || t?.status !== "ready") return E;
 		let n = (e) => () => this._task = this._task === e ? void 0 : e;
-		return w`
-      ${at("tag", e("tagAi"), n("tag"), this._busy)}
-      ${at("adapt", e("adaptAi"), n("adapt"), this._busy)}
+		return T`
+      ${it("tag", e("tagAi"), n("tag"), this._busy)}
+      ${it("adapt", e("adaptAi"), n("adapt"), this._busy)}
     `;
 	}
 	_taskCard() {
@@ -4584,16 +5249,16 @@ var yi = class extends E {
 			structure: e("matchExplain"),
 			tag: e("tagAiExplain")
 		}[this._task];
-		return w`<itadaki-ai-run class="actions" .t=${e} cancellable ?noteRequired=${t} ?disabled=${this._busy}
+		return T`<itadaki-ai-run class="actions" .t=${e} cancellable ?noteRequired=${t} ?disabled=${this._busy}
       heading=${n} .standing=${this.instructions[this._task]}
       @run=${this._runTask} @cancel=${() => this._task = void 0}>
-      ${r ? w`<div class="muted">${r}</div>` : T}
+      ${r ? T`<div class="muted">${r}</div>` : E}
     </itadaki-ai-run>`;
 	}
 };
-customElements.define("itadaki-draft", yi);
+customElements.define("itadaki-draft", ea);
 // src/views/edit.js
-var bi = class extends E {
+var ta = class extends D {
 	static properties = {
 		api: { attribute: !1 },
 		t: { attribute: !1 },
@@ -4604,7 +5269,7 @@ var bi = class extends E {
 		_busy: { state: !0 },
 		_error: { state: !0 }
 	};
-	static styles = [D];
+	static styles = [O];
 	willUpdate(e) {
 		(e.has("recipeId") || !this.hasUpdated) && this._load();
 	}
@@ -4630,9 +5295,9 @@ var bi = class extends E {
 		try {
 			let [e, t, n, r] = await Promise.all([
 				this.recipeId ? this.api.call("get_recipe", { recipe_id: this.recipeId }).then((e) => e.recipe) : this._blank(),
-				qe(this.api, "ingredients"),
-				qe(this.api, "units"),
-				qe(this.api, "recipe_tags")
+				Ke(this.api, "ingredients"),
+				Ke(this.api, "units"),
+				Ke(this.api, "recipe_tags")
 			]);
 			this._data = {
 				recipe: e,
@@ -4654,7 +5319,7 @@ var bi = class extends E {
 		this._busy = !0, this._error = void 0;
 		try {
 			let { recipe: e } = await this.api.call("apply_draft", { draft: t });
-			k(this, this.recipeId ? { view: "back" } : {
+			A(this, this.recipeId ? { view: "back" } : {
 				view: "recipe",
 				id: e.id,
 				replace: !0
@@ -4666,37 +5331,37 @@ var bi = class extends E {
 		}
 	}
 	render() {
-		return w`<itadaki-page .t=${this.t} header=${this.t(this.recipeId ? "edit" : "newRecipe")}>${this._content()}</itadaki-page>`;
+		return T`<itadaki-page .t=${this.t} header=${this.t(this.recipeId ? "edit" : "newRecipe")}>${this._content()}</itadaki-page>`;
 	}
 	_content() {
 		let e = this.t;
-		return this._data ? w`
+		return this._data ? T`
       <itadaki-editor .api=${this.api} .languages=${this.languages} .recipe=${this._data.recipe} uiLang=${this.lang} .ingredients=${this._data.ingredients}
         .units=${this._data.units} .tags=${this._data.tags} .t=${e} ?fixedLanguage=${!!this.recipeId}></itadaki-editor>
       <div class="row" style="margin:16px 0">
         <button class="btn" ?disabled=${this._busy} @click=${this._save}>${e("save")}</button>
         <button class="btn quiet" ?disabled=${this._busy}
-          @click=${() => k(this, { view: "back" })}>
+          @click=${() => A(this, { view: "back" })}>
           ${e("cancel")}</button>
       </div>
-      ${this._busy ? w`<itadaki-busy></itadaki-busy>` : T}
-      ${this._error ? w`<div class="error">${this._error}</div>` : T}
-    ` : this._error ? w`<div class="error">${this._error}</div>` : w`<itadaki-busy></itadaki-busy>`;
+      ${this._busy ? T`<itadaki-busy></itadaki-busy>` : E}
+      ${this._error ? T`<div class="error">${this._error}</div>` : E}
+    ` : this._error ? T`<div class="error">${this._error}</div>` : T`<itadaki-busy></itadaki-busy>`;
 	}
 };
-customElements.define("itadaki-edit", bi);
+customElements.define("itadaki-edit", ta);
 // src/views/entry.js
-var xi = [
+var na = [
 	"mass",
 	"volume",
 	"count",
 	"other"
-], Si = [
+], ra = [
 	"metric",
 	"us",
 	"imperial",
 	"japanese"
-], Ci = (e) => e === "" || e == null ? null : Number(e), wi = (e) => e.split(/[,、]/).map((e) => e.trim()).filter(Boolean), Ti = class extends E {
+], ia = (e) => e === "" || e == null ? null : Number(e), aa = (e) => e.split(/[,、]/).map((e) => e.trim()).filter(Boolean), oa = class extends D {
 	static properties = {
 		api: { attribute: !1 },
 		t: { attribute: !1 },
@@ -4711,7 +5376,7 @@ var xi = [
 		_busy: { state: !0 },
 		_error: { state: !0 }
 	};
-	static styles = [D, o`
+	static styles = [O, o`
       :host { display: block; padding: 8px 0 16px; container-type: inline-size; }
       .lang { margin-bottom: 12px; }
       .lang-name { font-weight: 600; margin-top: 8px; }
@@ -4748,10 +5413,10 @@ var xi = [
 		return this.kind === "units";
 	}
 	get _catalog() {
-		return Ke[this.kind];
+		return Ge[this.kind];
 	}
 	_hasPlural(e) {
-		return !this._catalog.tagKind && $e(e);
+		return !this._catalog.tagKind && Qe(e);
 	}
 	async _createTag(e) {
 		try {
@@ -4786,8 +5451,8 @@ var xi = [
 		let e = this._e, t = Object.fromEntries(Object.entries(e.localized).map(([e, t]) => [e, t.name.trim() ? {
 			name: t.name.trim(),
 			plural: this._hasPlural(e) && t.plural.trim() || null,
-			aliases: wi(t.aliases)
-		} : null])), n = Object.values(t).find(Boolean)?.name ?? "", { tagKind: r } = this._catalog, i = this.entry?.id ?? (r ? void 0 : mt(n, new Set(this.entries.map((e) => e.id))));
+			aliases: aa(t.aliases)
+		} : null])), n = Object.values(t).find(Boolean)?.name ?? "", { tagKind: r } = this._catalog, i = this.entry?.id ?? (r ? void 0 : pt(n, new Set(this.entries.map((e) => e.id))));
 		if (r) return {
 			id: i,
 			localized: t,
@@ -4796,7 +5461,7 @@ var xi = [
 		if (!this._isUnit) return {
 			id: i,
 			localized: t,
-			density: Ci(e.density),
+			density: ia(e.density),
 			tags: e.tags
 		};
 		let a = e.dimension;
@@ -4804,7 +5469,7 @@ var xi = [
 			id: i,
 			localized: t,
 			dimension: a,
-			factor: a === "other" ? null : Ci(e.factor),
+			factor: a === "other" ? null : ia(e.factor),
 			systems: e.systems
 		};
 	}
@@ -4823,7 +5488,7 @@ var xi = [
 		this._act(() => this.api.call(e, { [t]: this._payload() }));
 	}
 	_delete() {
-		let e = O(this.entry, this.lang), t = this.usedBy?.length ? this.t("confirmDeleteTag", {
+		let e = k(this.entry, this.lang), t = this.usedBy?.length ? this.t("confirmDeleteTag", {
 			name: e,
 			n: this.usedBy.length
 		}) : this.t("confirmDeleteEntry", { name: e });
@@ -4833,8 +5498,8 @@ var xi = [
 	}
 	_merge(e) {
 		let t = this.entries.find((t) => t.id === e), n = {
-			from: O(this.entry, this.lang),
-			to: O(t, this.lang)
+			from: k(this.entry, this.lang),
+			to: k(t, this.lang)
 		};
 		confirm(this.t("confirmMerge", n)) && this._act(() => this.api.call(this._catalog.merge, {
 			source_id: this.entry.id,
@@ -4843,83 +5508,83 @@ var xi = [
 	}
 	render() {
 		let e = this.t, t = this._e, n = this.usedBy || [], { tagKind: r } = this._catalog, i = this.entry && (r || !n.length);
-		return w`
+		return T`
       ${Object.entries(t.localized).map(([t, n]) => {
-			let r = (e, r) => w`<div>
+			let r = (e, r) => T`<div>
           <label>${r}</label>
           <itadaki-text .value=${n[e]} @input=${(n) => this._setName(t, e, n.target.value)}></itadaki-text>
         </div>`;
-			return w`<div class="lang">
+			return T`<div class="lang">
           <div class="lang-name">${e.langName(t)}</div>
           <div class="fields ${this._hasPlural(t) ? "" : "single"}">
             ${r("name", e("name"))}
-            ${this._hasPlural(t) ? r("plural", e("plural")) : T}
+            ${this._hasPlural(t) ? r("plural", e("plural")) : E}
             ${r("aliases", e("aliases"))}
           </div>
         </div>`;
 		})}
 
-      ${r ? T : this._measures(t)}
+      ${r ? E : this._measures(t)}
 
-      ${n.length ? w`<label>${e(r === "ingredient" ? "usedByIngredients" : "usedBy", { n: n.length })}</label>
+      ${n.length ? T`<label>${e(r === "ingredient" ? "usedByIngredients" : "usedBy", { n: n.length })}</label>
             <div class="row">
-              ${n.map((e) => e.title ? w`<button class="chip" @click=${() => k(this, {
+              ${n.map((e) => e.title ? T`<button class="chip" @click=${() => A(this, {
 			view: "recipe",
 			id: e.id
-		})}>${e.title}</button>` : w`<span class="chip">${O(e, this.lang)}</span>`)}
-            </div>` : T}
+		})}>${e.title}</button>` : T`<span class="chip">${k(e, this.lang)}</span>`)}
+            </div>` : E}
 
       <div class="row actions">
         <button class="btn" ?disabled=${this._busy} @click=${this._save}>${e("save")}</button>
         <button class="btn quiet" ?disabled=${this._busy} @click=${() => this.dispatchEvent(new CustomEvent("cancel"))}>${e("cancel")}</button>
-        ${i ? w`<button class="btn danger" ?disabled=${this._busy} @click=${this._delete}>${e("delete")}</button>` : T}
+        ${i ? T`<button class="btn danger" ?disabled=${this._busy} @click=${this._delete}>${e("delete")}</button>` : E}
       </div>
 
-      ${this.entry ? w`<div class="merge">
+      ${this.entry ? T`<div class="merge">
             <label>${e("mergeInto")}</label>
             <itadaki-combo noCreate .entries=${this.entries.filter((e) => e.id !== this.entry.id)}
-              .hint=${Ye(this.lang, Je(this.languages, this.lang))} placeholder=${e("catalogSearch")}
+              .hint=${Je(this.lang, qe(this.languages, this.lang))} placeholder=${e("catalogSearch")}
               @pick=${(e) => this._merge(e.detail.id)}></itadaki-combo>
             <div class="muted" style="font-size:0.85rem;margin-top:6px">${e("mergeHint")}</div>
-          </div>` : T}
-      ${this._busy ? w`<itadaki-busy></itadaki-busy>` : T}
-      ${this._error ? w`<div class="error">${this._error}</div>` : T}
+          </div>` : E}
+      ${this._busy ? T`<itadaki-busy></itadaki-busy>` : E}
+      ${this._error ? T`<div class="error">${this._error}</div>` : E}
     `;
 	}
 	_measures(e) {
 		let t = this.t;
-		return w`
+		return T`
       <div class="grid2">
-        ${this._isUnit ? w`<div>
+        ${this._isUnit ? T`<div>
                 <label>${t("dimension")}</label>
                 <select @change=${(e) => this._set("dimension", e.target.value)}>
-                  ${xi.map((n) => w`<option value=${n} ?selected=${n === e.dimension}>${t(`dim_${n}`)}</option>`)}
+                  ${na.map((n) => T`<option value=${n} ?selected=${n === e.dimension}>${t(`dim_${n}`)}</option>`)}
                 </select>
               </div>
-              ${e.dimension === "other" ? T : w`<div>
-                    <label>${t("factor", { base: Xe[e.dimension] ?? t("items") })}</label>
+              ${e.dimension === "other" ? E : T`<div>
+                    <label>${t("factor", { base: Ye[e.dimension] ?? t("items") })}</label>
                     <input type="number" step="any" .value=${e.factor ?? ""} @input=${(e) => this._set("factor", e.target.value)} />
-                  </div>`}` : w`<div>
+                  </div>`}` : T`<div>
               <label>${t("density")}</label>
               <input type="number" step="any" .value=${e.density ?? ""} @input=${(e) => this._set("density", e.target.value)} />
             </div>`}
       </div>
-      ${this._isUnit ? w`<label>${t("systems")}</label>
+      ${this._isUnit ? T`<label>${t("systems")}</label>
             <div class="row">
-              ${Si.map((n) => w`<button class="chip ${e.systems.includes(n) ? "active" : ""}"
+              ${ra.map((n) => T`<button class="chip ${e.systems.includes(n) ? "active" : ""}"
                   @click=${() => this._set("systems", e.systems.includes(n) ? e.systems.filter((e) => e !== n) : [...e.systems, n])}>
                   ${t(`sys_${n}`)}</button>`)}
-            </div>` : T}
-      ${this.kind === "ingredients" ? w`<label>${t("tags")}</label>
+            </div>` : E}
+      ${this.kind === "ingredients" ? T`<label>${t("tags")}</label>
             <itadaki-tags .entries=${this.tags || []} .value=${e.tags} lang=${this.lang} .t=${t}
               placeholder=${t("tagSearch")} createLabel=${t("create")}
-              @change=${(e) => this._set("tags", e.detail.value)} @create=${(e) => this._createTag(e.detail.name)}></itadaki-tags>` : T}
+              @change=${(e) => this._set("tags", e.detail.value)} @create=${(e) => this._createTag(e.detail.name)}></itadaki-tags>` : E}
     `;
 	}
 };
-customElements.define("itadaki-entry", Ti);
+customElements.define("itadaki-entry", oa);
 // src/views/catalog.js
-var Ei = class extends E {
+var sa = class extends D {
 	static properties = {
 		api: { attribute: !1 },
 		t: { attribute: !1 },
@@ -4934,7 +5599,7 @@ var Ei = class extends E {
 		_open: { state: !0 },
 		_error: { state: !0 }
 	};
-	static styles = [D, o`
+	static styles = [O, o`
       .tools { display: flex; gap: 12px; margin-bottom: 20px; }
       .tools itadaki-text { flex: 1; }
       .card { padding: 0; overflow-x: auto; container-type: inline-size; }
@@ -4966,11 +5631,11 @@ var Ei = class extends E {
 	async _load() {
 		try {
 			let [e, t, n] = await Promise.all([
-				qe(this.api, this.kind),
+				Ke(this.api, this.kind),
 				this.api.call("catalog_usage"),
-				this._isIngredient ? qe(this.api, "ingredient_tags") : []
+				this._isIngredient ? Ke(this.api, "ingredient_tags") : []
 			]);
-			this._entries = e.sort(Ze(this.lang)), this._usage = t[this.kind], this._tags = n.sort(Ze(this.lang)), this._error = void 0;
+			this._entries = e.sort(Xe(this.lang)), this._usage = t[this.kind], this._tags = n.sort(Xe(this.lang)), this._error = void 0;
 		} catch (e) {
 			this._error = this.t.error(e);
 		}
@@ -4982,15 +5647,15 @@ var Ei = class extends E {
 		this._open = this._open === e ? void 0 : e;
 	}
 	_form(e) {
-		return w`<itadaki-entry .api=${this.api} .t=${this.t} lang=${this.lang} .languages=${this.languages} kind=${this.kind} .entry=${e}
+		return T`<itadaki-entry .api=${this.api} .t=${this.t} lang=${this.lang} .languages=${this.languages} kind=${this.kind} .entry=${e}
       .entries=${this._entries} .usedBy=${e ? this._usage[e.id] : []} .tags=${this._tags}
-      @tag-created=${(e) => this._tags = [...this._tags, e.detail].sort(Ze(this.lang))}
+      @tag-created=${(e) => this._tags = [...this._tags, e.detail].sort(Xe(this.lang))}
       @changed=${this._changed} @cancel=${() => this._open = void 0}></itadaki-entry>`;
 	}
 	_columns() {
 		let e = this.t;
 		if (this._isIngredient) {
-			let t = new Map(this._tags.map((e) => [e.id, e])), n = (e) => e.tags.map((e) => t.has(e) ? O(t.get(e), this.lang) : e).join(", ");
+			let t = new Map(this._tags.map((e) => [e.id, e])), n = (e) => e.tags.map((e) => t.has(e) ? k(t.get(e), this.lang) : e).join(", ");
 			return {
 				heads: [e("density"), e("tags")],
 				cells: (e) => [e.density ?? "", n(e)]
@@ -5004,7 +5669,7 @@ var Ei = class extends E {
 			],
 			cells: (t) => [
 				e(`dim_${t.dimension}`),
-				t.factor == null ? "" : `${t.factor} ${Xe[t.dimension] ?? e("items")}`,
+				t.factor == null ? "" : `${t.factor} ${Ye[t.dimension] ?? e("items")}`,
 				t.systems.map((t) => e(`sys_${t}`)).join(", ")
 			]
 		} : {
@@ -5013,53 +5678,53 @@ var Ei = class extends E {
 		};
 	}
 	render() {
-		return w`<itadaki-page .t=${this.t} header=${this.t(this.kind)}>${this._content()}</itadaki-page>`;
+		return T`<itadaki-page .t=${this.t} header=${this.t(this.kind)}>${this._content()}</itadaki-page>`;
 	}
 	_content() {
-		let e = this.t, t = ft((this._entries || []).filter((e) => this._tagFilter.every((t) => e.tags.includes(t))), this._query, Infinity), n = this.languages.includes(this.lang) ? [this.lang, ...this.languages.filter((e) => e !== this.lang)] : this.languages, r = this._columns(), i = n.length * 2 + r.heads.length + 1;
-		return w`
+		let e = this.t, t = dt((this._entries || []).filter((e) => this._tagFilter.every((t) => e.tags.includes(t))), this._query, Infinity), n = this.languages.includes(this.lang) ? [this.lang, ...this.languages.filter((e) => e !== this.lang)] : this.languages, r = this._columns(), i = n.length * 2 + r.heads.length + 1;
+		return T`
       <div class="tools">
         <itadaki-text .value=${this._query} placeholder=${e("catalogSearch")} @input=${(e) => this._query = e.target.value}></itadaki-text>
         <button class="btn" @click=${() => this._toggle("new")}>+ ${e("newEntry")}</button>
       </div>
-      ${this._isIngredient && this._tags.length ? w`<itadaki-tags class="tag-filter" .entries=${this._tags} .value=${this._tagFilter} lang=${this.lang} .t=${e}
-            placeholder=${e("tagFilter")} @change=${(e) => this._tagFilter = e.detail.value}></itadaki-tags>` : T}
-      ${this._error ? w`<div class="error">${this._error}</div>` : T}
-      ${this._open === "new" ? w`<div class="card" style="margin-bottom:16px;padding:20px">${this._form(null)}</div>` : T}
-      ${this._entries ? w`<div class="card">
+      ${this._isIngredient && this._tags.length ? T`<itadaki-tags class="tag-filter" .entries=${this._tags} .value=${this._tagFilter} lang=${this.lang} .t=${e}
+            placeholder=${e("tagFilter")} @change=${(e) => this._tagFilter = e.detail.value}></itadaki-tags>` : E}
+      ${this._error ? T`<div class="error">${this._error}</div>` : E}
+      ${this._open === "new" ? T`<div class="card" style="margin-bottom:16px;padding:20px">${this._form(null)}</div>` : E}
+      ${this._entries ? T`<div class="card">
             <table>
               <thead>
                 <tr>
-                  ${n.map((t) => w`<th>${e.langName(t)}</th><th>${e("otherNames")}</th>`)}
-                  ${r.heads.map((e) => w`<th>${e}</th>`)}
+                  ${n.map((t) => T`<th>${e.langName(t)}</th><th>${e("otherNames")}</th>`)}
+                  ${r.heads.map((e) => T`<th>${e}</th>`)}
                   <th>${e(this.kind === "ingredient_tags" ? "ingredients" : "recipes")}</th>
                 </tr>
               </thead>
               <tbody>
-                ${t.map((t) => w`
+                ${t.map((t) => T`
                     <tr class="entry ${this._open === t.id ? "open" : ""}" @click=${() => this._toggle(t.id)}>
                       ${n.map((e) => {
 			let n = t.localized[e];
-			return w`<td>
+			return T`<td>
                             <span class="name">${n?.name ?? ""}</span>
-                            ${n?.plural ? w`<span class="muted"> · ${n.plural}</span>` : T}
+                            ${n?.plural ? T`<span class="muted"> · ${n.plural}</span>` : E}
                           </td>
                           <td class="aliases">${(n?.aliases || []).join(", ")}</td>`;
 		})}
-                      ${r.cells(t).map((e) => w`<td class="num">${e}</td>`)}
-                      <td class="num">${this._usage[t.id]?.length || w`<span class="muted">${e("unused")}</span>`}</td>
+                      ${r.cells(t).map((e) => T`<td class="num">${e}</td>`)}
+                      <td class="num">${this._usage[t.id]?.length || T`<span class="muted">${e("unused")}</span>`}</td>
                     </tr>
-                    ${this._open === t.id ? w`<tr class="form"><td colspan=${i}><div class="pinned">${this._form(t)}</div></td></tr>` : T}
+                    ${this._open === t.id ? T`<tr class="form"><td colspan=${i}><div class="pinned">${this._form(t)}</div></td></tr>` : E}
                   `)}
               </tbody>
             </table>
-          </div>` : T}
+          </div>` : E}
     `;
 	}
 };
-customElements.define("itadaki-catalog", Ei);
+customElements.define("itadaki-catalog", sa);
 // src/views/manage.js
-var Di = [
+var ca = [
 	[{
 		target: {
 			view: "catalog",
@@ -5112,9 +5777,9 @@ var Di = [
 			icon: "database"
 		}
 	]
-], Oi = class extends E {
+], la = class extends D {
 	static properties = { t: { attribute: !1 } };
-	static styles = [D, o`
+	static styles = [O, o`
       .card { max-width: 640px; margin: 0 auto; padding: 8px 0; }
       .item {
         display: flex; align-items: center; gap: 16px; width: 100%; padding: 12px 16px;
@@ -5129,22 +5794,22 @@ var Di = [
     `];
 	render() {
 		let e = this.t;
-		return w`
+		return T`
       <itadaki-page .t=${e} header=${e("manage")}>
         <div class="card">
-          ${Di.map((t, n) => w`${n ? w`<hr />` : T}${t.map((t) => w`<button class="item" @click=${() => k(this, t.target)}>
-                <span class="badge">${A(t.icon)}</span>
+          ${ca.map((t, n) => T`${n ? T`<hr />` : E}${t.map((t) => T`<button class="item" @click=${() => A(this, t.target)}>
+                <span class="badge">${j(t.icon)}</span>
                 <span class="name">${e(t.key)}</span>
-                <span class="chevron">${A("chevron")}</span>
+                <span class="chevron">${j("chevron")}</span>
               </button>`)}`)}
         </div>
       </itadaki-page>
     `;
 	}
 };
-customElements.define("itadaki-manage", Oi);
+customElements.define("itadaki-manage", la);
 // src/views/languages.js
-var ki = class extends E {
+var ua = class extends D {
 	static properties = {
 		api: { attribute: !1 },
 		t: { attribute: !1 },
@@ -5153,7 +5818,7 @@ var ki = class extends E {
 		_busy: { state: !0 },
 		_error: { state: !0 }
 	};
-	static styles = [D, o`
+	static styles = [O, o`
       .card { max-width: 640px; margin: 0 auto; }
       .lang { display: flex; align-items: center; gap: 12px; padding: 4px 0; border-bottom: var(--it-row-rule); }
       .lang .name { flex: 1; }
@@ -5181,41 +5846,41 @@ var ki = class extends E {
 	}
 	render() {
 		let e = this.t, t = this._code.trim().toLowerCase();
-		return w`
+		return T`
       <itadaki-page .t=${e} header=${e("languages")}>
         <div class="card">
           <div class="muted" style="margin-bottom:12px">${e("languagesHint")}</div>
-          ${this.languages.map((t) => w`<div class="lang">
+          ${this.languages.map((t) => T`<div class="lang">
               <span class="name">${e.langName(t)}</span>
               <span class="muted">${t}</span>
               <button class="icon" ?disabled=${this._busy || this.languages.length === 1} aria-label=${e("remove")} title=${e("remove")}
-                @click=${() => this._save(this.languages.filter((e) => e !== t))}>${A("close")}</button>
+                @click=${() => this._save(this.languages.filter((e) => e !== t))}>${j("close")}</button>
             </div>`)}
           <div class="row add">
             <itadaki-text .value=${this._code} placeholder=${e("languageCode")} @input=${(e) => this._code = e.target.value}></itadaki-text>
             <button class="btn" ?disabled=${this._busy || !t || this.languages.includes(t)}
               @click=${() => this._save([...this.languages, t])}>${e("add")}</button>
           </div>
-          ${t ? w`<div class="muted" style="margin-top:6px">${e.langName(t)}</div>` : T}
-          ${this._error ? w`<div class="error">${this._error}</div>` : T}
+          ${t ? T`<div class="muted" style="margin-top:6px">${e.langName(t)}</div>` : E}
+          ${this._error ? T`<div class="error">${this._error}</div>` : E}
         </div>
       </itadaki-page>
     `;
 	}
 };
-customElements.define("itadaki-languages", ki);
+customElements.define("itadaki-languages", ua);
 // src/views/ai.js
-var Ai = [
+var da = [
 	"extract",
 	"structure",
 	"translate",
 	"adapt",
 	"tag"
-], ji = [
+], fa = [
 	"schema",
 	"json",
 	"off"
-], Mi = class extends E {
+], pa = class extends D {
 	static properties = {
 		api: { attribute: !1 },
 		t: { attribute: !1 },
@@ -5227,7 +5892,7 @@ var Ai = [
 		_error: { state: !0 },
 		_saved: { state: !0 }
 	};
-	static styles = [D, o`
+	static styles = [O, o`
       .card { max-width: 640px; margin: 0 auto; }
       .status { margin: 12px 0 4px; font-weight: 500; }
       details { margin-top: 16px; }
@@ -5294,24 +5959,24 @@ var Ai = [
 	}
 	render() {
 		let e = this.t;
-		return w`<itadaki-page .t=${e} header=${e("ai")}>${this._s ? this._form() : this._error ? w`<div class="error">${this._error}</div>` : w`<itadaki-busy></itadaki-busy>`}</itadaki-page>`;
+		return T`<itadaki-page .t=${e} header=${e("ai")}>${this._s ? this._form() : this._error ? T`<div class="error">${this._error}</div>` : T`<itadaki-busy></itadaki-busy>`}</itadaki-page>`;
 	}
 	_form() {
-		let e = this.t, t = this._s, n = (e, n, r = "text") => w`<label>${n}</label>
+		let e = this.t, t = this._s, n = (e, n, r = "text") => T`<label>${n}</label>
       <itadaki-text type=${r} .value=${t[e]} @input=${(t) => this._set(e, t.target.value)}></itadaki-text>`;
-		return w`
+		return T`
       <div class="card">
         <div class="muted">${e("aiHint")}</div>
         <div class="status">${t.enabled ? e("aiOn") : e("aiOff")}</div>
         ${n("base_url", e("apiUrl"), "url")}
         <label>${e("apiKey")}</label>
         <itadaki-text type="password" .value=${this._key} @input=${(e) => (this._key = e.target.value, this._saved = !1)}></itadaki-text>
-        ${t.api_key_set ? w`<div class="muted hint">${e("apiKeySet")}</div>` : T}
+        ${t.api_key_set ? T`<div class="muted hint">${e("apiKeySet")}</div>` : E}
         ${n("model", e("model"))}
 
         <h2 class="section">${e("standing")}</h2>
         <div class="muted" style="font-size:0.85rem">${e("standingHint")}</div>
-        ${Ai.map((t) => w`<label>${e("instructionsFor", { action: e(`task_${t}`) })}</label>
+        ${da.map((t) => T`<label>${e("instructionsFor", { action: e(`task_${t}`) })}</label>
             <textarea rows="2" .value=${this._instructions[t] || ""}
               @input=${(e) => (this._instructions = {
 			...this._instructions,
@@ -5322,12 +5987,12 @@ var Ai = [
           <summary>${e("advanced")}</summary>
           <label>${e("jsonMode")}</label>
           <select @change=${(e) => this._set("structured_output", e.target.value)}>
-            ${ji.map((n) => w`<option value=${n} ?selected=${n === t.structured_output}>${e(`json_${n}`)}</option>`)}
+            ${fa.map((n) => T`<option value=${n} ?selected=${n === t.structured_output}>${e(`json_${n}`)}</option>`)}
           </select>
           <label>${e("extraBody")}</label>
           <textarea rows="3" .value=${this._extra} @input=${(e) => (this._extra = e.target.value, this._saved = !1)}></textarea>
           <div class="muted hint">${e("extraBodyHint")}</div>
-          ${Ai.map((n) => w`<label>${e("modelFor", { action: e(`task_${n}`) })}</label>
+          ${da.map((n) => T`<label>${e("modelFor", { action: e(`task_${n}`) })}</label>
               <itadaki-text .value=${t.models[n] || ""} placeholder=${e("modelDefault")}
                 @input=${(e) => this._set("models", {
 			...t.models,
@@ -5337,17 +6002,17 @@ var Ai = [
 
         <div class="row actions">
           <button class="btn" ?disabled=${this._busy} @click=${this._save}>${e("save")}</button>
-          ${this._saved ? w`<span class="muted">${e("saved")}</span>` : T}
+          ${this._saved ? T`<span class="muted">${e("saved")}</span>` : E}
         </div>
-        ${this._busy ? w`<itadaki-busy></itadaki-busy>` : T}
-        ${this._error ? w`<div class="error">${this._error}</div>` : T}
+        ${this._busy ? T`<itadaki-busy></itadaki-busy>` : E}
+        ${this._error ? T`<div class="error">${this._error}</div>` : E}
       </div>
     `;
 	}
 };
-customElements.define("itadaki-ai", Mi);
+customElements.define("itadaki-ai", pa);
 // src/views/shopping-settings.js
-var Ni = class extends E {
+var ma = class extends D {
 	static properties = {
 		api: { attribute: !1 },
 		t: { attribute: !1 },
@@ -5356,7 +6021,7 @@ var Ni = class extends E {
 		_error: { state: !0 },
 		_saved: { state: !0 }
 	};
-	static styles = [D, o`
+	static styles = [O, o`
       .card { max-width: 640px; margin: 0 auto; }
     `];
 	async connectedCallback() {
@@ -5379,34 +6044,34 @@ var Ni = class extends E {
 	}
 	render() {
 		let e = this.t, t = this._s;
-		return w`
+		return T`
       <itadaki-page .t=${e} header=${e("shoppingList")}>
         <div class="card">
           <div class="muted">${e("shoppingHint")}</div>
-          ${t ? t.lists.length ? w`<label>${e("defaultList")}</label>
+          ${t ? t.lists.length ? T`<label>${e("defaultList")}</label>
                   <select ?disabled=${this._busy} @change=${(e) => this._save(e.target.value)}>
-                    ${t.lists.map((e) => w`<option value=${e.entity_id} ?selected=${e.entity_id === t.list}>${e.name}</option>`)}
-                  </select>` : w`<div class="error">${e("noTodoLists")}</div>` : this._error ? T : w`<itadaki-busy></itadaki-busy>`}
-          ${this._saved ? w`<div class="muted" style="margin-top:8px">${e("saved")}</div>` : T}
-          ${this._error ? w`<div class="error">${this._error}</div>` : T}
+                    ${t.lists.map((e) => T`<option value=${e.entity_id} ?selected=${e.entity_id === t.list}>${e.name}</option>`)}
+                  </select>` : T`<div class="error">${e("noTodoLists")}</div>` : this._error ? E : T`<itadaki-busy></itadaki-busy>`}
+          ${this._saved ? T`<div class="muted" style="margin-top:8px">${e("saved")}</div>` : E}
+          ${this._error ? T`<div class="error">${this._error}</div>` : E}
         </div>
       </itadaki-page>
     `;
 	}
 };
-customElements.define("itadaki-shopping-settings", Ni);
+customElements.define("itadaki-shopping-settings", ma);
 // src/views/storage.js
-var Pi = [
+var ha = [
 	"recipes",
 	"drafts",
 	"ingredients",
 	"units",
 	"tags"
-], Fi = [
+], ga = [
 	"stored",
 	"linked",
 	"none"
-], Ii = class extends E {
+], _a = class extends D {
 	static properties = {
 		api: { attribute: !1 },
 		t: { attribute: !1 },
@@ -5416,7 +6081,7 @@ var Pi = [
 		_result: { state: !0 },
 		_error: { state: !0 }
 	};
-	static styles = [D, o`
+	static styles = [O, o`
       .card { max-width: 640px; margin: 0 auto 16px; }
       .line { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-bottom: var(--it-row-rule); }
       .line:last-of-type { border-bottom: none; }
@@ -5455,13 +6120,13 @@ var Pi = [
 		}).format(t);
 	}
 	_line(e, t) {
-		return w`<div class="line"><span>${e}</span><span class="value muted">${t}</span></div>`;
+		return T`<div class="line"><span>${e}</span><span class="value muted">${t}</span></div>`;
 	}
 	render() {
 		let e = this.t, t = this._usage;
-		return w`<itadaki-page .t=${e} header=${e("storage")}>
-      ${this._error ? w`<div class="card error">${this._error}</div>` : T}
-      ${t ? this._content(t) : this._error ? T : w`<itadaki-busy></itadaki-busy>`}
+		return T`<itadaki-page .t=${e} header=${e("storage")}>
+      ${this._error ? T`<div class="card error">${this._error}</div>` : E}
+      ${t ? this._content(t) : this._error ? E : T`<itadaki-busy></itadaki-busy>`}
     </itadaki-page>`;
 	}
 	_content(e) {
@@ -5469,37 +6134,37 @@ var Pi = [
 			n: e.count,
 			size: this._size(e.bytes)
 		}), r = e.recipe_photos.linked;
-		return w`
+		return T`
       <div class="card">
         <h2>${t("library")}</h2>
         ${this._line(t("database"), this._size(e.database_bytes))}
-        ${Pi.map((n) => this._line(t(n), e[n]))}
+        ${ha.map((n) => this._line(t(n), e[n]))}
         ${this._line(t("photos"), n(e.images))}
         ${this._line(t("thumbnails"), n(e.thumbnails))}
       </div>
       <div class="card">
         <h2>${t("recipePhotos")}</h2>
-        ${Fi.map((n) => this._line(t(`photo_${n}`), e.recipe_photos[n]))}
+        ${ga.map((n) => this._line(t(`photo_${n}`), e.recipe_photos[n]))}
         <div class="muted hint">${t("linkedPhotosHint")}</div>
         <div class="row actions">
           <button class="btn quiet" ?disabled=${this._busy || !r} @click=${this._storePhotos}>${t("storePhotos")}</button>
         </div>
-        ${this._busy ? w`<itadaki-busy></itadaki-busy>` : T}
-        ${this._result ? this._result.filter(Boolean).map((e) => w`<p>${e}</p>`) : T}
+        ${this._busy ? T`<itadaki-busy></itadaki-busy>` : E}
+        ${this._result ? this._result.filter(Boolean).map((e) => T`<p>${e}</p>`) : E}
       </div>
     `;
 	}
 };
-customElements.define("itadaki-storage", Ii);
+customElements.define("itadaki-storage", _a);
 // src/main.js
-var Li = /* @__PURE__ */ new Set([
+var va = /* @__PURE__ */ new Set([
 	"manage",
 	"languages",
 	"catalog",
 	"ai",
 	"shopping",
 	"storage"
-]), Ri = class extends E {
+]), ya = class extends D {
 	static properties = {
 		hass: { attribute: !1 },
 		narrow: { type: Boolean },
@@ -5507,11 +6172,11 @@ var Li = /* @__PURE__ */ new Set([
 		_settings: { state: !0 },
 		_error: { state: !0 }
 	};
-	static styles = [D, o`
+	static styles = [O, o`
       :host { display: block; min-height: 100vh; background: var(--primary-background-color, #f2f2f7); }
     `];
 	constructor() {
-		super(), this.api = Ge(() => this.hass);
+		super(), this.api = We(() => this.hass);
 	}
 	willUpdate() {
 		this.hass && !this._loading && (this._loading = Promise.all([this.api.call("get_settings"), this.api.call("get_ai_settings")]).then(([e, t]) => this._settings = {
@@ -5525,39 +6190,39 @@ var Li = /* @__PURE__ */ new Set([
 	}
 	_navigate(e) {
 		let { view: t, replace: n } = e.detail;
-		t === "back" ? rt(this._prefix) : nt(this._prefix, e.detail, n);
+		t === "back" ? nt(this._prefix) : tt(this._prefix, e.detail, n);
 	}
 	render() {
-		if (!this.hass) return T;
-		let e = Ue(this.hass), t = We(e);
-		return w`
+		if (!this.hass) return E;
+		let e = He(this.hass), t = Ue(e);
+		return T`
       <div @navigate=${this._navigate} @settings-changed=${(e) => this._settings = {
 			...this._settings,
 			...e.detail
 		}}>
-        ${this._settings ? this._screen(tt(this.route?.path), t, e) : w`<itadaki-page .t=${t} home ?narrow=${this.narrow}>
-              ${this._error ? w`<div class="error">${t.error(this._error)}</div>` : T}
+        ${this._settings ? this._screen(et(this.route?.path), t, e) : T`<itadaki-page .t=${t} home ?narrow=${this.narrow}>
+              ${this._error ? T`<div class="error">${t.error(this._error)}</div>` : E}
             </itadaki-page>`}
       </div>
     `;
 	}
 	_screen(e, t, n) {
 		let { languages: r, instructions: i, ai: a } = this._settings, o = !!this.hass.user?.is_admin;
-		switch (!o && Li.has(e.view) && (e = { view: "list" }), e.view) {
-			case "recipe": return w`<itadaki-recipe .api=${this.api} .t=${t} lang=${n} .languages=${r} ?ai=${a} .instructions=${i} .recipeId=${e.id}></itadaki-recipe>`;
-			case "add": return w`<itadaki-import .api=${this.api} .t=${t} ?ai=${a} .instructions=${i}></itadaki-import>`;
+		switch (!o && va.has(e.view) && (e = { view: "list" }), e.view) {
+			case "recipe": return T`<itadaki-recipe .api=${this.api} .t=${t} lang=${n} .languages=${r} ?ai=${a} .instructions=${i} .recipeId=${e.id}></itadaki-recipe>`;
+			case "add": return T`<itadaki-import .api=${this.api} .t=${t} ?ai=${a} .instructions=${i}></itadaki-import>`;
 			case "new":
-			case "edit": return w`<itadaki-edit .api=${this.api} .t=${t} lang=${n} .languages=${r} .recipeId=${e.id}></itadaki-edit>`;
-			case "draft": return w`<itadaki-draft .api=${this.api} .t=${t} lang=${n} .languages=${r} ?ai=${a} .instructions=${i} .draftId=${e.id}></itadaki-draft>`;
-			case "manage": return w`<itadaki-manage .t=${t}></itadaki-manage>`;
-			case "storage": return w`<itadaki-storage .api=${this.api} .t=${t} lang=${n}></itadaki-storage>`;
-			case "languages": return w`<itadaki-languages .api=${this.api} .t=${t} .languages=${r}></itadaki-languages>`;
-			case "ai": return w`<itadaki-ai .api=${this.api} .t=${t}></itadaki-ai>`;
-			case "shopping": return w`<itadaki-shopping-settings .api=${this.api} .t=${t}></itadaki-shopping-settings>`;
-			case "catalog": return w`<itadaki-catalog .api=${this.api} .t=${t} lang=${n} .languages=${r} kind=${e.id}></itadaki-catalog>`;
-			default: return w`<itadaki-list .api=${this.api} .t=${t} lang=${n} ?narrow=${this.narrow} ?admin=${o}
+			case "edit": return T`<itadaki-edit .api=${this.api} .t=${t} lang=${n} .languages=${r} .recipeId=${e.id}></itadaki-edit>`;
+			case "draft": return T`<itadaki-draft .api=${this.api} .t=${t} lang=${n} .languages=${r} ?ai=${a} .instructions=${i} .draftId=${e.id}></itadaki-draft>`;
+			case "manage": return T`<itadaki-manage .t=${t}></itadaki-manage>`;
+			case "storage": return T`<itadaki-storage .api=${this.api} .t=${t} lang=${n}></itadaki-storage>`;
+			case "languages": return T`<itadaki-languages .api=${this.api} .t=${t} .languages=${r}></itadaki-languages>`;
+			case "ai": return T`<itadaki-ai .api=${this.api} .t=${t}></itadaki-ai>`;
+			case "shopping": return T`<itadaki-shopping-settings .api=${this.api} .t=${t}></itadaki-shopping-settings>`;
+			case "catalog": return T`<itadaki-catalog .api=${this.api} .t=${t} lang=${n} .languages=${r} kind=${e.id}></itadaki-catalog>`;
+			default: return T`<itadaki-list .api=${this.api} .t=${t} lang=${n} ?narrow=${this.narrow} ?admin=${o}
         ?ai=${a} .languages=${r} .instructions=${i}></itadaki-list>`;
 		}
 	}
 };
-customElements.define("itadaki-panel", Ri);
+customElements.define("itadaki-panel", ya);

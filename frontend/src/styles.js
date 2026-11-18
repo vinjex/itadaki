@@ -16,6 +16,12 @@ export const shared = css`
     --it-soft: color-mix(in srgb, var(--it-accent) 12%, transparent);
     --it-warn: var(--warning-color, #f5a524);
     --it-error: var(--error-color, #e5484d);
+    --it-ok: var(--success-color, #30a46c);
+    /* Marks what a draft changed: HA's accent, so it stands apart from ordinary buttons. */
+    --it-mark: var(--accent-color, #ff9800);
+    --it-mark-soft: color-mix(in srgb, var(--it-mark) 24%, transparent);
+    --it-error-soft: color-mix(in srgb, var(--it-error) 18%, transparent);
+    --it-ok-soft: color-mix(in srgb, var(--it-ok) 18%, transparent);
     color: var(--it-text);
     font-family: var(--ha-font-family-body, var(--paper-font-body1_-_font-family, system-ui, sans-serif));
   }

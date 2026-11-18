@@ -30,6 +30,8 @@ class ItadakiDraft extends LitElement {
     _unmatched: { state: true },
     _entry: { state: true },
     _catalog: { state: true },
+    // The saved recipe the draft replaces or comes from, compared with it in review.
+    _base: { state: true },
     _busy: { state: true },
     _error: { state: true },
   };
@@ -67,11 +69,21 @@ class ItadakiDraft extends LitElement {
         const [ingredients, units, tags] = await Promise.all(["ingredients", "units", "recipe_tags"].map((k) => loadCatalog(this.api, k)));
         this._catalog = { ingredients, units, tags };
       }
+      this._base = await this._loadBase(entry);
       this._entry = entry;
       this._error = undefined;
     } catch (err) {
       this._error = this.t.error(err);
     }
+  }
+
+  // Loaded again with each update of the draft, so the review compares with what
+  // saving would replace now. A recipe deleted meanwhile just leaves no comparison.
+  async _loadBase(entry) {
+    const draft = entry.status === "ready" ? entry.draft : null;
+    const id = draft?.updates_id || draft?.parent_id;
+    if (!id) return undefined;
+    return this.api.call("get_recipe", { recipe_id: id }).catch(() => undefined);
   }
 
   // The draft as edited in review, for saving it or sending it back to the AI.
@@ -211,7 +223,7 @@ class ItadakiDraft extends LitElement {
       <itadaki-editor @unmatched-changed=${(e) => (this._unmatched = e.detail.count)} .api=${this.api} .languages=${this.languages} .recipe=${recipe} .t=${t} uiLang=${this.lang} .units=${this._catalog.units}
         .ingredients=${this._catalog.ingredients} .newIngredients=${draft.new_ingredients}
         .tags=${this._catalog.tags} .newTags=${draft.new_tags} .suggestedTags=${draft.suggested_tags}
-        ?fixedLanguage=${Boolean(draft.updates_id || draft.parent_id)}></itadaki-editor>
+        ?fixedLanguage=${Boolean(draft.updates_id || draft.parent_id)} .base=${this._base}></itadaki-editor>
 
       <div class="row actions">
         <button class="btn" ?disabled=${this._busy} @click=${this._save}>${t("save")}</button>

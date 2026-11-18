@@ -8,6 +8,8 @@ import "./busy.js";
 import "./text.js";
 import "./combo.js";
 import "./tags.js";
+import "./change.js";
+import { recipeChanges } from "../changes.js";
 import { exactMatch, newId } from "../search.js";
 import { demoteHeading, groups, insertInGroup, move, promoteToHeading, relocate, renameGroup } from "../sections.js";
 
@@ -43,6 +45,11 @@ class ItadakiEditor extends LitElement {
     // Set when the recipe is already placed (saved, or a draft updating or extending
     // one): its language is then not the editor's to change.
     fixedLanguage: { type: Boolean },
+    // A draft's review: the saved recipe it replaces or comes from, as get_recipe
+    // returns it. In the same language, changed fields are marked; in another, each
+    // text shows its source.
+    base: { attribute: false },
+    _showAll: { state: true },
     _r: { state: true },
     _new: { state: true },
     _newTags: { state: true },
@@ -93,6 +100,15 @@ class ItadakiEditor extends LitElement {
       .photo { width: 100%; max-height: 260px; object-fit: cover; border-radius: 14px; display: block; margin-bottom: 8px; }
       .photo-link { margin-top: 8px; }
       .suggested { margin-top: 10px; font-size: 0.85rem; }
+      .changes { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px 10px 20px; }
+      .changes .btn, .ghost .btn { background: var(--it-mark-soft); }
+      .changes .btn { padding: 8px 16px; font-size: 0.85rem; }
+      .line > itadaki-change, .step > itadaki-change { grid-column: 1 / -1; margin-top: -4px; }
+      .ghost { display: flex; align-items: center; gap: 8px; margin: 0 0 10px 26px; padding: 6px 6px 6px 12px;
+        border: 1px dashed var(--it-divider); border-radius: 12px; font-size: 0.9rem; color: var(--it-muted); }
+      .ghost > div { flex: 1; min-width: 0; }
+      .ghost s { display: block; overflow-wrap: anywhere; margin-bottom: 4px; }
+      .ghost .btn { padding: 6px 14px; font-size: 0.8rem; flex-shrink: 0; }
     `,
   ];
 
@@ -104,6 +120,84 @@ class ItadakiEditor extends LitElement {
       const r = structuredClone(this.recipe);
       this._r = { ...r, ingredients: r.ingredients.map(keyed), steps: r.steps.map(keyed) };
     }
+    if (changed.has("_r") || changed.has("base")) {
+      const base = this.base?.recipe;
+      this._source = base && base.language !== this._r.language ? base : null;
+      this._changes = base && !this._source ? recipeChanges(base, this._r) : null;
+    }
+  }
+
+  // The bar over a review: how much changed, and opening every marker at once.
+  _changesBar() {
+    const t = this.t;
+    if (!this.base) return nothing;
+    const count = this._changes?.count;
+    if (count === 0) return html`<div class="card changes muted">${t("noChanges")}</div>`;
+    return html`<div class="card changes">
+      <span>${this._source ? t("sourceIn", { lang: t.langName(this._source.language) }) : t("changesCount", { n: count })}</span>
+      <button class="btn quiet" @click=${() => (this._showAll = !this._showAll)}>${t(this._showAll ? "hideAll" : "showAll")}</button>
+    </div>`;
+  }
+
+  _marker(props, undo) {
+    return html`<itadaki-change .t=${this.t} kind=${props.kind} .parts=${props.parts} .text=${props.text}
+      ?undoable=${Boolean(undo)} ?expanded=${this._showAll} @undo=${undo}></itadaki-change>`;
+  }
+
+  // The marker under a field of the recipe itself, if it changed or has a source.
+  _fieldChange(key) {
+    const base = this.base?.recipe;
+    if (this._source) return base[key] && typeof base[key] === "string" ? this._marker({ kind: "source", text: base[key] }) : nothing;
+    if (!this._changes) return nothing;
+    const diff = this._changes.text[key];
+    if (diff) return this._marker({ kind: "changed", parts: diff.rewritten ? undefined : diff.parts, text: base[key] }, () => this._set(key, base[key]));
+    if (!this._changes.numbers.includes(key)) return nothing;
+    if (key !== "yield") return this._marker({ kind: "changed", text: String(base[key] ?? "—") }, () => this._set(key, base[key]));
+    const unit = this.units.find((u) => u.id === base.yield_unit_id);
+    const text = `${base.yield_quantity ?? "—"} ${unit ? nameOf(unit, base.language) : this.t("people")}`;
+    return this._marker({ kind: "changed", text }, () => {
+      this._r = { ...this._r, yield_quantity: base.yield_quantity, yield_unit_id: base.yield_unit_id };
+    });
+  }
+
+  _baseLine(index) {
+    const line = this.base.lines[index];
+    return [line.name, line.measure].filter(Boolean).join(" ") + (line.note ? `, ${line.note}` : "");
+  }
+
+  // The marker under one ingredient line or step.
+  _itemChange(list, index) {
+    const item = this._r[list][index];
+    if (this._source) {
+      const text = list === "steps" ? this._source.steps[index]?.text : null;
+      return text ? this._marker({ kind: "source", text }) : nothing;
+    }
+    const aligned = this._changes?.[list].after[index];
+    if (!aligned || aligned.status === "same" || item._raw) return nothing;
+    if (aligned.status === "added" || aligned.status === "moved") return this._marker({ kind: aligned.status });
+    const before = aligned.before;
+    const undo = () => this._set(list, this._r[list].map((x, i) => (i === index ? { ...before, section: x.section, _key: x._key } : x)));
+    if (list === "ingredients") return this._marker({ kind: "changed", text: this._baseLine(aligned.beforeIndex) }, undo);
+    const { diff } = aligned;
+    return this._marker({ kind: "changed", parts: diff.rewritten ? undefined : diff.parts, text: before.text }, undo);
+  }
+
+  // Items the draft dropped, shown struck through where they were, `at` being how
+  // many current items come before.
+  _ghosts(list, at) {
+    const t = this.t;
+    const removed = this._changes?.[list].removed.filter((r) => r.at === at) ?? [];
+    return removed.map(({ item, index }) => {
+      const restore = () => {
+        const items = this._r[list];
+        const section = (items[at - 1] ?? items[at])?.section ?? item.section;
+        this._set(list, [...items.slice(0, at), keyed({ ...item, section }), ...items.slice(at)]);
+      };
+      return html`<div class="ghost">
+        <div><s>${list === "steps" ? item.text : this._baseLine(index)}</s>${this._marker({ kind: "removed" })}</div>
+        <button class="btn quiet" @click=${restore}>${t("restore")}</button>
+      </div>`;
+    });
   }
 
   // A draft's page lines not matched to an ingredient yet are left out here and
@@ -211,8 +305,8 @@ class ItadakiEditor extends LitElement {
             const list = e.from.dataset.list;
             const from = Number(e.from.dataset.block);
             const to = Number(e.to.dataset.block);
-            if (from === to && e.oldIndex === e.newIndex) return;
-            this._set(list, relocate(this._r[list], from, e.oldIndex, to, e.newIndex));
+            if (from === to && e.oldDraggableIndex === e.newDraggableIndex) return;
+            this._set(list, relocate(this._r[list], from, e.oldDraggableIndex, to, e.newDraggableIndex));
           },
         }),
       );
@@ -289,8 +383,9 @@ class ItadakiEditor extends LitElement {
         : nothing}
       <button class="x del" title=${t("remove")} @click=${() => this._remove(list, i)}>×</button>
     </span>`;
+    const blocks = groups(items);
     return html`
-      ${groups(items).map(
+      ${blocks.map(
         (g, b) => html`<div class="block ${g.section ? "named" : ""}">
           <div class="row">
             <itadaki-text class="block-title" .value=${g.section || ""} placeholder=${t("sectionPlaceholder")}
@@ -303,14 +398,16 @@ class ItadakiEditor extends LitElement {
             ${repeat(
               items.slice(g.start, g.end + 1),
               (item) => item._key,
-              (item, offset) => html`<div class="item">
+              (item, offset) => html`${this._ghosts(list, g.start + offset)}<div class="item">
                 <span class="handle" title=${t("drag")}>⋮⋮</span>${renderItem(item, g.start + offset, tools(g.start + offset))}
               </div>`,
             )}
+            ${b === blocks.length - 1 ? this._ghosts(list, items.length) : nothing}
           </div>
           <button class="btn quiet" @click=${() => this._set(list, insertInGroup(items, g, keyed(blank())))}>+ ${addLabel}</button>
         </div>`,
       )}
+      ${blocks.length ? nothing : this._ghosts(list, 0)}
       <button class="btn quiet" @click=${() => {
         const name = items.length ? prompt(t("newSection"))?.trim() : null;
         if (name === undefined || name === "") return;
@@ -332,6 +429,7 @@ class ItadakiEditor extends LitElement {
       ${type === "number"
         ? html`<input type="number" .value=${r[key] ?? ""} @input=${(e) => this._set(key, num(e.target.value))} />`
         : html`<itadaki-text .value=${r[key] ?? ""} @input=${(e) => this._set(key, e.target.value)}></itadaki-text>`}
+      ${this._fieldChange(key)}
     </div>`;
     // Search results show the recipe-language name, with another language as a hint.
     const describe = describer(lang, hintLanguage(this.languages, lang, this.uiLang));
@@ -340,11 +438,13 @@ class ItadakiEditor extends LitElement {
     const proposals = this.newIngredientsUsed;
 
     return html`
+      ${this._changesBar()}
       <div class="card about"><div class="split"><div>
         ${field("title", t("title"))}
         ${this.fixedLanguage ? nothing : this._languagePicker()}
         <label>${t("description")}</label>
         <textarea rows="2" .value=${r.description || ""} @input=${(e) => this._set("description", e.target.value)}></textarea>
+        ${this._fieldChange("description")}
         <div class="grid2">
           <div class="wide">
             <label>${t("yield")}</label>
@@ -356,6 +456,7 @@ class ItadakiEditor extends LitElement {
                 ${units.map((u) => html`<option value=${u.id} ?selected=${u.id === r.yield_unit_id}>${nameOf(u, lang)}</option>`)}
               </select>
             </div>
+            ${this._fieldChange("yield")}
           </div>
           ${field("prep_minutes", t("prepMinutes"), "number")}
           ${field("cook_minutes", t("cookMinutes"), "number")}
@@ -410,6 +511,7 @@ class ItadakiEditor extends LitElement {
                 <itadaki-text .value=${line.note || ""} placeholder=${t("lineNote")}
                   @input=${(e) => this._setItem("ingredients", i, "note", text(e.target.value))}></itadaki-text>
                 ${tools}
+                ${this._itemChange("ingredients", i)}
               </div>`,
               () => ({ ingredient_id: null, quantity: null, unit_id: null, note: null }),
               t("addLine"),
@@ -423,6 +525,7 @@ class ItadakiEditor extends LitElement {
           (step, i, tools) => html`<div class="step">
             <textarea rows="2" .value=${step.text} @input=${(e) => this._setItem("steps", i, "text", e.target.value)}></textarea>
             ${tools}
+            ${this._itemChange("steps", i)}
           </div>`,
           () => ({ text: "" }),
           t("addStep"),
@@ -432,6 +535,7 @@ class ItadakiEditor extends LitElement {
       <div class="card">
         <label>${t("notes")}</label>
         <textarea rows="3" .value=${r.notes || ""} @input=${(e) => this._set("notes", e.target.value)}></textarea>
+        ${this._fieldChange("notes")}
         <label>${t("tags")}</label>
         <itadaki-tags .entries=${this._allTags.sort(byName)} .value=${r.tags} lang=${lang} .hint=${describe} .t=${t}
           placeholder=${t("tagSearch")} createLabel=${t("create")}

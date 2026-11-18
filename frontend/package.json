@@ -7,6 +7,7 @@
     "test": "node --test \"src/**/*.test.js\""
   },
   "dependencies": {
+    "diff": "9.0.0",
     "lit": "3.3.3",
     "sortablejs": "1.15.7"
   },
