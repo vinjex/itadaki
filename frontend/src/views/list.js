@@ -12,10 +12,12 @@ import { byName, loadCatalog, nameOf } from "../catalog.js";
 import { readStored, writeStored } from "../stored.js";
 import { GROUPINGS, groupRecipes } from "../groups.js";
 import "./menu.js";
+import "./bulk.js";
 
-// The typed search outlives the screen, so opening a recipe and coming back keeps
-// it; reloading the panel clears it. Chosen tags and grouping are kept in the browser.
-const remembered = { query: "", searching: false };
+// The typed search and the selection outlive the screen, so opening a recipe and
+// coming back keeps them; reloading the panel clears them. Chosen tags and grouping
+// are kept in the browser.
+const remembered = { query: "", searching: false, selected: new Set() };
 const SAVED = "itadaki.list";
 
 class ItadakiList extends LitElement {
@@ -25,6 +27,11 @@ class ItadakiList extends LitElement {
     lang: {},
     narrow: { type: Boolean },
     admin: { type: Boolean },
+    ai: { type: Boolean },
+    languages: { attribute: false },
+    instructions: { attribute: false },
+    _selected: { state: true },
+    _notice: { state: true },
     _recipes: { state: true },
     _drafts: { state: true },
     _query: { state: true },
@@ -57,6 +64,14 @@ class ItadakiList extends LitElement {
       .badges span { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: 999px;
         font-size: 0.75rem; white-space: nowrap; color: #fff; background: rgba(0, 0, 0, 0.55); backdrop-filter: blur(4px); }
       .badges svg { width: 14px; height: 14px; fill: currentColor; }
+      /* Ticking a card selects it for the bulk actions; a click elsewhere opens it. */
+      .pick { position: absolute; top: 8px; left: 8px; width: 32px; height: 32px; padding: 5px; border-radius: 50%;
+        border: 2px solid #fff; background: rgba(0, 0, 0, 0.3); color: transparent; cursor: pointer; display: flex; }
+      .pick svg { width: 100%; height: 100%; fill: currentColor; }
+      .pick:hover { color: rgba(255, 255, 255, 0.7); }
+      .pick.on { background: var(--it-accent); border-color: var(--it-accent); color: var(--it-on-accent); }
+      .selected { outline: 3px solid var(--it-accent); }
+      .notice { background: var(--it-soft); }
       .chip.ready { background: var(--it-accent); color: var(--it-on-accent); }
       .chip.failed { background: color-mix(in srgb, var(--it-error) 18%, transparent); }
       @media (max-width: 600px) {
@@ -78,6 +93,7 @@ class ItadakiList extends LitElement {
     this._filter = Array.isArray(saved.tags) ? saved.tags : [];
     this._group = GROUPINGS.includes(saved.group) ? saved.group : "none";
     this._searching = remembered.searching;
+    this._selected = remembered.selected;
     this._load();
     this._loadTags();
     this._loadDrafts();
@@ -140,6 +156,9 @@ class ItadakiList extends LitElement {
         ...(tags.length ? { tags } : {}),
       });
       this._recipes = res.recipes;
+      // Recipes the filter now hides leave the selection: nothing is acted on unseen.
+      const shown = new Set(res.recipes.map((r) => r.id));
+      this._select([...this._selected].filter((id) => shown.has(id)));
       this._error = undefined;
     } catch (err) {
       this._error = this.t.error(err);
@@ -152,6 +171,32 @@ class ItadakiList extends LitElement {
     } catch (err) {
       this._error = this.t.error(err);
     }
+  }
+
+  _select(ids) {
+    this._selected = remembered.selected = new Set(ids);
+  }
+
+  _toggleSelected(e, id) {
+    e.stopPropagation();
+    this._notice = undefined;
+    const ids = new Set(this._selected);
+    if (!ids.delete(id)) ids.add(id);
+    this._select(ids);
+  }
+
+  _bulkDone(e) {
+    this._notice = e.detail.message;
+    this._load();
+  }
+
+  _bulkBar() {
+    const selected = (this._recipes || []).filter((r) => this._selected.has(r.id));
+    if (!selected.length) return nothing;
+    return html`<itadaki-bulk .api=${this.api} .t=${this.t} lang=${this.lang} ?ai=${this.ai} .languages=${this.languages}
+      .instructions=${this.instructions} .recipes=${selected} .tags=${(this._tags || []).filter((x) => x.kind === "recipe")}
+      @select-all=${() => this._select(this._recipes.map((r) => r.id))} @clear=${() => this._select([])}
+      @done=${this._bulkDone}></itadaki-bulk>`;
   }
 
   _search(text) {
@@ -200,6 +245,8 @@ class ItadakiList extends LitElement {
       ${r.image_url
         ? html`<img src=${r.thumbnail_url || r.image_url} alt="" loading="lazy" referrerpolicy="no-referrer" />`
         : html`<div class="placeholder"></div>`}
+      <button class="pick ${this._selected.has(r.id) ? "on" : ""}" title=${t("select")} aria-label=${t("select")}
+        aria-pressed=${this._selected.has(r.id)} @click=${(e) => this._toggleSelected(e, r.id)}>${icon("check")}</button>
       <div class="badges">
         ${minutes ? html`<span>${icon("clock")}${t("minutes", { n: minutes })}</span>` : nothing}
         ${r.languages.length > 1
@@ -216,7 +263,7 @@ class ItadakiList extends LitElement {
   }
 
   _card(r) {
-    return html`<div class="card recipe photo" @click=${() => this._open(r.id)}>
+    return html`<div class="card recipe photo ${this._selected.has(r.id) ? "selected" : ""}" @click=${() => this._open(r.id)}>
       ${this._picture(r)}
       <div class="name" title=${r.title}>${r.title}</div>
       <itadaki-fit-chips .labels=${this._tagNames(r)}></itadaki-fit-chips>
@@ -239,6 +286,8 @@ class ItadakiList extends LitElement {
         ? headerButton("cog", t("manage"), () => navigate(this, { view: "manage" }))
         : nothing}
       ${this._filtered ? this._tagBar("chips") : nothing}
+      ${this._bulkBar()}
+      ${this._notice ? html`<div class="banner notice">${this._notice}</div>` : nothing}
       ${this._error ? html`<div class="error">${this._error}</div>` : nothing}
       ${this._drafts?.length
         ? html`<h2>${t("drafts")}</h2>

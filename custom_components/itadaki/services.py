@@ -27,6 +27,7 @@ if TYPE_CHECKING:
 Handler = Callable[["Itadaki", dict[str, Any]], dict[str, Any]]
 
 _ID = probatio.Required("recipe_id")
+_IDS = probatio.Required("recipe_ids")
 _NOTE = probatio.Optional("note")
 _SAVE = probatio.Optional("save", default=False)
 _DRAFT_ID = probatio.Required("draft_id")
@@ -73,27 +74,36 @@ def _extract_url(it: Itadaki, d: dict[str, Any]) -> dict[str, Any]:
     return {"draft_id": it.jobs.start("import", url, work, d["save"], request=_request(d, "url", "note"))}
 
 
-def _translate(it: Itadaki, d: dict[str, Any]) -> dict[str, Any]:
+def _per_recipe(
+    it: Itadaki, d: dict[str, Any], action: str, request: dict[str, Any], work: Callable[[str], Draft]
+) -> list[str]:
+    """One background job per recipe, all checked to exist before any starts."""
     it.assistant.require()
-    source = it.book.get_recipe(d["recipe_id"])
-    work = lambda: it.assistant.translate(source.id, d["language"], d.get("note"))  # noqa: E731
-    request = _request(d, "language", "note")
-    return {"draft_id": it.jobs.start("translate", source.title, work, d["save"], recipe_id=source.id, request=request)}
+    sources = [it.book.get_recipe(recipe_id) for recipe_id in dict.fromkeys(d["recipe_ids"])]
+    return [
+        it.jobs.start(action, source.title, lambda source=source: work(source.id), d["save"], recipe_id=source.id, request=request)
+        for source in sources
+    ]
+
+
+def _translate(it: Itadaki, d: dict[str, Any]) -> dict[str, Any]:
+    """Recipes already in the language, or whose dish has it and is up to date, are skipped."""
+    language = d["language"]
+    wanted = [r for r in d["recipe_ids"] if it.book.needs_translation(r, language)]
+    skipped = [r for r in d["recipe_ids"] if r not in wanted]
+    work = lambda recipe_id: it.assistant.translate(recipe_id, language, d.get("note"))  # noqa: E731
+    draft_ids = _per_recipe(it, {**d, "recipe_ids": wanted}, "translate", _request(d, "language", "note"), work)
+    return {"draft_ids": draft_ids, "skipped": skipped}
 
 
 def _adapt(it: Itadaki, d: dict[str, Any]) -> dict[str, Any]:
-    it.assistant.require()
-    source = it.book.get_recipe(d["recipe_id"])
-    work = lambda: it.assistant.adapt(source.id, d["instruction"], d["as_variant"])  # noqa: E731
-    request = _request(d, "instruction", "as_variant")
-    return {"draft_id": it.jobs.start("adapt", source.title, work, d["save"], recipe_id=source.id, request=request)}
+    work = lambda recipe_id: it.assistant.adapt(recipe_id, d["instruction"], d["as_variant"])  # noqa: E731
+    return {"draft_ids": _per_recipe(it, d, "adapt", _request(d, "instruction", "as_variant"), work)}
 
 
 def _suggest_tags(it: Itadaki, d: dict[str, Any]) -> dict[str, Any]:
-    it.assistant.require()
-    source = it.book.get_recipe(d["recipe_id"])
-    work = lambda: it.assistant.tag(source.id, d.get("note"))  # noqa: E731
-    return {"draft_id": it.jobs.start("tag", source.title, work, d["save"], recipe_id=source.id, request=_request(d, "note"))}
+    work = lambda recipe_id: it.assistant.tag(recipe_id, d.get("note"))  # noqa: E731
+    return {"draft_ids": _per_recipe(it, d, "tag", _request(d, "note"), work)}
 
 
 def _rework(
@@ -209,9 +219,14 @@ ACTIONS: dict[str, tuple[probatio.Schema, Handler, SupportsResponse]] = {
         lambda it, d: {"recipe": it.book.update_recipe(d["recipe_id"], d["changes"]).to_dict()},
         SupportsResponse.OPTIONAL,
     ),
-    "delete_recipe": (
-        probatio.Schema({_ID: str, probatio.Optional("cascade", default=False): bool}),
-        lambda it, d: {"deleted": it.book.delete_recipe(d["recipe_id"], d["cascade"])},
+    "delete_recipes": (
+        probatio.Schema({_IDS: [str], probatio.Optional("cascade", default=False): bool}),
+        lambda it, d: {"deleted": it.book.delete_recipes(d["recipe_ids"], d["cascade"])},
+        SupportsResponse.OPTIONAL,
+    ),
+    "tag_recipes": (
+        probatio.Schema({_IDS: [str], probatio.Optional("add", default=[]): [str], probatio.Optional("remove", default=[]): [str]}),
+        lambda it, d: {"changed": it.book.tag_recipes(d["recipe_ids"], d["add"], d["remove"])},
         SupportsResponse.OPTIONAL,
     ),
     "mark_translation_synced": (
@@ -305,14 +320,14 @@ ACTIONS: dict[str, tuple[probatio.Schema, Handler, SupportsResponse]] = {
         SupportsResponse.ONLY,
     ),
     "translate": (
-        probatio.Schema({_ID: str, probatio.Required("language"): str, _NOTE: str, _SAVE: bool}),
+        probatio.Schema({_IDS: [str], probatio.Required("language"): str, _NOTE: str, _SAVE: bool}),
         _translate,
         SupportsResponse.OPTIONAL,
     ),
     "adapt": (
         probatio.Schema(
             {
-                _ID: str,
+                _IDS: [str],
                 probatio.Required("instruction"): str,
                 probatio.Optional("as_variant", default=False): bool,
                 _SAVE: bool,
@@ -322,7 +337,7 @@ ACTIONS: dict[str, tuple[probatio.Schema, Handler, SupportsResponse]] = {
         SupportsResponse.OPTIONAL,
     ),
     "suggest_tags": (
-        probatio.Schema({_ID: str, _NOTE: str, _SAVE: bool}),
+        probatio.Schema({_IDS: [str], _NOTE: str, _SAVE: bool}),
         _suggest_tags,
         SupportsResponse.OPTIONAL,
     ),

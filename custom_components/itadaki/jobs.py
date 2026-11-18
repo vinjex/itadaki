@@ -4,6 +4,7 @@ lives in the core; this only adds threads and events."""
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from collections.abc import Callable
 from typing import Any
@@ -15,11 +16,16 @@ from .core import Draft, ItadakiError, RecipeBook
 
 _LOGGER = logging.getLogger(__name__)
 
+# Each running job holds one of HA's shared worker threads while it waits on the AI
+# provider; the rest wait their turn, still shown as working.
+MAX_RUNNING = 3
+
 
 class JobRunner:
     def __init__(self, hass: HomeAssistant, book: RecipeBook) -> None:
         self._hass = hass
         self._book = book
+        self._slots = asyncio.Semaphore(MAX_RUNNING)
 
     def start(
         self,
@@ -50,7 +56,8 @@ class JobRunner:
     async def _run(self, draft_id: str, work: Callable[[], Draft], save: bool) -> None:
         run = self._hass.async_add_executor_job
         try:
-            draft = await run(work)
+            async with self._slots:
+                draft = await run(work)
             await run(self._book.finish_draft, draft_id, draft)
             if save:
                 recipe = await run(self._book.save_inbox_draft, draft_id)

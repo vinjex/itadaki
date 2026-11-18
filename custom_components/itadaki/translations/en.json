@@ -79,17 +79,35 @@
         }
       }
     },
-    "delete_recipe": {
-      "name": "Delete recipe",
-      "description": "Deletes a recipe. Refused if it has translations or variants unless cascade is on.",
+    "delete_recipes": {
+      "name": "Delete recipes",
+      "description": "Deletes recipes. Refused, deleting nothing, if any has translations or variants unless cascade is on. Returns the deleted IDs.",
       "fields": {
-        "recipe_id": {
-          "name": "Recipe ID",
-          "description": "ID of the recipe, from list_recipes."
+        "recipe_ids": {
+          "name": "Recipe IDs",
+          "description": "IDs of the recipes, from list_recipes."
         },
         "cascade": {
           "name": "Cascade",
           "description": "Also delete all its translations and variants."
+        }
+      }
+    },
+    "tag_recipes": {
+      "name": "Tag recipes",
+      "description": "Adds and removes recipe tags on each recipe, keeping its other tags. Tags belong to the whole translation group. Returns how many recipes changed.",
+      "fields": {
+        "recipe_ids": {
+          "name": "Recipe IDs",
+          "description": "IDs of the recipes, from list_recipes."
+        },
+        "add": {
+          "name": "Add",
+          "description": "Recipe tag IDs to add, from list_tags."
+        },
+        "remove": {
+          "name": "Remove",
+          "description": "Recipe tag IDs to remove."
         }
       }
     },
@@ -339,11 +357,11 @@
     },
     "translate": {
       "name": "Translate recipe",
-      "description": "Translates a recipe into another language as a translation child. If one exists it is updated, sending only changed text. Runs in the background: returns a draft_id at once; poll get_draft until its status is ready (or failed), then review and save_draft. With save on, the result is saved automatically when done.",
+      "description": "Translates recipes into another language as translation children, one background job per recipe. An existing translation is updated when out of date, sending only changed text; recipes already in that language, or whose dish already has it up to date, are skipped. Returns draft_ids at once and the skipped recipe_ids; poll get_draft until each status is ready (or failed), then review and save_draft. With save on, results are saved automatically when done.",
       "fields": {
-        "recipe_id": {
-          "name": "Recipe ID",
-          "description": "ID of the recipe, from list_recipes."
+        "recipe_ids": {
+          "name": "Recipe IDs",
+          "description": "IDs of the recipes, from list_recipes."
         },
         "language": {
           "name": "Language",
@@ -361,11 +379,11 @@
     },
     "adapt": {
       "name": "Adapt recipe",
-      "description": "Rewrites a recipe following an instruction, e.g. make it vegetarian or simplify it. Runs in the background: returns a draft_id at once; poll get_draft until its status is ready (or failed), then review and save_draft. With save on, the result is saved automatically when done.",
+      "description": "Rewrites recipes following one instruction, e.g. make it vegetarian or simplify it, one background job per recipe. Returns draft_ids at once; poll get_draft until each status is ready (or failed), then review and save_draft. With save on, results are saved automatically when done.",
       "fields": {
-        "recipe_id": {
-          "name": "Recipe ID",
-          "description": "ID of the recipe, from list_recipes."
+        "recipe_ids": {
+          "name": "Recipe IDs",
+          "description": "IDs of the recipes, from list_recipes."
         },
         "instruction": {
           "name": "Instruction",
@@ -383,11 +401,11 @@
     },
     "suggest_tags": {
       "name": "Suggest tags with AI",
-      "description": "Adds recipe tags that fit the recipe, picked from the existing ones, plus up to three new ones when nothing fits. Runs in the background and returns a draft_id at once; poll get_draft until ready, then review and save_draft.",
+      "description": "Adds recipe tags that fit each recipe, picked from the existing ones, plus up to three new ones when nothing fits. One background job per recipe; returns draft_ids at once; poll get_draft until ready, then review and save_draft.",
       "fields": {
-        "recipe_id": {
-          "name": "Recipe ID",
-          "description": "ID of the recipe, from list_recipes."
+        "recipe_ids": {
+          "name": "Recipe IDs",
+          "description": "IDs of the recipes, from list_recipes."
         },
         "note": {
           "name": "Note",

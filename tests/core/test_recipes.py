@@ -98,7 +98,7 @@ def test_deleting_a_recipe_discards_its_drafts(book, carbonara):
     updating = book.start_draft("translate", "x", Draft(Recipe("ja", "x"), updates_id=carbonara.id))
     under = book.start_draft("adapt", "x", Draft(Recipe("en", "x"), parent_id=carbonara.id, relation="variant"))
     other = book.start_draft("import", "Oyakodon")
-    book.delete_recipe(carbonara.id)
+    book.delete_recipes([carbonara.id])
     assert [e.id for e in book.list_drafts()] == [other.id]
     for gone in (about, updating, under):
         with pytest.raises(NotFoundError):

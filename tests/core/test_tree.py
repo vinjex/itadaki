@@ -48,8 +48,8 @@ def test_translation_group_spans_translations_but_not_variants(book, carbonara):
 def test_delete_with_children_needs_cascade(book, carbonara):
     ja = book.create_recipe({"language": "ja", "title": "カルボナーラ"}, carbonara.id, "translation")
     with pytest.raises(InUseError):
-        book.delete_recipe(carbonara.id)
-    assert book.delete_recipe(carbonara.id, cascade=True) == [ja.id, carbonara.id]
+        book.delete_recipes([carbonara.id])
+    assert book.delete_recipes([carbonara.id], cascade=True) == [ja.id, carbonara.id]
     with pytest.raises(NotFoundError):
         book.get_recipe(carbonara.id)
 
@@ -82,3 +82,27 @@ def test_yield_unit_counts_as_a_used_unit(book, carbonara):
 def test_unknown_yield_unit_is_refused(book, carbonara):
     with pytest.raises(InvalidRequestError):
         book.update_recipe(carbonara.id, {"yield_unit_id": "bowl"})
+
+
+def test_bulk_delete_is_all_or_nothing(book, carbonara):
+    lone = book.create_recipe({"language": "en", "title": "Toast"})
+    book.create_recipe({"language": "ja", "title": "カルボナーラ"}, carbonara.id, "translation")
+    with pytest.raises(InUseError):
+        book.delete_recipes([lone.id, carbonara.id])
+    assert book.get_recipe(lone.id)
+
+
+def test_bulk_delete_takes_a_child_selected_with_its_parent_once(book, carbonara):
+    ja = book.create_recipe({"language": "ja", "title": "カルボナーラ"}, carbonara.id, "translation")
+    assert book.delete_recipes([ja.id, carbonara.id], cascade=True) == [ja.id, carbonara.id]
+
+
+def test_translation_needed_only_when_missing_or_stale(book, carbonara):
+    ja = book.create_recipe({"language": "ja", "title": "カルボナーラ"}, carbonara.id, "translation")
+    assert not book.needs_translation(carbonara.id, "en")
+    assert not book.needs_translation(carbonara.id, "ja")
+    # The Japanese card stands for the dish, which already has English.
+    assert not book.needs_translation(ja.id, "en")
+    assert book.needs_translation(carbonara.id, "fr")
+    book.update_recipe(carbonara.id, {"title": "Carbonara romana"})
+    assert book.needs_translation(carbonara.id, "ja")

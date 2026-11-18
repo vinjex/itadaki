@@ -45,12 +45,24 @@ update_recipe:
       required: true
       selector:
         object:
-delete_recipe:
+delete_recipes:
   fields:
-    recipe_id: *recipe_id
+    recipe_ids: &recipe_ids
+      required: true
+      selector:
+        object:
     cascade:
       selector:
         boolean:
+tag_recipes:
+  fields:
+    recipe_ids: *recipe_ids
+    add:
+      selector:
+        object:
+    remove:
+      selector:
+        object:
 mark_translation_synced:
   fields:
     recipe_id: *recipe_id
@@ -200,7 +212,7 @@ structure_lines:
     note: *note
 translate:
   fields:
-    recipe_id: *recipe_id
+    recipe_ids: *recipe_ids
     language:
       required: true
       selector:
@@ -209,7 +221,7 @@ translate:
     save: *save
 adapt:
   fields:
-    recipe_id: *recipe_id
+    recipe_ids: *recipe_ids
     instruction:
       required: true
       selector:
@@ -221,7 +233,7 @@ adapt:
     save: *save
 suggest_tags:
   fields:
-    recipe_id: *recipe_id
+    recipe_ids: *recipe_ids
     note: *note
     save: *save
 adapt_draft:

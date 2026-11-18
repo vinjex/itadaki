@@ -1,6 +1,6 @@
 import { LitElement, html, css, nothing } from "lit";
 import { shared } from "../styles.js";
-import "./ai-run.js";
+import "./ai-task.js";
 import "./amount.js";
 import "./shopping.js";
 import "./body.js";
@@ -8,7 +8,7 @@ import "./busy.js";
 import "./menu.js";
 import "./page.js";
 import { fab, headerButton, icon } from "../icons.js";
-import { totalMinutes } from "../recipes.js";
+import { deleteRecipes, totalMinutes } from "../recipes.js";
 import { describeRequest } from "../drafts.js";
 import { cleanFactor, storedFactor, storeFactor } from "../scale.js";
 
@@ -29,11 +29,9 @@ class ItadakiRecipe extends LitElement {
     _factor: { state: true },
     _shopping: { state: true },
     _notice: { state: true },
-    _busy: { state: true },
     _error: { state: true },
     _tags: { state: true },
-    // The AI action waiting on its card: {action: "adapt"}, {action: "tag"} or
-    // {action: "translate", recipeId, language}.
+    // The AI action waiting on its card, as itadaki-ai-task takes it.
     _task: { state: true },
     _drafts: { state: true },
     _cooking: { state: true },
@@ -156,19 +154,6 @@ class ItadakiRecipe extends LitElement {
       unit=${parts ? parts.unit : t("people")} label=${t("yield")} @amount=${(e) => to(e.detail.value)}></itadaki-amount>`;
   }
 
-  async _ai(action, data) {
-    this._busy = true;
-    this._error = undefined;
-    try {
-      const { draft_id } = await this.api.call(action, data);
-      navigate(this, { view: "draft", id: draft_id });
-    } catch (err) {
-      this._error = this.t.error(err);
-    } finally {
-      this._busy = false;
-    }
-  }
-
   // The original changed in a way this translation does not need to follow.
   async _keepTranslation() {
     try {
@@ -180,24 +165,11 @@ class ItadakiRecipe extends LitElement {
   }
 
   async _delete() {
-    if (!confirm(this.t("confirmDelete"))) return;
     try {
-      await this.api.call("delete_recipe", { recipe_id: this.recipeId });
+      if (await deleteRecipes(this.api, this.t, [this.recipeId], this.t("confirmDelete"))) navigate(this, { view: "list", replace: true });
     } catch (err) {
-      if (err.key !== "in_use") {
-        this._error = this.t.error(err);
-        return;
-      }
-      // Refused because it has translations or variants: ask before taking them too.
-      if (!confirm(this.t("confirmDeleteAll"))) return;
-      try {
-        await this.api.call("delete_recipe", { recipe_id: this.recipeId, cascade: true });
-      } catch (err) {
-        this._error = this.t.error(err);
-        return;
-      }
+      this._error = this.t.error(err);
     }
-    navigate(this, { view: "list", replace: true });
   }
 
   render() {
@@ -242,18 +214,17 @@ class ItadakiRecipe extends LitElement {
       ...(missing.length ? ["-"] : []),
       ...missing.map((l) => ({
         label: t("translateTo", { lang: t.langName(l) }),
-        run: () => (this._task = { action: "translate", recipeId: recipe.id, language: l }),
+        run: () => (this._task = { action: "translate", language: l }),
       })),
     ];
-    const button = (name, label, run) => headerButton(name, label, run, this._busy);
     return html`
       ${items.length > 1
-        ? html`<itadaki-menu slot="actions" icon="translate" label=${t("language")} .items=${items} ?disabled=${this._busy}></itadaki-menu>`
+        ? html`<itadaki-menu slot="actions" icon="translate" label=${t("language")} .items=${items}></itadaki-menu>`
         : nothing}
-      ${button("edit", t("edit"), () => navigate(this, { view: "edit", id: recipe.id }))}
-      ${this.ai ? button("tag", t("tagAi"), () => this._toggleTask("tag")) : nothing}
-      ${this.ai ? button("adapt", t("adapt"), () => this._toggleTask("adapt")) : nothing}
-      ${button("delete", t("delete"), this._delete)}
+      ${headerButton("edit", t("edit"), () => navigate(this, { view: "edit", id: recipe.id }))}
+      ${this.ai ? headerButton("tag", t("tagAi"), () => this._toggleTask("tag")) : nothing}
+      ${this.ai ? headerButton("adapt", t("adapt"), () => this._toggleTask("adapt")) : nothing}
+      ${headerButton("delete", t("delete"), this._delete)}
     `;
   }
 
@@ -262,23 +233,17 @@ class ItadakiRecipe extends LitElement {
   }
 
   _taskCard() {
-    const t = this.t;
-    const task = this._task;
-    const adapt = task.action === "adapt";
-    const run = (e) => {
-      const { note, asVariant } = e.detail;
-      const noted = note ? { note } : {};
-      if (adapt) return this._ai("adapt", { recipe_id: this.recipeId, instruction: note, as_variant: asVariant });
-      if (task.action === "tag") return this._ai("suggest_tags", { recipe_id: this.recipeId, ...noted });
-      this._ai("translate", { recipe_id: task.recipeId, language: task.language, ...noted });
-    };
-    const heading = task.action === "translate" ? t("translateTo", { lang: t.langName(task.language) }) : t(`${task.action}Ai`);
-    return html`<itadaki-ai-run class="adapt" .t=${t} cancellable ?variant=${adapt} ?noteRequired=${adapt}
-      heading=${heading} .standing=${this.instructions[task.action]} ?disabled=${this._busy}
-      @run=${run} @cancel=${() => (this._task = undefined)}>
-      ${task.again ? html`<div class="muted">${t("retranslateNote")}</div>` : nothing}
-      ${task.action === "tag" ? html`<div class="muted">${t("tagAiExplain")}</div>` : nothing}
-    </itadaki-ai-run>`;
+    // Translating a recipe is from that recipe; re-translating is from the parent.
+    const source = this._task.again ? this._data.parent.id : this.recipeId;
+    return html`<itadaki-ai-task class="adapt" .api=${this.api} .t=${this.t} .task=${this._task}
+      .recipeIds=${[source]} .instructions=${this.instructions}
+      @started=${this._started} @cancel=${() => (this._task = undefined)}></itadaki-ai-task>`;
+  }
+
+  _started(e) {
+    const [draftId] = e.detail.draft_ids;
+    if (draftId) navigate(this, { view: "draft", id: draftId });
+    else this._error = this.t("nothingToTranslate");
   }
 
   _content() {
@@ -316,10 +281,10 @@ class ItadakiRecipe extends LitElement {
       ${stale
         ? html`<div class="banner row">${t("stale")}
             ${this.ai
-              ? html`<button class="btn quiet" ?disabled=${this._busy}
-                  @click=${() => (this._task = { action: "translate", recipeId: parent.id, language: recipe.language, again: true })}>${t("retranslate")}</button>`
+              ? html`<button class="btn quiet"
+                  @click=${() => (this._task = { action: "translate", language: recipe.language, again: true })}>${t("retranslate")}</button>`
               : nothing}
-            <button class="btn quiet" ?disabled=${this._busy} title=${t("keepTranslationHint")} @click=${this._keepTranslation}>${t("keepTranslation")}</button>
+            <button class="btn quiet" title=${t("keepTranslationHint")} @click=${this._keepTranslation}>${t("keepTranslation")}</button>
           </div>`
         : nothing}
 
@@ -335,7 +300,6 @@ class ItadakiRecipe extends LitElement {
             )}
           </div>`
         : nothing}
-      ${this._busy ? html`<itadaki-busy .text=${t("working")}></itadaki-busy>` : nothing}
       ${this._error ? html`<div class="error">${this._error}</div>` : nothing}
 
       <itadaki-body scalable .recipe=${recipe} .lines=${lines} .t=${t} @scale=${(e) => this._scale(e.detail.ratio)}>

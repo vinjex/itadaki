@@ -248,26 +248,52 @@ class RecipeBook:
         self._put_recipe(synced)
         return synced
 
-    def delete_recipe(self, recipe_id: str, cascade: bool = False) -> list[str]:
-        """Deletes a recipe, and with cascade its whole subtree. Returns deleted ids."""
-        self.get_recipe(recipe_id)
-        subtree = self._subtree_leaves_first(recipe_id)
-        if len(subtree) > 1 and not cascade:
+    def delete_recipes(self, recipe_ids: Sequence[str], cascade: bool = False) -> list[str]:
+        """Deletes recipes, and with cascade their whole subtrees. Nothing is deleted
+        unless every recipe can be. Returns the deleted ids."""
+        subtrees = [self._subtree_leaves_first(self.get_recipe(recipe_id).id) for recipe_id in recipe_ids]
+        crowded = [tree for tree in subtrees if len(tree) > 1]
+        if crowded and not cascade:
             raise InUseError(
-                f"recipe {recipe_id} has {len(subtree) - 1} translations or variants; "
+                f"{len(crowded)} of these recipes have translations or variants; "
                 "delete with cascade to remove them too",
                 key="in_use",
             )
+        doomed = list(dict.fromkeys(recipe_id for tree in subtrees for recipe_id in tree))
         # Drafts about these recipes could never be saved any more.
-        gone = set(subtree)
+        gone = set(doomed)
         orphaned = [
             e.id
             for e in self._store.full_drafts()
             if e.recipe_id in gone or (e.draft and {e.draft.updates_id, e.draft.parent_id} & gone)
         ]
-        self._store.delete_recipes(subtree)
+        self._store.delete_recipes(doomed)
         self._store.delete_drafts(orphaned)
-        return subtree
+        return doomed
+
+    def tag_recipes(self, recipe_ids: Sequence[str], add: Sequence[str] = (), remove: Sequence[str] = ()) -> int:
+        """Adds and takes off tags on each recipe, keeping its other tags and their
+        order. Returns how many recipes changed."""
+        changed = 0
+        for recipe_id in recipe_ids:
+            current = anchor_of(self.get_recipe(recipe_id), self._store.get_recipe).tags
+            tags = [t for t in current if t not in remove] + [t for t in add if t not in current and t not in remove]
+            if tags != current:
+                self.update_recipe(recipe_id, {"tags": tags})
+                changed += 1
+        return changed
+
+    def needs_translation(self, recipe_id: str, language: str) -> bool:
+        """Whether translating the recipe into `language` adds anything: the dish is not
+        in that language yet, or the recipe's own translation into it is stale."""
+        recipe = self.get_recipe(recipe_id)
+        if recipe.language == language:
+            return False
+        own = next((r for r in self.children(recipe.id) if r.relation is Relation.TRANSLATION and r.language == language), None)
+        if own:
+            return is_stale(own, recipe)
+        group = translation_group(recipe, self._store.get_recipe, self._store.children)
+        return all(r.language != language for r in group)
 
     def children(self, recipe_id: str) -> list[Recipe]:
         return self._store.children(recipe_id)

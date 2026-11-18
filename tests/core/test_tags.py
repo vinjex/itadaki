@@ -265,3 +265,20 @@ def test_upgrade_turns_servings_into_a_yield(tmp_path):
     db.close()
     recipe = Store(path).get_recipe("r")
     assert (recipe.yield_quantity, recipe.yield_unit_id) == (4, None)
+
+
+def test_bulk_tagging_adds_and_removes_keeping_the_rest(book, carbonara, ja):
+    quick, main, soup = (_tag(book, *t).id for t in [("quick", "Quick"), ("main", "Main"), ("soup", "Soup")])
+    book.update_recipe(carbonara.id, {"tags": [quick, main]})
+    toast = book.create_recipe({"language": "en", "title": "Toast", "tags": [main]})
+
+    assert book.tag_recipes([ja.id, toast.id], add=[soup], remove=[main]) == 2
+    assert book.get_recipe(carbonara.id).tags == [quick, soup]
+    assert book.get_recipe(toast.id).tags == [soup]
+    assert book.tag_recipes([toast.id], add=[soup]) == 0
+
+
+def test_bulk_tagging_refuses_ingredient_tags(book, carbonara):
+    pork = _tag(book, "pork", "Pork", kind="ingredient").id
+    with pytest.raises(InvalidRequestError):
+        book.tag_recipes([carbonara.id], add=[pork])

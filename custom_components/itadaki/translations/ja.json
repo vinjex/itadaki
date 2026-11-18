@@ -79,17 +79,35 @@
         }
       }
     },
-    "delete_recipe": {
+    "delete_recipes": {
       "name": "レシピを削除",
-      "description": "レシピを削除します。翻訳やアレンジがある場合は、cascade をオンにしない限り削除できません。",
+      "description": "レシピを削除します。cascade がオフで、翻訳やアレンジを持つレシピが1つでもあれば何も削除せずに拒否します。削除したIDを返します。",
       "fields": {
-        "recipe_id": {
-          "name": "レシピID",
-          "description": "レシピのID（list_recipes で取得）。"
+        "recipe_ids": {
+          "name": "レシピID一覧",
+          "description": "レシピのID（list_recipes で取得）の一覧。"
         },
         "cascade": {
           "name": "まとめて削除",
           "description": "翻訳とアレンジもすべて削除します。"
+        }
+      }
+    },
+    "tag_recipes": {
+      "name": "レシピにタグを付ける",
+      "description": "各レシピにタグを追加・削除し、他のタグはそのまま残します。タグは翻訳グループ全体のものです。変更したレシピの数を返します。",
+      "fields": {
+        "recipe_ids": {
+          "name": "レシピID一覧",
+          "description": "レシピのID（list_recipes で取得）の一覧。"
+        },
+        "add": {
+          "name": "追加",
+          "description": "追加するレシピタグのID（list_tags で取得）。"
+        },
+        "remove": {
+          "name": "削除",
+          "description": "外すレシピタグのID。"
         }
       }
     },
@@ -339,11 +357,11 @@
     },
     "translate": {
       "name": "レシピを翻訳",
-      "description": "レシピを別の言語に翻訳し、翻訳の子レシピにします。既に翻訳があれば更新し、変更された文だけを送ります。バックグラウンドで実行され、すぐに draft_id を返します。status が ready（または failed）になるまで get_draft で確認し、内容を確認して save_draft で保存します。save をオンにすると、完了時に自動で保存されます。",
+      "description": "レシピを別の言語に翻訳し、翻訳の子レシピにします。レシピごとにバックグラウンドで実行します。既存の翻訳が古ければ更新し、変更された文だけを送ります。すでにその言語のレシピや、その言語の最新の翻訳があるレシピはスキップします。すぐに draft_ids とスキップした recipe_ids を返します。各 status が ready（または failed）になるまで get_draft で確認し、内容を確認して save_draft で保存します。save をオンにすると、完了時に自動で保存されます。",
       "fields": {
-        "recipe_id": {
-          "name": "レシピID",
-          "description": "レシピのID（list_recipes で取得）。"
+        "recipe_ids": {
+          "name": "レシピID一覧",
+          "description": "レシピのID（list_recipes で取得）の一覧。"
         },
         "language": {
           "name": "言語",
@@ -361,11 +379,11 @@
     },
     "adapt": {
       "name": "レシピをアレンジ",
-      "description": "指示に従ってレシピを書き換えます（例：ベジタリアン向けに、手順を簡単に）。バックグラウンドで実行され、すぐに draft_id を返します。status が ready（または failed）になるまで get_draft で確認し、内容を確認して save_draft で保存します。save をオンにすると、完了時に自動で保存されます。",
+      "description": "指示に従ってレシピを書き換えます（例：ベジタリアンにする、簡単にする）。レシピごとにバックグラウンドで実行し、すぐに draft_ids を返します。各 status が ready（または failed）になるまで get_draft で確認し、内容を確認して save_draft で保存します。save をオンにすると、完了時に自動で保存されます。",
       "fields": {
-        "recipe_id": {
-          "name": "レシピID",
-          "description": "レシピのID（list_recipes で取得）。"
+        "recipe_ids": {
+          "name": "レシピID一覧",
+          "description": "レシピのID（list_recipes で取得）の一覧。"
         },
         "instruction": {
           "name": "指示",
@@ -383,11 +401,11 @@
     },
     "suggest_tags": {
       "name": "AIでタグを提案",
-      "description": "既存のタグから合うものを選び、合うものがなければ新しいタグを最大3つ加えます。バックグラウンドで実行され、すぐに draft_id を返します。ready になるまで get_draft で確認し、内容を確認して save_draft で保存します。",
+      "description": "既存のタグから各レシピに合うものを付け、合うものがなければ新しいタグを3つまで提案します。レシピごとにバックグラウンドで実行し、すぐに draft_ids を返します。ready になるまで get_draft で確認し、内容を確認して save_draft で保存します。",
       "fields": {
-        "recipe_id": {
-          "name": "レシピID",
-          "description": "レシピのID（list_recipes から）。"
+        "recipe_ids": {
+          "name": "レシピID一覧",
+          "description": "レシピのID（list_recipes で取得）の一覧。"
         },
         "note": {
           "name": "メモ",
