@@ -7,6 +7,15 @@
   "lockFileMaintenance": {
     "enabled": true
   },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^scripts/ha-version\\.sh$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+) versioning=(?<versioning>\\S+)\\nHA_VERSION=(?<currentValue>\\S+)"
+      ]
+    }
+  ],
   "commitMessagePrefix": "Internal:",
   "rebaseWhen": "behind-base-branch"
 }
